@@ -28,28 +28,31 @@
         <p class="text-zinc-400 mt-2">Real-time market data for XRP and key community tokens on the XRPL.</p>
     </div>
 
-    <!-- XRP - Main Featured Chart -->
-    <div class="mb-8">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-                <div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-4xl font-semibold tracking-tight">XRP</span>
-                        <span class="px-4 py-1 text-sm font-medium bg-emerald-500/10 text-emerald-400 rounded-full">Native • XRPL</span>
-                    </div>
-                    <p class="text-zinc-400 mt-1">XRP / USD • Live TradingView Chart</p>
+     <!-- XRP - Main Featured Chart -->
+<div class="mb-8">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="text-4xl font-semibold tracking-tight">XRP</span>
+                    <span class="px-4 py-1 text-sm font-medium bg-emerald-500/10 text-emerald-400 rounded-full">Native • XRPL</span>
                 </div>
-                <a href="https://www.tradingview.com/symbols/XRPUSD/" target="_blank"
-                   class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition">
-                    Open Full Chart <i class="fa-solid fa-external-link-alt"></i>
-                </a>
+                <p class="text-zinc-400 mt-1">XRP / USD • Live TradingView Chart</p>
             </div>
 
-            <!-- TradingView XRP Chart -->
-            <div id="tradingview_xrp" class="w-full rounded-2xl overflow-hidden border border-zinc-800" style="height: 480px;"></div>
+            <a href="https://www.tradingview.com/symbols/XRPUSD/" target="_blank"
+               class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition">
+                Open Full Chart <i class="fa-solid fa-external-link-alt"></i>
+            </a>
         </div>
-    </div>
 
+        <!-- ✅ ONLY ONE chart container -->
+        <div id="tradingview_xrp" class="w-full rounded-2xl overflow-hidden border border-zinc-800" style="height: 480px;"></div>
+
+    </div>
+</div>
     <!-- Other Tokens Grid -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         
@@ -505,28 +508,26 @@
     </script>
 </body>
 </html>
- <!-- TradingView Script for XRP Chart -->
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        new TradingView.widget({
-            "width": "100%",
-            "height": 480,
-            "symbol": "BITSTAMP:XRPUSD",
-            "interval": "60",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#18181b",
-            "enable_publishing": false,
-            "hide_top_toolbar": true,
-            "hide_legend": false,
-            "save_image": false,
-            "container_id": "tradingview_xrp"
-        });
-    </script>
-
-    <!-- Any other scripts you have -->
-
-</body>
-</html>
+<!-- TradingView XRP Chart -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+  // Wait for the page to fully load before initializing the chart
+  window.onload = function() {
+    new TradingView.widget({
+      "width": "100%",
+      "height": 480,
+      "symbol": "BITSTAMP:XRPUSD",
+      "interval": "60",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#18181b",
+      "enable_publishing": false,
+      "hide_top_toolbar": true,
+      "hide_legend": false,
+      "save_image": false,
+      "container_id": "tradingview_xrp"
+    });
+  };
+</script>
