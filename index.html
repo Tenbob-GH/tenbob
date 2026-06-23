@@ -134,6 +134,15 @@
             <div id="tradingview_hype" style="height: 220px;"></div>
         </div>
 
+        <!-- HBAR -->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+    <div class="flex justify-between items-center mb-3 px-1">
+        <span class="font-semibold text-xl">HBAR</span>
+        <a href="https://www.tradingview.com/symbols/HBARUSD/" target="_blank" class="text-xs text-emerald-400 hover:underline">Full chart →</a>
+    </div>
+    <div id="tradingview_hbar" style="height: 220px;"></div>
+</div>
+
     </div>
 
 </section>
@@ -579,6 +588,8 @@
         createSmallChart("tradingview_bnb", "BINANCE:BNBUSDT");
         createSmallChart("tradingview_fet", "BINANCE:FETUSDT");
         createSmallChart("tradingview_ada", "BINANCE:ADAUSDT");
-        createSmallChart("tradingview_hype", "HYPEUSDT");   // Change if needed
+        createSmallChart("tradingview_hype", "HYPEUSDT");
+        createSmallChart("tradingview_hbar", "BINANCE:HBARUSDT");   // ← New HBAR chart
+    };
     };
 </script>
