@@ -53,75 +53,141 @@
 
     </div>
 </div>
-    <!-- Other Tokens Grid -->
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+  <!-- ==================== LIVE CHARTS (Automated) ==================== -->
+<section class="max-w-7xl mx-auto px-6 pt-8 pb-16">
 
-    <!-- CULT -->
-    <a href="https://xrpl.to/" target="_blank"
-       class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
-        <div>
-            <div class="font-semibold text-2xl">CULT</div>
-            <div class="text-emerald-400 text-sm">XRPL Token</div>
-        </div>
-        <div class="mt-auto pt-6 flex items-center justify-between text-sm">
-            <span class="text-zinc-400 group-hover:text-white transition">Search on xrpl.to</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
-        </div>
-    </a>
+    <!-- XRP Chart -->
+    <div class="mb-8">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-4xl font-semibold tracking-tight">XRP</span>
+                        <span class="px-4 py-1 text-sm font-medium bg-emerald-500/10 text-emerald-400 rounded-full">Native • XRPL</span>
+                    </div>
+                    <p class="text-zinc-400 mt-1">XRP / USD • Live TradingView Chart</p>
+                </div>
+                <a href="https://www.tradingview.com/symbols/XRPUSD/" target="_blank"
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition">
+                    Open Full Chart <i class="fa-solid fa-external-link-alt"></i>
+                </a>
+            </div>
 
-    <!-- UGA -->
-    <a href="https://xrpl.to/" target="_blank"
-       class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
-        <div>
-            <div class="font-semibold text-2xl">UGA</div>
-            <div class="text-emerald-400 text-sm">XRPL Token</div>
+            <div id="tradingview_xrp" class="w-full rounded-2xl overflow-hidden border border-zinc-800" style="height: 480px;"></div>
         </div>
-        <div class="mt-auto pt-6 flex items-center justify-between text-sm">
-            <span class="text-zinc-400 group-hover:text-white transition">Search on xrpl.to</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
-        </div>
-    </a>
+    </div>
 
-    <!-- JESTER -->
-    <a href="https://xrpl.to/" target="_blank"
-       class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
-        <div>
-            <div class="font-semibold text-2xl">JESTER</div>
-            <div class="text-emerald-400 text-sm">XRPL Token</div>
-        </div>
-        <div class="mt-auto pt-6 flex items-center justify-between text-sm">
-            <span class="text-zinc-400 group-hover:text-white transition">Search on xrpl.to</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
-        </div>
-    </a>
+    <!-- Tokens with Live Prices -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 
-    <!-- FUZZY -->
-    <a href="https://xrpl.to/" target="_blank"
-       class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
-        <div>
-            <div class="font-semibold text-2xl">FUZZY</div>
-            <div class="text-emerald-400 text-sm">XRPL Token</div>
-        </div>
-        <div class="mt-auto pt-6 flex items-center justify-between text-sm">
-            <span class="text-zinc-400 group-hover:text-white transition">Search on xrpl.to</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
-        </div>
-    </a>
+        <!-- CULT -->
+        <a href="https://xrpl.to/" target="_blank"
+           class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-2xl">CULT</div>
+                        <div class="text-emerald-400 text-sm">XRPL Token</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="price-CULT" class="font-semibold">--</div>
+                        <div id="change-CULT" class="text-xs">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-6 flex items-center justify-between text-sm">
+                <span class="text-zinc-400 group-hover:text-white transition">View on xrpl.to</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
+            </div>
+        </a>
 
-    <!-- SEAL -->
-    <a href="https://xrpl.to/" target="_blank"
-       class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
-        <div>
-            <div class="font-semibold text-2xl">SEAL</div>
-            <div class="text-emerald-400 text-sm">XRPL Token</div>
-        </div>
-        <div class="mt-auto pt-6 flex items-center justify-between text-sm">
-            <span class="text-zinc-400 group-hover:text-white transition">Search on xrpl.to</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
-        </div>
-    </a>
+        <!-- UGA -->
+        <a href="https://xrpl.to/" target="_blank"
+           class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-2xl">UGA</div>
+                        <div class="text-emerald-400 text-sm">XRPL Token</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="price-UGA" class="font-semibold">--</div>
+                        <div id="change-UGA" class="text-xs">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-6 flex items-center justify-between text-sm">
+                <span class="text-zinc-400 group-hover:text-white transition">View on xrpl.to</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
+            </div>
+        </a>
 
-</div>
+        <!-- JESTER -->
+        <a href="https://xrpl.to/" target="_blank"
+           class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-2xl">JESTER</div>
+                        <div class="text-emerald-400 text-sm">XRPL Token</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="price-JESTER" class="font-semibold">--</div>
+                        <div id="change-JESTER" class="text-xs">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-6 flex items-center justify-between text-sm">
+                <span class="text-zinc-400 group-hover:text-white transition">View on xrpl.to</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
+            </div>
+        </a>
+
+        <!-- FUZZY -->
+        <a href="https://xrpl.to/" target="_blank"
+           class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-2xl">FUZZY</div>
+                        <div class="text-emerald-400 text-sm">XRPL Token</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="price-FUZZY" class="font-semibold">--</div>
+                        <div id="change-FUZZY" class="text-xs">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-6 flex items-center justify-between text-sm">
+                <span class="text-zinc-400 group-hover:text-white transition">View on xrpl.to</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
+            </div>
+        </a>
+
+        <!-- SEAL -->
+        <a href="https://xrpl.to/" target="_blank"
+           class="group bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/60 rounded-3xl p-5 transition-all flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-2xl">SEAL</div>
+                        <div class="text-emerald-400 text-sm">XRPL Token</div>
+                    </div>
+                    <div class="text-right">
+                        <div id="price-SEAL" class="font-semibold">--</div>
+                        <div id="change-SEAL" class="text-xs">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-6 flex items-center justify-between text-sm">
+                <span class="text-zinc-400 group-hover:text-white transition">View on xrpl.to</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400"></i>
+            </div>
+        </a>
+
+    </div>
+
+</section>
     <!-- Favorite Memecoins -->
     <div class="max-w-4xl mx-auto px-6 pb-12">
         <h2 class="section-title mb-6 flex items-center gap-3">
@@ -529,4 +595,34 @@
       "container_id": "tradingview_xrp"
     });
   };
+</script>
+async function updateTokenPrice(symbol, priceId, changeId) {
+    try {
+        const response = await fetch(`https://api.xrpl.to/v1/tokens?search=${symbol}`);
+        const data = await response.json();
+
+        if (data && data.tokens && data.tokens.length > 0) {
+            const token = data.tokens[0];
+            const price = token.price ? parseFloat(token.price).toFixed(6) : '--';
+            const change = token.change24h ? parseFloat(token.change24h).toFixed(2) : '--';
+
+            document.getElementById(priceId).innerText = `$${price}`;
+            
+            const changeEl = document.getElementById(changeId);
+            changeEl.innerText = `${change}%`;
+            changeEl.className = `text-xs ${change >= 0 ? 'text-green-400' : 'text-red-400'}`;
+        }
+    } catch (error) {
+        console.log(`Could not fetch price for ${symbol}`);
+    }
+}
+
+// Load prices when page loads
+window.onload = function() {
+    updateTokenPrice('CULT', 'price-CULT', 'change-CULT');
+    updateTokenPrice('UGA', 'price-UGA', 'change-UGA');
+    updateTokenPrice('JESTER', 'price-JESTER', 'change-JESTER');
+    updateTokenPrice('FUZZY', 'price-FUZZY', 'change-FUZZY');
+    updateTokenPrice('SEAL', 'price-SEAL', 'change-SEAL');
+};
 </script>
