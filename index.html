@@ -595,29 +595,52 @@
       "container_id": "tradingview_xrp"
     });
   };
-</script>
+<script>
 async function updateTokenPrice(symbol, priceId, changeId) {
+    const priceEl = document.getElementById(priceId);
+    const changeEl = document.getElementById(changeId);
+
     try {
-        const response = await fetch(`https://api.xrpl.to/v1/tokens?search=${symbol}`);
+        // Try fetching from xrpl.to
+        const response = await fetch(`https://api.xrpl.to/v1/tokens?search=${symbol.toLowerCase()}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log(`Data for ${symbol}:`, data); // ← Check this in console
 
         if (data && data.tokens && data.tokens.length > 0) {
             const token = data.tokens[0];
-            const price = token.price ? parseFloat(token.price).toFixed(6) : '--';
-            const change = token.change24h ? parseFloat(token.change24h).toFixed(2) : '--';
-
-            document.getElementById(priceId).innerText = `$${price}`;
             
-            const changeEl = document.getElementById(changeId);
-            changeEl.innerText = `${change}%`;
-            changeEl.className = `text-xs ${change >= 0 ? 'text-green-400' : 'text-red-400'}`;
+            // Update price
+            if (token.price) {
+                priceEl.innerText = `$${parseFloat(token.price).toFixed(6)}`;
+            } else {
+                priceEl.innerText = "N/A";
+            }
+
+            // Update 24h change
+            if (token.change24h !== undefined) {
+                const change = parseFloat(token.change24h);
+                changeEl.innerText = `${change.toFixed(2)}%`;
+                changeEl.className = `text-xs ${change >= 0 ? 'text-green-400' : 'text-red-400'}`;
+            } else {
+                changeEl.innerText = "--";
+            }
+        } else {
+            priceEl.innerText = "No data";
+            changeEl.innerText = "--";
         }
     } catch (error) {
-        console.log(`Could not fetch price for ${symbol}`);
+        console.error(`Error fetching ${symbol}:`, error);
+        priceEl.innerText = "Error";
+        changeEl.innerText = "--";
     }
 }
 
-// Load prices when page loads
+// Load all prices
 window.onload = function() {
     updateTokenPrice('CULT', 'price-CULT', 'change-CULT');
     updateTokenPrice('UGA', 'price-UGA', 'change-UGA');
