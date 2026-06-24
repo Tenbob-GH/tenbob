@@ -34,6 +34,54 @@
 </head>
 <body class="bg-zinc-950 text-white">
 
+    <!-- Top Navigation -->
+<nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-14">
+            
+            <!-- Brand -->
+            <a href="#hero" class="font-bold text-xl tracking-tight">Tenbob</a>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center gap-x-6 text-sm">
+                <a href="#xrp-chart" class="hover:text-emerald-400 transition">XRP Chart</a>
+                <a href="#uga" class="hover:text-emerald-400 transition">Uga</a>
+                <a href="#cult" class="hover:text-emerald-400 transition">Cult</a>
+                <a href="#seal" class="hover:text-emerald-400 transition">Seal</a>
+                <a href="#jester" class="hover:text-emerald-400 transition">Jester</a>
+                <a href="#tools" class="hover:text-emerald-400 transition">XRPL Tools</a>
+                <a href="#trenches" class="hover:text-emerald-400 transition">Degen Trenches</a>
+                <a href="#nfts" class="hover:text-emerald-400 transition">My NFTs</a>
+                <a href="#other-charts" class="hover:text-emerald-400 transition">Other Charts</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                        class="text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
+        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
+            <a href="#xrp-chart" class="hover:text-emerald-400">XRP Chart</a>
+            <a href="#uga" class="hover:text-emerald-400">Uga</a>
+            <a href="#cult" class="hover:text-emerald-400">Cult</a>
+            <a href="#seal" class="hover:text-emerald-400">Seal</a>
+            <a href="#jester" class="hover:text-emerald-400">Jester</a>
+            <a href="#tools" class="hover:text-emerald-400">XRPL Tools</a>
+            <a href="#trenches" class="hover:text-emerald-400">Degen Trenches</a>
+            <a href="#nfts" class="hover:text-emerald-400">My NFTs</a>
+            <a href="#other-charts" class="hover:text-emerald-400">Other Charts</a>
+        </div>
+    </div>
+</nav>
+
     <!-- Hero -->
     <div class="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
         <h1 class="text-6xl font-bold tracking-tight">Tenbob</h1>
