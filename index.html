@@ -540,9 +540,10 @@
 
     </div>
 </section>
-    <!-- Scripts -->
-    <script src="https://s3.tradingview.com/tv.js"></script>
+   <!-- TradingView Script -->
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+    // Function to create small charts
     function createSmallChart(containerId, symbol) {
         new TradingView.widget({
             "width": "100%",
@@ -562,7 +563,9 @@
         });
     }
 
+    // Single window.onload - everything goes here
     window.onload = function() {
+        
         // Big XRP Chart
         new TradingView.widget({
             "width": "100%",
@@ -581,15 +584,16 @@
             "container_id": "tradingview_xrp"
         });
 
-        // Smaller charts
-        createSmallChart("tradingview_eth", "BINANCE:ETHUSDT");
-        createSmallChart("tradingview_sol", "BINANCE:SOLUSDT");
+        // Small Charts
+        createSmallChart("tradingview_eth",  "BINANCE:ETHUSDT");
+        createSmallChart("tradingview_sol",  "BINANCE:SOLUSDT");
         createSmallChart("tradingview_ondo", "BINANCE:ONDOUSDT");
-        createSmallChart("tradingview_bnb", "BINANCE:BNBUSDT");
-        createSmallChart("tradingview_fet", "BINANCE:FETUSDT");
-        createSmallChart("tradingview_ada", "BINANCE:ADAUSDT");
+        createSmallChart("tradingview_bnb",  "BINANCE:BNBUSDT");
+        createSmallChart("tradingview_fet",  "BINANCE:FETUSDT");
+        createSmallChart("tradingview_ada",  "BINANCE:ADAUSDT");
         createSmallChart("tradingview_hype", "HYPEUSDT");
-        createSmallChart("tradingview_hbar", "BINANCE:HBARUSDT");   // ← New HBAR chart
-    };
+        createSmallChart("tradingview_hbar", "BINANCE:HBARUSDT");   // HBAR
     };
 </script>
+
+
