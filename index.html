@@ -1448,6 +1448,54 @@
     </div>
 
 </section>
+
+        <!-- Visitors Book -->
+<section class="max-w-2xl mx-auto px-6 py-12">
+
+    <h2 class="text-2xl font-semibold mb-2">Visitors Book</h2>
+    <p class="text-zinc-400 mb-6">Leave a message, shoutout, or just say hi!</p>
+
+    <form action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
+
+        <!-- Web3Forms Access Key -->
+        <input type="hidden" name="access_key" value="77293574-7207-49e2-89eb-e332d90df80e">
+
+        <!-- Honeypot (spam protection) -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+        <!-- Name -->
+        <div>
+            <label class="block text-sm font-medium mb-1">Name</label>
+            <input type="text" name="name" required
+                   class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- X / Twitter Handle (Optional) -->
+        <div>
+            <label class="block text-sm font-medium mb-1">X Handle (Optional)</label>
+            <input type="text" name="x_handle" placeholder="@yourhandle"
+                   class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- Message -->
+        <div>
+            <label class="block text-sm font-medium mb-1">Message</label>
+            <textarea name="message" rows="4" required
+                      class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 resize-y"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition">
+            Leave a Message
+        </button>
+
+        <!-- Success / Error Message -->
+        <div id="result" class="hidden text-center text-sm mt-3"></div>
+
+    </form>
+
+</section>
         
   <!-- Socials / Connect -->
 <section class="max-w-4xl mx-auto px-6 pb-16">
