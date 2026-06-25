@@ -221,35 +221,6 @@
 
 </div>
     
- <!-- ==================== LIVE CHARTS ==================== -->
-<section class="max-w-7xl mx-auto px-6 pt-8 pb-16">
-
-<!-- Big XRP Chart -->
-<section id="xrp-chart" class="max-w-5xl mx-auto px-6 pt-8 pb-12">
-
-    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-        
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-            <div>
-                <div class="flex items-center gap-3">
-                    <span class="text-4xl font-semibold tracking-tight">XRP</span>
-                    <span class="px-4 py-1 text-sm font-medium bg-emerald-500/10 text-emerald-400 rounded-full">Native • XRPL</span>
-                </div>
-                <p class="text-zinc-400 mt-1">XRP / USD • Live TradingView Chart</p>
-            </div>
-
-            <a href="https://www.tradingview.com/symbols/XRPUSD/" target="_blank"
-               class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-medium transition">
-                Open Full Chart <i class="fa-solid fa-external-link-alt"></i>
-            </a>
-        </div>
-
-        <!-- Increased to 480px for better volume visibility -->
-        <div id="tradingview_xrp" class="w-full rounded-2xl overflow-hidden border border-zinc-800" style="height: 480px;"></div>
-
-    </div>
-
-</section>
    
  
     <!-- Featured XRPL Memes -->
@@ -1581,17 +1552,26 @@
 
 </section>
 
- <!-- Other Charts -->
+<!-- XRP & Other Charts -->
 <section id="other-charts" class="max-w-6xl mx-auto px-6">
 
     <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
 
         <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
             <i class="fa-solid fa-chart-line text-emerald-400"></i>
-            Other Markets
+            XRP & Other Charts
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- XRP (Main Chart) -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4 md:col-span-2 lg:col-span-3">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">XRP</span>
+                    <span class="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">XRPL Native</span>
+                </div>
+                <div id="tradingview_xrp" class="w-full rounded-xl overflow-hidden" style="height: 420px;"></div>
+            </div>
 
             <!-- ETH -->
             <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
