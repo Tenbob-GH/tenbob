@@ -6,15 +6,34 @@
     <title>Tenbob • XRPL Hub</title>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+    html {
+        scroll-behavior: smooth;
+    }
 
-        section[id], 
-        div[id] {
-            scroll-margin-top: 80px;
-        }
-    </style>
+    section[id],
+    div[id] {
+        scroll-margin-top: 80px;
+    }
+
+    /* === ADD CARD HOVER CSS HERE === */
+    .card-hover {
+        transition: all 0.2s ease;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 
+                    0 4px 6px -4px rgb(0 0 0 / 0.1);
+        border-color: #3f3f46;
+    }
+
+    .card-hover-strong:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
+                    0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    /* ================================ */
+</style>
 
       <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
