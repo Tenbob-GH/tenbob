@@ -1615,6 +1615,56 @@ function copyToClipboard(text) {
     });
 }
 </script>
-        
+       <script>
+    const form = document.getElementById('visitors-book-form');
+    const result = document.getElementById('result');
 
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+        })
+        .then(async (response) => {
+            let json = await response.json();
+            
+            if (response.status === 200) {
+                // Nice success message
+                result.innerHTML = `
+                    <div class="flex items-center justify-center gap-2 text-emerald-400">
+                        <i class="fa-solid fa-check-circle text-lg"></i>
+                        <span>Thank you! Your message has been sent.</span>
+                    </div>
+                `;
+                result.className = "text-center mt-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl";
+                form.reset();
+            } else {
+                result.innerHTML = json.message || "Something went wrong. Please try again.";
+                result.className = "text-red-400 text-center mt-3";
+            }
+        })
+        .catch(error => {
+            result.innerHTML = "Something went wrong. Please try again.";
+            result.className = "text-red-400 text-center mt-3";
+        })
+        .finally(() => {
+            result.style.display = "block";
+            
+            // Hide message after 6 seconds
+            setTimeout(() => {
+                result.style.transition = "all 0.4s ease";
+                result.style.opacity = "0";
+                
+                setTimeout(() => {
+                    result.style.display = "none";
+                    result.style.opacity = "1";
+                    result.style.transition = "";
+                }, 400);
+            }, 6000);
+        });
+    });
+</script>
 
