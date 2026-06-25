@@ -1434,80 +1434,76 @@
     </div>
 
 </section>
+<!-- Tip + Visitors Book Side by Side -->
+<section class="max-w-6xl mx-auto px-6 py-12">
 
-      <!-- Support Tenbob -->
-<section class="max-w-md mx-auto px-6 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <h2 class="text-xl font-semibold mb-1">Support Tenbob</h2>
-    <p class="text-sm text-zinc-400 mb-5">Tips are always appreciated ❤️</p>
+        <!-- Tip Section -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-2">Support Tenbob</h2>
+            <p class="text-sm text-zinc-400 mb-5">Tips are always appreciated ❤️</p>
 
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
 
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium">XRP Address</span>
-            <span class="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">No Tag</span>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">XRP Address</span>
+                    <span class="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">No Tag</span>
+                </div>
+
+                <div class="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2">
+                    <code class="flex-1 text-xs break-all text-zinc-300">
+                        rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4
+                    </code>
+                    <button onclick="copyToClipboard('rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4', this)"
+                            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Copy</span>
+                    </button>
+                </div>
+
+            </div>
         </div>
 
-        <div class="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2">
-            <code class="flex-1 text-xs break-all text-zinc-300">
-                rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4
-            </code>
-            <button onclick="copyToClipboard('rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4', this)"
-                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-copy"></i>
-                <span>Copy</span>
-            </button>
+        <!-- Visitors Book -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-2">Visitors Book</h2>
+            <p class="text-sm text-zinc-400 mb-5">Leave a message or shoutout!</p>
+
+            <form id="visitors-book-form" action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
+
+                <input type="hidden" name="access_key" value="77293574-7207-49e2-89eb-e332d90df80e">
+                <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Name</label>
+                    <input type="text" name="name" required
+                           class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">X Handle (Optional)</label>
+                    <input type="text" name="x_handle" placeholder="@yourhandle"
+                           class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Message</label>
+                    <textarea name="message" rows="3" required
+                              class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 resize-y"></textarea>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-2xl transition text-sm">
+                    Leave a Message
+                </button>
+
+                <div id="result" class="hidden text-center text-sm mt-2"></div>
+
+            </form>
         </div>
 
     </div>
-
-</section>
-
-        <!-- Visitors Book -->
-<section class="max-w-2xl mx-auto px-6 py-12">
-
-    <h2 class="text-2xl font-semibold mb-2">Visitors Book</h2>
-    <p class="text-zinc-400 mb-6">Leave a message, shoutout, or just say hi!</p>
-
-    <form action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
-
-        <!-- Web3Forms Access Key -->
-        <input type="hidden" name="access_key" value="77293574-7207-49e2-89eb-e332d90df80e">
-
-        <!-- Honeypot (spam protection) -->
-        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
-
-        <!-- Name -->
-        <div>
-            <label class="block text-sm font-medium mb-1">Name</label>
-            <input type="text" name="name" required
-                   class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-        </div>
-
-        <!-- X / Twitter Handle (Optional) -->
-        <div>
-            <label class="block text-sm font-medium mb-1">X Handle (Optional)</label>
-            <input type="text" name="x_handle" placeholder="@yourhandle"
-                   class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-        </div>
-
-        <!-- Message -->
-        <div>
-            <label class="block text-sm font-medium mb-1">Message</label>
-            <textarea name="message" rows="4" required
-                      class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 resize-y"></textarea>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit"
-                class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-2xl transition">
-            Leave a Message
-        </button>
-
-        <!-- Success / Error Message -->
-        <div id="result" class="hidden text-center text-sm mt-3"></div>
-
-    </form>
 
 </section>
         
