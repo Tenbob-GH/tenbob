@@ -1929,13 +1929,13 @@ function copyToClipboard(text) {
         
         setInterval(() => {
             const emoji = document.createElement('div');
-            emoji.className = 'absolute text-2xl opacity-40';
+            emoji.className = 'absolute text-2xl opacity-65';   // ← Increased opacity
             emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
             
             emoji.style.left = Math.random() * 100 + '%';
             emoji.style.top = '-30px';
             
-            const duration = Math.random() * 4000 + 6000;
+            const duration = Math.random() * 5000 + 7000; // Slightly slower fall
             emoji.style.transition = `transform ${duration}ms linear`;
             
             container.appendChild(emoji);
@@ -1947,7 +1947,7 @@ function copyToClipboard(text) {
             setTimeout(() => {
                 emoji.remove();
             }, duration + 1000);
-        }, 800);
+        }, 1400); // ← Spread out more (was 800)
     }
 
     window.onload = function() {
@@ -1955,4 +1955,3 @@ function copyToClipboard(text) {
         createFallingEmoji('right-emojis');
     };
 </script>
-
