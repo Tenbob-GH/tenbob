@@ -186,16 +186,16 @@
 <!-- Hero Section with Falling Emojis on Sides -->
 <div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
 
-   <!-- Left Falling Emojis -->
+<!-- Left Falling Emojis -->
 <div id="left-emojis" 
-     class="absolute left-[-10px] top-0 h-full w-24 pointer-events-none z-10">
+     class="absolute left-0 top-0 h-full w-20 pointer-events-none z-10">
 </div>
 
 <!-- Right Falling Emojis -->
 <div id="right-emojis" 
-     class="absolute right-[-10px] top-0 h-full w-24 pointer-events-none z-10">
+     class="absolute right-0 top-0 h-full w-28 pointer-events-none z-10">
 </div>
-
+    
     <!-- Main Content -->
     <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
     
@@ -1924,16 +1924,13 @@ function copyToClipboard(text) {
         const leftContainer = document.getElementById('left-emojis');
         const rightContainer = document.getElementById('right-emojis');
 
-        if (!leftContainer || !rightContainer) {
-            console.log("Emoji containers not found");
-            return;
-        }
+        if (!leftContainer || !rightContainer) return;
 
         const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
 
         function createEmoji(container) {
             const emoji = document.createElement('div');
-            emoji.className = 'absolute text-2xl opacity-75';
+            emoji.className = 'absolute text-2xl opacity-100';   // ← No transparency
             emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
             
             emoji.style.left = Math.random() * 100 + '%';
@@ -1944,22 +1941,19 @@ function copyToClipboard(text) {
             
             container.appendChild(emoji);
 
-            // Start falling
             setTimeout(() => {
                 emoji.style.transform = `translateY(${container.offsetHeight + 150}px)`;
             }, 100);
 
-            // Remove after falling
             setTimeout(() => {
                 emoji.remove();
             }, duration + 2000);
         }
 
-        // Start creating emojis on both sides
-        setInterval(() => createEmoji(leftContainer), 1600);
-        setInterval(() => createEmoji(rightContainer), 1800);
+        // Spawn emojis
+        setInterval(() => createEmoji(leftContainer), 1700);
+        setInterval(() => createEmoji(rightContainer), 1900);
     }
 
-    // Start when page loads
     window.addEventListener('load', startFallingEmojis);
 </script>
