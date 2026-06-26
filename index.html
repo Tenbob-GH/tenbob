@@ -224,12 +224,7 @@
 
 </div>
 
-    <!-- Footer Line -->
-    <p class="mt-10 text-sm text-zinc-500">
-        Built with <span class="text-red-500">❤️</span> for the XRPL community
-    </p>
-
-</div>
+  
     <!-- Featured XRPL Memes -->
 <section id="featured-memes" class="max-w-6xl mx-auto px-6 pb-8">
 
@@ -1920,38 +1915,47 @@ function copyToClipboard(text) {
         });
     });
 </script>
-    <script>
-    function createFallingEmoji(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+   <!-- Hero Section with Falling Emojis -->
+<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
 
-        const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
-        
-        setInterval(() => {
-            const emoji = document.createElement('div');
-            emoji.className = 'absolute text-2xl opacity-65';   // ← Increased opacity
-            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            
-            emoji.style.left = Math.random() * 100 + '%';
-            emoji.style.top = '-30px';
-            
-            const duration = Math.random() * 5000 + 7000; // Slightly slower fall
-            emoji.style.transition = `transform ${duration}ms linear`;
-            
-            container.appendChild(emoji);
+    <!-- Left Falling Emojis -->
+    <div id="left-emojis" 
+         class="absolute left-[-10px] top-0 h-full w-24 pointer-events-none z-10 overflow-hidden">
+    </div>
 
-            setTimeout(() => {
-                emoji.style.transform = `translateY(${container.offsetHeight + 100}px)`;
-            }, 50);
+    <!-- Right Falling Emojis -->
+    <div id="right-emojis" 
+         class="absolute right-[-10px] top-0 h-full w-24 pointer-events-none z-10 overflow-hidden">
+    </div>
 
-            setTimeout(() => {
-                emoji.remove();
-            }, duration + 1000);
-        }, 1400); // ← Spread out more (was 800)
-    }
+    <!-- Main Content -->
+    <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
+    
+    <p class="mt-4 text-2xl md:text-3xl text-zinc-400">Your personal hub on the XRP Ledger</p>
+    
+    <p class="mt-5 text-lg text-zinc-400 max-w-md mx-auto leading-relaxed">
+        Memes I believe in.<br>
+        Tools I actually use.<br>
+        And a bit of common sense in the chaos.
+    </p>
 
-    window.onload = function() {
-        createFallingEmoji('left-emojis');
-        createFallingEmoji('right-emojis');
-    };
-</script>
+    <!-- Buttons -->
+    <div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#farm" 
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
+            <i class="fa-solid fa-images text-lg"></i>
+            <span>Explore Featured Memes</span>
+        </a>
+
+        <a href="#tools" 
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
+            <i class="fa-solid fa-tools text-lg"></i>
+            <span>Browse XRPL Tools</span>
+        </a>
+    </div>
+
+    <p class="mt-10 text-sm text-zinc-500">
+        Built with <span class="text-red-500">❤️</span> for the XRPL community
+    </p>
+
+</div>
