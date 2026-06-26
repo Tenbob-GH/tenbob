@@ -77,58 +77,113 @@
 </head>
 <body class="bg-zinc-950 text-white">
 
-<!-- Top Navigation -->
-<nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="flex items-center justify-between h-14">
-            
-            <!-- Brand -->
-            <a href="#hero" class="font-bold text-xl tracking-tight hover:text-emerald-400 transition">Tenbob</a>
+<!-- XRP & Other Charts -->
+<section id="other-charts" class="max-w-6xl mx-auto px-6">
 
-            <!-- Navigation Links -->
-            <div class="hidden md:flex items-center gap-x-8 text-[15px]">
-                <a href="#xrp-chart" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">XRP Chart</a>
-                <a href="#uga" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Uga</a>
-                <a href="#cult" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Cult</a>
-                <a href="#seal" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Seal</a>
-                <a href="#jester" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Jester</a>
-                <a href="#farm" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Farm</a>
-                <a href="#fuzzy" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Fuzzy</a>
-                <a href="#trenches" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Degen Trenches</a>
-                <a href="#tools" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">XRPL Tools</a>
-                <a href="#nfts" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">My NFTs</a>
-                <a href="#other-charts" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Other Charts</a>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+
+        <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+            <i class="fa-solid fa-chart-line text-emerald-400"></i>
+            XRP & Other Charts
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- XRP (Main Chart) -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4 md:col-span-2 lg:col-span-3">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">XRP</span>
+                    <span class="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">XRPL Native</span>
+                </div>
+                <div id="tradingview_xrp" class="w-full rounded-xl overflow-hidden" style="height: 420px;"></div>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
-                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                        class="text-zinc-400 hover:text-white">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
+            <!-- ETH -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">ETH</span>
+                    <span class="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded">Ethereum</span>
+                </div>
+                <div id="tradingview_eth" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- SOL -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">SOL</span>
+                    <span class="text-xs px-2 py-1 bg-purple-500/10 text-purple-400 rounded">Solana</span>
+                </div>
+                <div id="tradingview_sol" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- ONDO -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">ONDO</span>
+                    <span class="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">Ondo</span>
+                </div>
+                <div id="tradingview_ondo" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- BNB -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">BNB</span>
+                    <span class="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-400 rounded">BNB Chain</span>
+                </div>
+                <div id="tradingview_bnb" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- FET -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">FET</span>
+                    <span class="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded">Fetch.ai</span>
+                </div>
+                <div id="tradingview_fet" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- ADA -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">ADA</span>
+                    <span class="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded">Cardano</span>
+                </div>
+                <div id="tradingview_ada" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- HBAR -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">HBAR</span>
+                    <span class="text-xs px-2 py-1 bg-teal-500/10 text-teal-400 rounded">Hedera</span>
+                </div>
+                <div id="tradingview_hbar" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- HYPE -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">HYPE</span>
+                    <span class="text-xs px-2 py-1 bg-pink-500/10 text-pink-400 rounded">Hyperliquid</span>
+                </div>
+                <div id="tradingview_hype" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
+            </div>
+
+            <!-- WLFI -->
+            <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-lg">WLFI</span>
+                    <span class="text-xs px-2 py-1 bg-red-500/10 text-red-400 rounded">World Liberty Financial</span>
+                </div>
+                <div id="tradingview_wlfi" class="w-full rounded-xl overflow-hidden" style="height: 280px;"></div>
             </div>
 
         </div>
+
     </div>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
-        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
-            <a href="#xrp-chart" class="hover:text-emerald-400">XRP Chart</a>
-            <a href="#uga" class="hover:text-emerald-400">Uga</a>
-            <a href="#cult" class="hover:text-emerald-400">Cult</a>
-            <a href="#seal" class="hover:text-emerald-400">Seal</a>
-            <a href="#jester" class="hover:text-emerald-400">Jester</a>
-            <a href="#farm" class="hover:text-emerald-400">Farm</a>
-            <a href="#fuzzy" class="hover:text-emerald-400">Fuzzy</a>
-            <a href="#trenches" class="hover:text-emerald-400">Degen Trenches</a>
-            <a href="#tools" class="hover:text-emerald-400">XRPL Tools</a>
-            <a href="#nfts" class="hover:text-emerald-400">My NFTs</a>
-            <a href="#other-charts" class="hover:text-emerald-400">Other Charts</a>
-        </div>
-    </div>
-</nav>
-
+</section>
     <!-- CSS Collage Banner - Featured Memes -->
 <section class="max-w-7xl mx-auto px-6 py-8">
 
