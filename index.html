@@ -183,16 +183,20 @@
     </div>
 
 </section>
- <!-- Hero Section -->
-<div class="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
+<!-- Hero Section with Falling Emojis on Sides -->
+<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
 
-    <!-- Main Title -->
+    <!-- Left Falling Emojis -->
+    <div id="left-emojis" class="absolute left-0 top-0 h-full w-16 pointer-events-none z-10"></div>
+
+    <!-- Right Falling Emojis -->
+    <div id="right-emojis" class="absolute right-0 top-0 h-full w-16 pointer-events-none z-10"></div>
+
+    <!-- Main Content -->
     <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
     
-    <!-- Subtitle -->
     <p class="mt-4 text-2xl md:text-3xl text-zinc-400">Your personal hub on the XRP Ledger</p>
     
-    <!-- Description -->
     <p class="mt-5 text-lg text-zinc-400 max-w-md mx-auto leading-relaxed">
         Memes I believe in.<br>
         Tools I actually use.<br>
@@ -201,22 +205,24 @@
 
     <!-- Buttons -->
     <div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
-
-        <!-- Primary Button -->
         <a href="#farm" 
-           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-2xl text-base transition-all shadow-lg shadow-emerald-900/30">
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
             <i class="fa-solid fa-images text-lg"></i>
             <span>Explore Featured Memes</span>
         </a>
 
-        <!-- Secondary Button -->
         <a href="#tools" 
-           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
             <i class="fa-solid fa-tools text-lg"></i>
             <span>Browse XRPL Tools</span>
         </a>
-
     </div>
+
+    <p class="mt-10 text-sm text-zinc-500">
+        Built with <span class="text-red-500">❤️</span> for the XRPL community
+    </p>
+
+</div>
 
     <!-- Footer Line -->
     <p class="mt-10 text-sm text-zinc-500">
@@ -1913,5 +1919,40 @@ function copyToClipboard(text) {
             }, 6000);
         });
     });
+</script>
+    <script>
+    function createFallingEmoji(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
+        
+        setInterval(() => {
+            const emoji = document.createElement('div');
+            emoji.className = 'absolute text-2xl opacity-40';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            emoji.style.left = Math.random() * 100 + '%';
+            emoji.style.top = '-30px';
+            
+            const duration = Math.random() * 4000 + 6000;
+            emoji.style.transition = `transform ${duration}ms linear`;
+            
+            container.appendChild(emoji);
+
+            setTimeout(() => {
+                emoji.style.transform = `translateY(${container.offsetHeight + 100}px)`;
+            }, 50);
+
+            setTimeout(() => {
+                emoji.remove();
+            }, duration + 1000);
+        }, 800);
+    }
+
+    window.onload = function() {
+        createFallingEmoji('left-emojis');
+        createFallingEmoji('right-emojis');
+    };
 </script>
 
