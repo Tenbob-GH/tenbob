@@ -186,11 +186,15 @@
 <!-- Hero Section with Falling Emojis on Sides -->
 <div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
 
-    <!-- Left Falling Emojis -->
-    <div id="left-emojis" class="absolute left-0 top-0 h-full w-16 pointer-events-none z-10"></div>
+   <!-- Left Falling Emojis -->
+<div id="left-emojis" 
+     class="absolute left-[-10px] top-0 h-full w-24 pointer-events-none z-10">
+</div>
 
-    <!-- Right Falling Emojis -->
-    <div id="right-emojis" class="absolute right-0 top-0 h-full w-16 pointer-events-none z-10"></div>
+<!-- Right Falling Emojis -->
+<div id="right-emojis" 
+     class="absolute right-[-10px] top-0 h-full w-24 pointer-events-none z-10">
+</div>
 
     <!-- Main Content -->
     <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
@@ -1915,47 +1919,47 @@ function copyToClipboard(text) {
         });
     });
 </script>
-   <!-- Hero Section with Falling Emojis -->
-<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
+<script>
+    function startFallingEmojis() {
+        const leftContainer = document.getElementById('left-emojis');
+        const rightContainer = document.getElementById('right-emojis');
 
-    <!-- Left Falling Emojis -->
-    <div id="left-emojis" 
-         class="absolute left-[-10px] top-0 h-full w-24 pointer-events-none z-10 overflow-hidden">
-    </div>
+        if (!leftContainer || !rightContainer) {
+            console.log("Emoji containers not found");
+            return;
+        }
 
-    <!-- Right Falling Emojis -->
-    <div id="right-emojis" 
-         class="absolute right-[-10px] top-0 h-full w-24 pointer-events-none z-10 overflow-hidden">
-    </div>
+        const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
 
-    <!-- Main Content -->
-    <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
-    
-    <p class="mt-4 text-2xl md:text-3xl text-zinc-400">Your personal hub on the XRP Ledger</p>
-    
-    <p class="mt-5 text-lg text-zinc-400 max-w-md mx-auto leading-relaxed">
-        Memes I believe in.<br>
-        Tools I actually use.<br>
-        And a bit of common sense in the chaos.
-    </p>
+        function createEmoji(container) {
+            const emoji = document.createElement('div');
+            emoji.className = 'absolute text-2xl opacity-75';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            emoji.style.left = Math.random() * 100 + '%';
+            emoji.style.top = '-40px';
+            
+            const duration = Math.random() * 6000 + 8000;
+            emoji.style.transition = `transform ${duration}ms linear`;
+            
+            container.appendChild(emoji);
 
-    <!-- Buttons -->
-    <div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
-        <a href="#farm" 
-           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
-            <i class="fa-solid fa-images text-lg"></i>
-            <span>Explore Featured Memes</span>
-        </a>
+            // Start falling
+            setTimeout(() => {
+                emoji.style.transform = `translateY(${container.offsetHeight + 150}px)`;
+            }, 100);
 
-        <a href="#tools" 
-           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
-            <i class="fa-solid fa-tools text-lg"></i>
-            <span>Browse XRPL Tools</span>
-        </a>
-    </div>
+            // Remove after falling
+            setTimeout(() => {
+                emoji.remove();
+            }, duration + 2000);
+        }
 
-    <p class="mt-10 text-sm text-zinc-500">
-        Built with <span class="text-red-500">❤️</span> for the XRPL community
-    </p>
+        // Start creating emojis on both sides
+        setInterval(() => createEmoji(leftContainer), 1600);
+        setInterval(() => createEmoji(rightContainer), 1800);
+    }
 
-</div>
+    // Start when page loads
+    window.addEventListener('load', startFallingEmojis);
+</script>
