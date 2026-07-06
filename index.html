@@ -1894,27 +1894,14 @@
 
 </section>
 
-<!-- TradingView - Optimized with Lazy Loading -->
+<!-- TradingView - Fully Lazy Loaded -->
 <script src="https://s3.tradingview.com/tv.js" async></script>
 
 <script>
-    // Main XRP Chart - Load immediately
-    function initMainXRPChart() {
+    function createTradingViewWidget(containerId, symbol, height = 220) {
         new TradingView.widget({
             "width": "100%",
-            "height": 480,
-            "symbol": "BITSTAMP:XRPUSD",
-            "interval": "60",
-            "theme": "dark",
-            "container_id": "tradingview_xrp"
-        });
-    }
-
-    // Small Charts - Lazy Load
-    function initSmallChart(containerId, symbol) {
-        new TradingView.widget({
-            "width": "100%",
-            "height": 220,
+            "height": height,
             "symbol": symbol,
             "interval": "60",
             "theme": "dark",
@@ -1922,9 +1909,30 @@
         });
     }
 
-    // Lazy load small charts using Intersection Observer
-    function lazyLoadSmallCharts() {
-        const charts = [
+    function lazyLoadChart(elementId, symbol, height = 220) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    createTradingViewWidget(elementId, symbol, height);
+                    observer.disconnect();
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        observer.observe(element);
+    }
+
+    window.addEventListener('load', () => {
+        // Lazy load the main XRP chart
+        lazyLoadChart("tradingview_xrp", "BITSTAMP:XRPUSD", 480);
+
+        // Lazy load all small charts
+        const smallCharts = [
             { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
             { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
             { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
@@ -1936,53 +1944,11 @@
             { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }
         ];
 
-        charts.forEach(chart => {
-            const element = document.getElementById(chart.id);
-            if (!element) return;
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        initSmallChart(chart.id, chart.symbol);
-                        observer.disconnect(); // Stop observing after loading
-                    }
-                });
-            }, {
-                threshold: 0.1
-            });
-
-            observer.observe(element);
+        smallCharts.forEach(chart => {
+            lazyLoadChart(chart.id, chart.symbol);
         });
-    }
-
-    // Initialize everything
-    window.addEventListener('load', () => {
-        // Load main XRP chart immediately
-        initMainXRPChart();
-
-        // Lazy load small charts
-        if ('IntersectionObserver' in window) {
-            lazyLoadSmallCharts();
-        } else {
-            // Fallback for older browsers
-            setTimeout(() => {
-                const charts = [
-                    { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
-                    { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
-                    { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
-                    { id: "tradingview_bnb",  symbol: "BINANCE:BNBUSDT" },
-                    { id: "tradingview_fet",  symbol: "BINANCE:FETUSDT" },
-                    { id: "tradingview_ada",  symbol: "BINANCE:ADAUSDT" },
-                    { id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT" },
-                    { id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT" },
-                    { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }
-                ];
-                charts.forEach(c => initSmallChart(c.id, c.symbol));
-            }, 2000);
-        }
     });
 </script>
-
 <script>
 function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(() => {
