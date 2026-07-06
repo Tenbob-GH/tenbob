@@ -1937,42 +1937,35 @@ function copyToClipboard(text, button) {
     });
 </script>
 <script>
-    function startFallingEmojis() {
-        const leftContainer = document.getElementById('left-emojis');
-        const rightContainer = document.getElementById('right-emojis');
+function startFallingEmojis() {
+    const left = document.getElementById('left-emojis');
+    const right = document.getElementById('right-emojis');
+    if (!left || !right) return;
 
-        if (!leftContainer || !rightContainer) return;
+    const emojis = ['🍄','🐷','🐮','🐔','👁️','🃏','🐻','🦭'];
 
-        const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
+    function createEmoji(container) {
+        const el = document.createElement('div');
+        el.className = 'absolute text-2xl';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.top = '-40px';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        container.appendChild(el);
 
-        function createEmoji(container) {
-            const emoji = document.createElement('div');
-            emoji.className = 'absolute text-2xl opacity-100';   // ← No transparency
-            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            
-            emoji.style.left = Math.random() * 100 + '%';
-            emoji.style.top = '-40px';
-            
-            const duration = Math.random() * 6000 + 8000;
-            emoji.style.transition = `transform ${duration}ms linear`;
-            
-            container.appendChild(emoji);
-
-            setTimeout(() => {
-                emoji.style.transform = `translateY(${container.offsetHeight + 150}px)`;
-            }, 100);
-
-            setTimeout(() => {
-                emoji.remove();
-            }, duration + 2000);
-        }
-
-        // Spawn emojis
-        setInterval(() => createEmoji(leftContainer), 1700);
-        setInterval(() => createEmoji(rightContainer), 1900);
+        el.animate([
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: `translateY(${container.offsetHeight + 200}px)`, opacity: 0 }
+        ], {
+            duration: Math.random() * 7000 + 8500,
+            easing: 'linear'
+        }).onfinish = () => el.remove();
     }
 
-    window.addEventListener('load', startFallingEmojis);
+    setInterval(() => createEmoji(left), 1800);
+    setInterval(() => createEmoji(right), 2000);
+}
+window.addEventListener('load', startFallingEmojis);
+</script>
 </script>
     <!-- Defer non-critical scripts -->
 <script src="https://cdn.tailwindcss.com" defer></script>
