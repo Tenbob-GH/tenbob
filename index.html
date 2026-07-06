@@ -1825,7 +1825,7 @@
 
 </section>
 
- <!-- TradingView Script -->
+<!-- TradingView - Optimized -->
 <script src="https://s3.tradingview.com/tv.js" async></script>
 
 <script>
@@ -1836,52 +1836,36 @@
             "height": 480,
             "symbol": "BITSTAMP:XRPUSD",
             "interval": "60",
-            "timezone": "Etc/UTC",
             "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#18181b",
-            "enable_publishing": false,
-            "hide_top_toolbar": true,
-            "hide_legend": false,
-            "save_image": false,
             "container_id": "tradingview_xrp"
         });
 
         // Small Charts
-        const smallCharts = [
-            { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
-            { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
-            { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
-            { id: "tradingview_bnb",  symbol: "BINANCE:BNBUSDT" },
-            { id: "tradingview_fet",  symbol: "BINANCE:FETUSDT" },
-            { id: "tradingview_ada",  symbol: "BINANCE:ADAUSDT" },
-            { id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT" },
-            { id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT" },
-            { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }   // Fixed
+        const charts = [
+            {id: "tradingview_eth", symbol: "BINANCE:ETHUSDT"},
+            {id: "tradingview_sol", symbol: "BINANCE:SOLUSDT"},
+            {id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT"},
+            {id: "tradingview_bnb", symbol: "BINANCE:BNBUSDT"},
+            {id: "tradingview_fet", symbol: "BINANCE:FETUSDT"},
+            {id: "tradingview_ada", symbol: "BINANCE:ADAUSDT"},
+            {id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT"},
+            {id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT"},
+            {id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT"}
         ];
 
-        smallCharts.forEach(chart => {
+        charts.forEach(c => {
             new TradingView.widget({
                 "width": "100%",
                 "height": 220,
-                "symbol": chart.symbol,
+                "symbol": c.symbol,
                 "interval": "60",
-                "timezone": "Etc/UTC",
                 "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#18181b",
-                "enable_publishing": false,
-                "hide_top_toolbar": true,
-                "hide_legend": true,
-                "save_image": false,
-                "container_id": chart.id
+                "container_id": c.id
             });
         });
     }
 
-    // Initialize charts when the browser is idle (best for INP)
+    // Initialize when browser is idle (best for INP)
     window.addEventListener('load', () => {
         if ('requestIdleCallback' in window) {
             requestIdleCallback(initTradingViewCharts, { timeout: 4000 });
