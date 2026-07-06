@@ -1830,7 +1830,7 @@
 <script src="https://s3.tradingview.com/tv.js" async></script>
 
 <script>
-    function createTradingViewWidget(containerId, symbol, height = 220) {
+    function createTradingViewWidget(containerId, symbol, height) {
         new TradingView.widget({
             "width": "100%",
             "height": height,
@@ -1841,7 +1841,7 @@
         });
     }
 
-    function lazyLoadChart(elementId, symbol, height = 220) {
+    function lazyLoadChart(elementId, symbol, height) {
         const element = document.getElementById(elementId);
         if (!element) return;
 
@@ -1849,7 +1849,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     createTradingViewWidget(elementId, symbol, height);
-                    observer.disconnect();
+                    observer.disconnect(); // Stop watching after loading
                 }
             });
         }, {
@@ -1860,27 +1860,16 @@
     }
 
     window.addEventListener('load', () => {
-        // Lazy load the main XRP chart
+        // Lazy load main XRP chart
         lazyLoadChart("tradingview_xrp", "BITSTAMP:XRPUSD", 480);
 
-        // Lazy load all small charts
-        const smallCharts = [
-            { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
-            { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
-            { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
-            { id: "tradingview_bnb",  symbol: "BINANCE:BNBUSDT" },
-            { id: "tradingview_fet",  symbol: "BINANCE:FETUSDT" },
-            { id: "tradingview_ada",  symbol: "BINANCE:ADAUSDT" },
-            { id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT" },
-            { id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT" },
-            { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }
-        ];
-
-        smallCharts.forEach(chart => {
-            lazyLoadChart(chart.id, chart.symbol);
-        });
+        // Lazy load remaining small charts
+        lazyLoadChart("tradingview_sol",  "BINANCE:SOLUSDT", 220);
+        lazyLoadChart("tradingview_eth",  "BINANCE:ETHUSDT", 220);
+        lazyLoadChart("tradingview_ondo", "BINANCE:ONDOUSDT", 220);
     });
 </script>
+    
 <script>
 function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(() => {
