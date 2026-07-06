@@ -185,41 +185,19 @@
     </div>
 
 </section>
-<script>
-function startFallingEmojis() {
-    const leftContainer = document.getElementById('left-emojis');
-    const rightContainer = document.getElementById('right-emojis');
-    if (!leftContainer || !rightContainer) return;
+<!-- Hero Section -->
+<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
 
-    const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
+    <!-- Left Falling Emojis -->
+    <div id="left-emojis" 
+         class="absolute left-0 top-0 h-full w-20 pointer-events-none z-10">
+    </div>
 
-    function createEmoji(container) {
-        const emoji = document.createElement('div');
-        emoji.className = 'absolute text-2xl pointer-events-none';
-        emoji.style.left = Math.random() * 100 + '%';
-        emoji.style.top = '-40px';
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        
-        container.appendChild(emoji);
+    <!-- Right Falling Emojis -->
+    <div id="right-emojis" 
+         class="absolute right-0 top-0 h-full w-28 pointer-events-none z-10">
+    </div>
 
-        // Use CSS animation instead of JS transition (much better for performance)
-        emoji.animate([
-            { transform: 'translateY(0)', opacity: 1 },
-            { transform: `translateY(${container.offsetHeight + 200}px)`, opacity: 0 }
-        ], {
-            duration: Math.random() * 6000 + 9000,
-            easing: 'linear'
-        }).onfinish = () => emoji.remove();
-    }
-
-    // Reduced frequency (better for INP)
-    setInterval(() => createEmoji(leftContainer), 2200);
-    setInterval(() => createEmoji(rightContainer), 2400);
-}
-
-window.addEventListener('load', startFallingEmojis);
-</script>
-    
     <!-- Main Content -->
     <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
     
@@ -233,11 +211,11 @@ window.addEventListener('load', startFallingEmojis);
 
     <!-- Buttons -->
     <div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
-       <a href="#featured-memes" 
-   class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
-    <i class="fa-solid fa-images text-lg"></i>
-    <span>Explore Featured Memes</span>
-</a>
+        <a href="#featured-memes" 
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
+            <i class="fa-solid fa-images text-lg"></i>
+            <span>Explore Featured Memes</span>
+        </a>
 
         <a href="#tools" 
            class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
@@ -249,9 +227,7 @@ window.addEventListener('load', startFallingEmojis);
     <p class="mt-10 text-sm text-zinc-500">
         Built with <span class="text-red-500">❤️</span> for the XRPL community
     </p>
-
 </div>
-
   
     <!-- Featured XRPL Memes -->
 <section id="featured-memes" class="max-w-6xl mx-auto px-6 pb-8">
