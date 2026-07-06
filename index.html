@@ -1993,3 +1993,11 @@ function copyToClipboard(text) {
 
     window.addEventListener('load', startFallingEmojis);
 </script>
+    <!-- Defer non-critical scripts -->
+<script src="https://cdn.tailwindcss.com" defer></script>
+
+<!-- Add to images that don't have it yet -->
+<img loading="lazy" ...>
+
+<!-- Add explicit dimensions to reduce CLS too -->
+<img width="..." height="..." loading="lazy" ...>
