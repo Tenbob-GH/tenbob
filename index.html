@@ -1875,15 +1875,12 @@
     });
 </script>
 
-        <script>
-function copyToClipboard(text) {
+<script>
+function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(() => {
-        const originalText = event.target.innerHTML;
-        event.target.innerHTML = `<i class="fa-solid fa-check"></i> <span>Copied!</span>`;
-        
-        setTimeout(() => {
-            event.target.innerHTML = originalText;
-        }, 1500);
+        const original = button.innerHTML;
+        button.innerHTML = `<i class="fa-solid fa-check"></i> <span>Copied!</span>`;
+        setTimeout(() => button.innerHTML = original, 1500);
     });
 }
 </script>
