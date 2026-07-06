@@ -185,18 +185,40 @@
     </div>
 
 </section>
-<!-- Hero Section with Falling Emojis on Sides -->
-<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
+<script>
+function startFallingEmojis() {
+    const leftContainer = document.getElementById('left-emojis');
+    const rightContainer = document.getElementById('right-emojis');
+    if (!leftContainer || !rightContainer) return;
 
-<!-- Left Falling Emojis -->
-<div id="left-emojis" 
-     class="absolute left-0 top-0 h-full w-20 pointer-events-none z-10">
-</div>
+    const emojis = ['🍄', '🐷', '🐮', '🐔', '👁️', '🃏', '🐻', '🦭'];
 
-<!-- Right Falling Emojis -->
-<div id="right-emojis" 
-     class="absolute right-0 top-0 h-full w-28 pointer-events-none z-10">
-</div>
+    function createEmoji(container) {
+        const emoji = document.createElement('div');
+        emoji.className = 'absolute text-2xl pointer-events-none';
+        emoji.style.left = Math.random() * 100 + '%';
+        emoji.style.top = '-40px';
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        
+        container.appendChild(emoji);
+
+        // Use CSS animation instead of JS transition (much better for performance)
+        emoji.animate([
+            { transform: 'translateY(0)', opacity: 1 },
+            { transform: `translateY(${container.offsetHeight + 200}px)`, opacity: 0 }
+        ], {
+            duration: Math.random() * 6000 + 9000,
+            easing: 'linear'
+        }).onfinish = () => emoji.remove();
+    }
+
+    // Reduced frequency (better for INP)
+    setInterval(() => createEmoji(leftContainer), 2200);
+    setInterval(() => createEmoji(rightContainer), 2400);
+}
+
+window.addEventListener('load', startFallingEmojis);
+</script>
     
     <!-- Main Content -->
     <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
