@@ -1826,30 +1826,39 @@
 
 </section>
 
-<!-- TradingView - Fully Lazy Loaded -->
+<!-- TradingView Script -->
 <script src="https://s3.tradingview.com/tv.js" async></script>
 
 <script>
-    function createTradingViewWidget(containerId, symbol, height) {
+    // Main XRP Chart - Loads immediately
+    function initMainXRPChart() {
         new TradingView.widget({
             "width": "100%",
-            "height": height,
-            "symbol": symbol,
+            "height": 480,
+            "symbol": "BITSTAMP:XRPUSD",
             "interval": "60",
             "theme": "dark",
-            "container_id": containerId
+            "container_id": "tradingview_xrp"
         });
     }
 
-    function lazyLoadChart(elementId, symbol, height) {
+    // Small Charts - Lazy Load
+    function lazyLoadSmallChart(elementId, symbol) {
         const element = document.getElementById(elementId);
         if (!element) return;
 
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    createTradingViewWidget(elementId, symbol, height);
-                    observer.disconnect(); // Stop watching after loading
+                    new TradingView.widget({
+                        "width": "100%",
+                        "height": 220,
+                        "symbol": symbol,
+                        "interval": "60",
+                        "theme": "dark",
+                        "container_id": elementId
+                    });
+                    observer.disconnect();
                 }
             });
         }, {
@@ -1860,13 +1869,13 @@
     }
 
     window.addEventListener('load', () => {
-        // Lazy load main XRP chart
-        lazyLoadChart("tradingview_xrp", "BITSTAMP:XRPUSD", 480);
+        // Load main XRP chart immediately
+        initMainXRPChart();
 
-        // Lazy load remaining small charts
-        lazyLoadChart("tradingview_sol",  "BINANCE:SOLUSDT", 220);
-        lazyLoadChart("tradingview_eth",  "BINANCE:ETHUSDT", 220);
-        lazyLoadChart("tradingview_ondo", "BINANCE:ONDOUSDT", 220);
+        // Lazy load the small charts
+        lazyLoadSmallChart("tradingview_sol",  "BINANCE:SOLUSDT");
+        lazyLoadSmallChart("tradingview_eth",  "BINANCE:ETHUSDT");
+        lazyLoadSmallChart("tradingview_ondo", "BINANCE:ONDOUSDT");
     });
 </script>
     
