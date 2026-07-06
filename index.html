@@ -5,53 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tenbob • XRPL Hub</title>
 
-   <style>
-    html {
-        scroll-behavior: smooth;
-    }
+    <!-- Favicon -->
+    <link rel="icon" href="https://tenbob.xyz/favicon.ico" type="image/x-icon">
 
-    section[id],
-    div[id] {
-        scroll-margin-top: 80px;
-    }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
 
-    body {
-        font-family: system-ui, -apple-system, sans-serif;
-    }
-       <link rel="icon" href="https://tenbob.xyz/favicon.ico" type="image/x-icon">
+    <!-- Font Awesome - Made non-render blocking -->
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          media="print" 
+          onload="this.media='all'">
 
-    /* ========== Card Hover Effects ========== */
-    .card-hover {
-        transition: all 0.2s ease;
-    }
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
 
-    .card-hover:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 
-                    0 4px 6px -4px rgb(0 0 0 / 0.1);
-        border-color: #3f3f46;
-    }
+        section[id],
+        div[id] {
+            scroll-margin-top: 80px;
+        }
 
-    .card-hover-strong:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
-                    0 8px 10px -6px rgb(0 0 0 / 0.1);
-    }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
 
-    /* ========== Improved Section Spacing ========== */
-    section {
-        padding-top: 4rem;
-        padding-bottom: 4rem;
-        margin-bottom: 2.5rem;
-    }
+        /* ========== Card Hover Effects ========== */
+        .card-hover {
+            transition: all 0.2s ease;
+        }
 
-    /* Extra strong spacing after XRPL Tools */
-    #tools {
-        padding-bottom: 6rem !important;
-        margin-bottom: 3rem !important;
-    }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 
+                        0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-color: #3f3f46;
+        }
 
-   </style>
+        .card-hover-strong:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
+                        0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        /* ========== Improved Section Spacing ========== */
+        section {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Extra strong spacing after XRPL Tools */
+        #tools {
+            padding-bottom: 6rem !important;
+            margin-bottom: 3rem !important;
+        }
+    </style>
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
     <script>
@@ -62,13 +73,15 @@
     </script>
 
     <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xbr7jo1ae0");
+    <script>
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "xbr7jo1ae0");
     </script>
+</head>
+
 
     <script src="https://cdn.tailwindcss.com" defer></script>
 <script>
