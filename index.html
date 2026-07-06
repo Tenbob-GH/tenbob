@@ -1894,12 +1894,12 @@
 
 </section>
 
-<!-- TradingView - Optimized -->
+<!-- TradingView - Optimized with Lazy Loading -->
 <script src="https://s3.tradingview.com/tv.js" async></script>
 
 <script>
-    function initTradingViewCharts() {
-        // Big XRP Chart
+    // Main XRP Chart - Load immediately
+    function initMainXRPChart() {
         new TradingView.widget({
             "width": "100%",
             "height": 480,
@@ -1908,38 +1908,77 @@
             "theme": "dark",
             "container_id": "tradingview_xrp"
         });
+    }
 
-        // Small Charts
-        const charts = [
-            {id: "tradingview_eth", symbol: "BINANCE:ETHUSDT"},
-            {id: "tradingview_sol", symbol: "BINANCE:SOLUSDT"},
-            {id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT"},
-            {id: "tradingview_bnb", symbol: "BINANCE:BNBUSDT"},
-            {id: "tradingview_fet", symbol: "BINANCE:FETUSDT"},
-            {id: "tradingview_ada", symbol: "BINANCE:ADAUSDT"},
-            {id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT"},
-            {id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT"},
-            {id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT"}
-        ];
-
-        charts.forEach(c => {
-            new TradingView.widget({
-                "width": "100%",
-                "height": 220,
-                "symbol": c.symbol,
-                "interval": "60",
-                "theme": "dark",
-                "container_id": c.id
-            });
+    // Small Charts - Lazy Load
+    function initSmallChart(containerId, symbol) {
+        new TradingView.widget({
+            "width": "100%",
+            "height": 220,
+            "symbol": symbol,
+            "interval": "60",
+            "theme": "dark",
+            "container_id": containerId
         });
     }
 
-    // Initialize when browser is idle (best for INP)
+    // Lazy load small charts using Intersection Observer
+    function lazyLoadSmallCharts() {
+        const charts = [
+            { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
+            { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
+            { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
+            { id: "tradingview_bnb",  symbol: "BINANCE:BNBUSDT" },
+            { id: "tradingview_fet",  symbol: "BINANCE:FETUSDT" },
+            { id: "tradingview_ada",  symbol: "BINANCE:ADAUSDT" },
+            { id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT" },
+            { id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT" },
+            { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }
+        ];
+
+        charts.forEach(chart => {
+            const element = document.getElementById(chart.id);
+            if (!element) return;
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        initSmallChart(chart.id, chart.symbol);
+                        observer.disconnect(); // Stop observing after loading
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            observer.observe(element);
+        });
+    }
+
+    // Initialize everything
     window.addEventListener('load', () => {
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(initTradingViewCharts, { timeout: 4000 });
+        // Load main XRP chart immediately
+        initMainXRPChart();
+
+        // Lazy load small charts
+        if ('IntersectionObserver' in window) {
+            lazyLoadSmallCharts();
         } else {
-            setTimeout(initTradingViewCharts, 2500);
+            // Fallback for older browsers
+            setTimeout(() => {
+                const charts = [
+                    { id: "tradingview_eth",  symbol: "BINANCE:ETHUSDT" },
+                    { id: "tradingview_sol",  symbol: "BINANCE:SOLUSDT" },
+                    { id: "tradingview_ondo", symbol: "BINANCE:ONDOUSDT" },
+                    { id: "tradingview_bnb",  symbol: "BINANCE:BNBUSDT" },
+                    { id: "tradingview_fet",  symbol: "BINANCE:FETUSDT" },
+                    { id: "tradingview_ada",  symbol: "BINANCE:ADAUSDT" },
+                    { id: "tradingview_hbar", symbol: "BINANCE:HBARUSDT" },
+                    { id: "tradingview_wlfi", symbol: "BYBIT:WLFIUSDT" },
+                    { id: "tradingview_hype", symbol: "BYBIT:HYPEUSDT" }
+                ];
+                charts.forEach(c => initSmallChart(c.id, c.symbol));
+            }, 2000);
         }
     });
 </script>
