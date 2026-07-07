@@ -110,8 +110,7 @@
                 <a href="#tools" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">XRPL Tools</a>
                 <a href="#newbie-tips" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Noobs Beware</a>
                 <a href="#nfts" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">My NFTs</a>
-                <a href="#other-charts" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">XRP Chart</a>
-            </div>
+                         </div>
 
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
@@ -137,8 +136,7 @@
             <a href="#tools" class="hover:text-emerald-400">XRPL Tools</a>
             <a href="#newbie-tips" class="hover:text-emerald-400">Noobs Beware</a>
             <a href="#nfts" class="hover:text-emerald-400">My NFTs</a>
-            <a href="#other-charts" class="hover:text-emerald-400">XRP Chart</a>
-        </div>
+                   </div>
     </div>
 </nav>
     
@@ -1625,31 +1623,6 @@
 
 </section>
     
-<!-- XRP Chart -->
-<section id="other-charts" class="max-w-6xl mx-auto px-6">
-
-    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-
-        <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-            <i class="fa-solid fa-chart-line text-emerald-400"></i>
-            XRP Chart
-        </h2>
-
-        <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
-            <div class="flex items-center justify-between mb-3">
-                <span class="font-semibold text-lg">XRP</span>
-                <a href="https://www.tradingview.com/symbols/XRPUSD/" 
-                   target="_blank"
-                   class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded transition flex items-center gap-1">
-                    View on TradingView <i class="fa-solid fa-external-link-alt ml-1 text-[10px]"></i>
-                </a>
-            </div>
-            <div id="tradingview_xrp" class="w-full rounded-xl overflow-hidden" style="height: 480px;"></div>
-        </div>
-
-    </div>
-
-</section>
             
 <!-- Final Section: About + Socials + Tip + Visitors Book -->
 <section class="max-w-6xl mx-auto px-6 pb-12">
@@ -1782,72 +1755,6 @@
 
 </section>
 
-<!-- TradingView Script - Lazy Loaded XRP Chart -->
-<script src="https://s3.tradingview.com/tv.js" async></script>
-
-<script>
-    function initXRPChart() {
-        new TradingView.widget({
-            "width": "100%",
-            "height": 480,
-            "symbol": "BITSTAMP:XRPUSD",
-            "interval": "60",
-            "theme": "dark",
-            "container_id": "tradingview_xrp"
-        });
-    }
-
-    window.addEventListener('load', () => {
-        const chartElement = document.getElementById("tradingview_xrp");
-
-        if (!chartElement) return;
-
-        // Lazy load using Intersection Observer
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    initXRPChart();
-                    observer.disconnect(); // Stop observing after loading
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-
-        observer.observe(chartElement);
-    });
-</script>
-<script>
-function startFallingEmojis() {
-    const left = document.getElementById('left-emojis');
-    const right = document.getElementById('right-emojis');
-    if (!left || !right) return;
-
-    const emojis = ['🍄','🐷','🐮','🐔','👁️','🃏','🐻','🦭'];
-
-    function createEmoji(container) {
-        const el = document.createElement('div');
-        el.className = 'absolute text-2xl';
-        el.style.left = Math.random() * 100 + '%';
-        el.style.top = '-40px';
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        container.appendChild(el);
-
-        el.animate([
-            { transform: 'translateY(0)', opacity: 1 },
-            { transform: `translateY(${container.offsetHeight + 200}px)`, opacity: 0 }
-        ], {
-            duration: Math.random() * 7000 + 8500,
-            easing: 'linear'
-        }).onfinish = () => el.remove();
-    }
-
-    setInterval(() => createEmoji(left), 1800);
-    setInterval(() => createEmoji(right), 2000);
-}
-window.addEventListener('load', startFallingEmojis);
-</script>
-</script>
     <!-- Defer non-critical scripts -->
 <script src="https://cdn.tailwindcss.com" defer></script>
 
