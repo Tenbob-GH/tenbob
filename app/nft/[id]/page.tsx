@@ -106,7 +106,10 @@ export default function NftDetailPage() {
   }
 
   async function buySellOffer(offer: NftOffer) {
-    if (!wallet) return;
+    if (!wallet) {
+      setError("Connect a wallet to buy. Keys never leave the wallet.");
+      return;
+    }
     if (!offer.amount) {
       setError("Only XRP (drops) offers are supported.");
       return;
@@ -302,7 +305,7 @@ export default function NftDetailPage() {
                 onClick={() => void placeBuyOffer()}
                 className="rounded-xl border border-lime px-4 py-2 text-sm font-semibold text-lime"
               >
-                NFTokenCreateOffer
+                Make offer
               </button>
             </div>
             {brokerConfigured() ? (
@@ -322,9 +325,8 @@ export default function NftDetailPage() {
           empty="No sell offers on ledger."
           actionLabel={isOwner ? "Cancel" : "Buy"}
           canAct={(offer) => {
-            if (!wallet) return false;
-            if (isOwner) return offer.owner === wallet.address;
-            return offer.owner !== wallet.address;
+            if (isOwner) return Boolean(wallet && offer.owner === wallet.address);
+            return true;
           }}
           onAction={(offer) => {
             if (isOwner) void cancelOffer(offer);

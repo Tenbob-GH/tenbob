@@ -19,15 +19,14 @@ let writeQueue: Promise<void> = Promise.resolve();
 let started = false;
 
 async function ensureLoaded() {
-  if (loaded) return;
-  loaded = true;
   try {
     const raw = await fs.readFile(FILE, "utf8");
-    memory = JSON.parse(raw) as Store;
-    if (!memory.listings) memory.listings = {};
+    const parsed = JSON.parse(raw) as Store;
+    memory = { listings: parsed.listings ?? {} };
   } catch {
-    memory = { listings: {} };
+    if (!loaded) memory = { listings: {} };
   }
+  loaded = true;
 }
 
 async function persist() {
@@ -127,7 +126,13 @@ function amountDrops(amount: TxLike["Amount"]): string | null {
   return typeof amount === "string" ? amount : null;
 }
 
-export async function ingestValidatedTx(tx: TxLike, meta: TransactionMetadata | string | undefined, hash?: string) {
+export async function ingestValidatedTx(
+  tx: TxLike,
+  meta: TransactionMetadata | string | undefined,
+  hash?: string,
+  opts: { persistMint?: boolean } = {},
+) {
+  await ensureLoaded();
   if (!tx.TransactionType) return;
   const typedMeta = typeof meta === "object" ? meta : undefined;
   const fake = {
@@ -136,6 +141,7 @@ export async function ingestValidatedTx(tx: TxLike, meta: TransactionMetadata | 
 
   switch (tx.TransactionType) {
     case "NFTokenMint": {
+      if (!opts.persistMint) return;
       const nftId = extractNFTokenID(fake);
       if (!nftId) return;
       await mutate(() =>
@@ -158,6 +164,7 @@ export async function ingestValidatedTx(tx: TxLike, meta: TransactionMetadata | 
       if (!nftId) return;
       const isSell = (flagsToNumber(tx.Flags) & TF_SELL_TOKEN) === TF_SELL_TOKEN;
       if (!isSell) {
+        if (!memory.listings[nftId] && !opts.persistMint) return;
         await mutate(() =>
           upsert({
             nft_id: nftId,
@@ -186,6 +193,7 @@ export async function ingestValidatedTx(tx: TxLike, meta: TransactionMetadata | 
         findNftIdFromDeletedOffers(typedMeta) ||
         findListingByOffer(tx.NFTokenSellOffer || tx.NFTokenBuyOffer || "")?.nft_id;
       if (!nftId) return;
+      if (!memory.listings[nftId] && !opts.persistMint) return;
       const buyer = inferNewOwner(tx, typedMeta);
       await mutate(() =>
         upsert({
@@ -217,6 +225,7 @@ export async function ingestValidatedTx(tx: TxLike, meta: TransactionMetadata | 
     case "NFTokenBurn": {
       const nftId = tx.NFTokenID;
       if (!nftId) return;
+      if (!memory.listings[nftId] && !opts.persistMint) return;
       await mutate(() =>
         upsert({
           nft_id: nftId,
@@ -266,7 +275,9 @@ export async function ingestTxHash(hash: string) {
   const res = await client.request({ command: "tx", transaction: hash });
   const txJson = (res.result as { tx_json?: TxLike }).tx_json ?? (res.result as unknown as TxLike);
   const meta = res.result.meta;
-  await ingestValidatedTx(txJson, typeof meta === "object" ? meta : undefined, res.result.hash);
+  await ingestValidatedTx(txJson, typeof meta === "object" ? meta : undefined, res.result.hash, {
+    persistMint: true,
+  });
 }
 
 function txFromStream(event: TransactionStream): { tx: TxLike; meta?: TransactionMetadata } | null {

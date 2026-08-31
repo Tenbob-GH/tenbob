@@ -12,9 +12,14 @@ async function fund(): Promise<FaucetAccount> {
   for (let i = 0; i < 5; i += 1) {
     const res = await fetch(FAUCET, { method: "POST", headers: { "Content-Type": "application/json" } });
     if (res.ok) {
-      const body = (await res.json()) as { account?: { address?: string; secret?: string } };
-      if (body.account?.address && body.account.secret) {
-        return { address: body.account.address, secret: body.account.secret };
+      const body = (await res.json()) as {
+        account?: { address?: string; secret?: string; seed?: string };
+        seed?: string;
+      };
+      const address = body.account?.address;
+      const secret = body.account?.secret ?? body.account?.seed ?? body.seed;
+      if (address && secret) {
+        return { address, secret };
       }
     }
     last = `faucet HTTP ${res.status}`;
@@ -63,7 +68,7 @@ async function main() {
     body: JSON.stringify({
       name: "Tenbob Testnet Drop",
       description: "Happy-path mint from scripts/testnet-happy-path.ts",
-      image: "https://xrpl.org/static/img/favicon-new.png",
+      image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80",
       attributes: [{ trait_type: "network", value: "testnet" }],
     }),
   });
@@ -72,7 +77,19 @@ async function main() {
   console.log("Metadata URI", meta.uri);
 
   const client = await getClient();
-  await client.request({ command: "account_info", account: seller.classicAddress });
+  for (const addr of [seller.classicAddress, buyer.classicAddress]) {
+    let ready = false;
+    for (let i = 0; i < 15; i += 1) {
+      try {
+        await client.request({ command: "account_info", account: addr, ledger_index: "validated" });
+        ready = true;
+        break;
+      } catch {
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    }
+    if (!ready) throw new Error(`Account ${addr} not funded on validated ledger`);
+  }
 
   const mintTx = buildMintTx({
     account: seller.classicAddress,
@@ -125,6 +142,8 @@ async function main() {
   const detailBody = (await detail.json()) as { listing?: { status?: string }; sell_offers?: unknown[] };
   console.log("Detail status", detailBody.listing?.status, "sell offers", detailBody.sell_offers?.length ?? 0);
   console.log("HAPPY_PATH_OK", nftId);
+  await client.disconnect();
+  process.exit(0);
 }
 
 main().catch((err) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { isDevSeedEnabled, type WalletType } from "@/lib/wallets";
 import { classNames } from "@/lib/format";
 import { useWallet } from "./WalletProvider";
@@ -20,6 +21,11 @@ const OPTIONS: { type: WalletType; label: string; hint: string; hidden?: boolean
 export function WalletButton() {
   const { wallet, connecting, connect, disconnect, error, xaman, clearError } = useWallet();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   if (wallet) {
     return (
