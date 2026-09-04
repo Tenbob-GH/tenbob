@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$Fuzzy • Tenbob</title>
+    <meta name="description" content="Fuzzybear memecoin and NFTs on the XRP Ledger.">
+    <link rel="icon" href="https://tenbob.xyz/favicon.ico">
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-white">
 
+<nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-14">
+            <a href="/" class="font-bold text-xl tracking-tight hover:text-emerald-400">Tenbob</a>
+            <div class="hidden md:flex items-center gap-x-6 text-[15px]">
+                <a href="/memes/uga.html" class="hover:text-emerald-400">Uga</a>
+                <a href="/memes/cult.html" class="hover:text-emerald-400">Cult</a>
+                <a href="/memes/seal.html" class="hover:text-emerald-400">Seal</a>
+                <a href="/memes/jester.html" class="hover:text-emerald-400">Jester</a>
+                <a href="/memes/farm.html" class="hover:text-emerald-400">Farm</a>
+                <a href="/memes/fuzzy.html" class="text-emerald-400">Fuzzy</a>
+                <a href="/trenches.html" class="hover:text-emerald-400">Trusted Trenches</a>
+                <a href="/tools.html" class="hover:text-emerald-400">XRPL Tools</a>
+                <a href="/noobs.html" class="hover:text-emerald-400">Noobs Beware</a>
+                <a href="/nfts.html" class="hover:text-emerald-400">My NFTs</a>
+                <a href="/about.html" class="hover:text-emerald-400">About</a>
+            </div>
+            <div class="md:hidden">
+                <button onclick="toggleMobileMenu()" class="text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
+        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
+            <a href="/memes/fuzzy.html">Fuzzy</a>
+            <a href="/tools.html">XRPL Tools</a>
+            <a href="/about.html">About</a>
+        </div>
+    </div>
+</nav>
+
+<section class="max-w-6xl mx-auto px-6 py-10">
+    <a href="/" class="text-sm text-zinc-400 hover:text-emerald-400">← Back to Tenbob</a>
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden mt-4">
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/1879436003498201088/1737576291/1500x500" alt="Fuzzy Banner" class="w-full h-full object-cover">
+        </div>
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/1879436157596942336/R8yR52lP_400x400.jpg" alt="Fuzzy" class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-bold">$Fuzzy</h1>
+                    <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                </div>
+            </div>
+
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p>
+                    <strong>$Fuzzy</strong> is the memecoin and NFT project behind Fuzzybear on the XRPL.
+                    It features custom artwork of a fuzzy bear mascot in adventurous and thematic scenes, paired with short, cryptic phrases.
+                </p>
+                <p class="mt-3">
+                    The project keeps the community engaged through regular updates on drops like Fuzzycards phases and Fuzzy Bars mints.
+                    With strong community engagement around XRP ecosystem tokens and collectibles, it appeals directly to memecoin and NFT enthusiasts.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <a href="https://x.com/fuzzy_xrp" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-brands fa-x-twitter"></i><span>X Profile</span></a>
+                <a href="https://xrp.cafe/collection/fuzzybears" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-solid fa-images"></i><span>OG Collection</span></a>
+                <a href="https://xrp.cafe/collection/sraebyzzuf" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-solid fa-images"></i><span>Mirror Collection</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3 text-sm">
+        <a href="/memes/uga.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$UGA</a>
+        <a href="/memes/cult.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$CULT</a>
+        <a href="/memes/seal.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$SEAL</a>
+        <a href="/memes/jester.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$JESTER</a>
+        <a href="/memes/farm.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$FARM</a>
+    </div>
+</section>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
