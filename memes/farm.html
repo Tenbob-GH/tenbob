@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$Farm • Tenbob</title>
+    <meta name="description" content="Farmer’s Union on the XRP Ledger — Spaces, polls, and community links.">
+    <link rel="icon" href="https://tenbob.xyz/favicon.ico">
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-white">
 
+<nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-14">
+            <a href="/" class="font-bold text-xl tracking-tight hover:text-emerald-400">Tenbob</a>
+            <div class="hidden md:flex items-center gap-x-6 text-[15px]">
+                <a href="/memes/uga.html" class="hover:text-emerald-400">Uga</a>
+                <a href="/memes/cult.html" class="hover:text-emerald-400">Cult</a>
+                <a href="/memes/seal.html" class="hover:text-emerald-400">Seal</a>
+                <a href="/memes/jester.html" class="hover:text-emerald-400">Jester</a>
+                <a href="/memes/farm.html" class="text-emerald-400">Farm</a>
+                <a href="/memes/fuzzy.html" class="hover:text-emerald-400">Fuzzy</a>
+                <a href="/trenches.html" class="hover:text-emerald-400">Trusted Trenches</a>
+                <a href="/tools.html" class="hover:text-emerald-400">XRPL Tools</a>
+                <a href="/noobs.html" class="hover:text-emerald-400">Noobs Beware</a>
+                <a href="/nfts.html" class="hover:text-emerald-400">My NFTs</a>
+                <a href="/about.html" class="hover:text-emerald-400">About</a>
+            </div>
+            <div class="md:hidden">
+                <button onclick="toggleMobileMenu()" class="text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
+        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
+            <a href="/memes/farm.html">Farm</a>
+            <a href="/tools.html">XRPL Tools</a>
+            <a href="/about.html">About</a>
+        </div>
+    </div>
+</nav>
+
+<section class="max-w-6xl mx-auto px-6 py-10">
+    <a href="/" class="text-sm text-zinc-400 hover:text-emerald-400">← Back to Tenbob</a>
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden mt-4">
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/1914086710335410176/1756310380/1500x500" alt="Farm Banner" class="w-full h-full object-cover object-bottom">
+        </div>
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/2056927318367444993/a1DPveQN_400x400.jpg" alt="Farm" class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-bold">$Farm</h1>
+                    <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                </div>
+            </div>
+
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p>
+                    <strong>$Farm</strong> (Farmer’s Union) is a small collective founded by serial X Space farmers who are XRPL enthusiasts.
+                    They focus on tokenizing engagement and attention in the XRP ecosystem through community-driven activities.
+                </p>
+                <p class="mt-3">
+                    The project frequently hosts and participates in X Spaces while engaging the community through memes, polls, liquidity updates,
+                    and lighthearted narratives. With over 2,200 followers, their content blends crypto promotion with playful community interaction.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <a href="https://x.com/FarmerUnionXRPL" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-brands fa-x-twitter"></i><span>X Profile</span></a>
+                <a href="https://farmerunion.meme/" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-solid fa-globe"></i><span>Website</span></a>
+                <a href="https://xrp.cafe/collection/animal-fam" target="_blank" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm"><i class="fa-solid fa-images"></i><span>Animal Fam Collection</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3 text-sm">
+        <a href="/memes/uga.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$UGA</a>
+        <a href="/memes/cult.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$CULT</a>
+        <a href="/memes/seal.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$SEAL</a>
+        <a href="/memes/jester.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$JESTER</a>
+        <a href="/memes/fuzzy.html" class="px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">$FUZZY</a>
+    </div>
+</section>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
