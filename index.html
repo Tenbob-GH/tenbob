@@ -1,1 +1,1919 @@
+#TENBOB
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenbob • XRPL Hub</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://tenbob.xyz/favicon.ico" type="image/x-icon">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+
+    <!-- Font Awesome (Normal loading) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        section[id],
+        div[id] {
+            scroll-margin-top: 80px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* ========== Card Hover Effects ========== */
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 
+                        0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-color: #3f3f46;
+        }
+
+        .card-hover-strong:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
+                        0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        /* ========== Improved Section Spacing ========== */
+        section {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Extra strong spacing after XRPL Tools */
+        #tools {
+            padding-bottom: 6rem !important;
+            margin-bottom: 3rem !important;
+        }
+    </style>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9J19MRHCP3');
+    </script>
+
+    <!-- Microsoft Clarity -->
+    <script>
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "xbr7jo1ae0");
+    </script>
+</head>
+
+
+    <script src="https://cdn.tailwindcss.com" defer></script>
+<script>
+    // Suppress Tailwind production warning
+    window.tailwind = window.tailwind || {};
+</script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-white">
+
+<!-- Top Navigation -->
+<nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-14">
+            
+            <!-- Brand -->
+            <a href="#" class="font-bold text-xl tracking-tight hover:text-emerald-400 transition">Tenbob</a>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center gap-x-8 text-[15px]">
+                <a href="#uga" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Uga</a>
+                <a href="#cult" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Cult</a>
+                <a href="#seal" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Seal</a>
+                <a href="#jester" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Jester</a>
+                <a href="#farm" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Farm</a>
+                <a href="#fuzzy" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Fuzzy</a>
+                <a href="#trenches" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Trusted Trenches</a>
+                <a href="#tools" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">XRPL Tools</a>
+                <a href="#newbie-tips" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">Noobs Beware</a>
+                <a href="#nfts" class="hover:text-emerald-400 transition relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-emerald-400 after:transition-all">My NFTs</a>
+                         </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                        class="text-zinc-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
+        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
+            <a href="#uga" class="hover:text-emerald-400">Uga</a>
+            <a href="#cult" class="hover:text-emerald-400">Cult</a>
+            <a href="#seal" class="hover:text-emerald-400">Seal</a>
+            <a href="#jester" class="hover:text-emerald-400">Jester</a>
+            <a href="#farm" class="hover:text-emerald-400">Farm</a>
+            <a href="#fuzzy" class="hover:text-emerald-400">Fuzzy</a>
+            <a href="#trenches" class="hover:text-emerald-400">Trusted Trenches</a>
+            <a href="#tools" class="hover:text-emerald-400">XRPL Tools</a>
+            <a href="#newbie-tips" class="hover:text-emerald-400">Noobs Beware</a>
+            <a href="#nfts" class="hover:text-emerald-400">My NFTs</a>
+                   </div>
+    </div>
+</nav>
+    
+  <!-- CSS Collage Banner - Featured Memes -->
+<section class="max-w-7xl mx-auto px-6 py-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+
+        <h2 class="text-center text-2xl font-semibold mb-6">Featured Memes on Tenbob</h2>
+
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+
+            <!-- Uga -->
+            <a href="#uga" class="flex flex-col items-center">
+                <img src="https://pbs.twimg.com/profile_images/1997787075853070337/P0CslpXM_400x400.jpg" 
+                     alt="Uga" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$UGA</span>
+            </a>
+
+            <!-- Cult -->
+            <a href="#cult" class="flex flex-col items-center">
+                <img src="https://pbs.twimg.com/profile_images/2014518010132779008/kLmN4sEU_400x400.jpg" 
+                     alt="Cult" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$CULT</span>
+            </a>
+
+            <!-- Seal -->
+            <a href="#seal" class="flex flex-col items-center">
+                <img src="https://pbs.twimg.com/profile_images/2019839758294507520/wf73LFeY_400x400.jpg" 
+                     alt="Seal" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$SEAL</span>
+            </a>
+
+            <!-- Jester -->
+            <a href="#jester" class="flex flex-col items-center">
+                <img src="https://cdn.bithomp.com/image/QmdAjXmC7oRm5dXqh5tUSbYtN4sUYmgPTWQfirq2fyVHBt" 
+                     alt="Jester" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$JESTER</span>
+            </a>
+
+            <!-- Farm -->
+            <a href="#farm" class="flex flex-col items-center">
+                <img src="https://pbs.twimg.com/profile_images/2056927318367444993/a1DPveQN_400x400.jpg" 
+                     alt="Farm" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$FARM</span>
+            </a>
+
+            <!-- Fuzzy -->
+            <a href="#fuzzy" class="flex flex-col items-center">
+                <img src="https://pbs.twimg.com/profile_images/1879436157596942336/R8yR52lP_400x400.jpg" 
+                     alt="Fuzzy" class="w-20 h-20 rounded-2xl border border-zinc-700 object-cover hover:scale-105 transition cursor-pointer">
+                <span class="mt-2 text-sm font-medium">$FUZZY</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- Hero Section -->
+<div class="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center overflow-hidden">
+
+    <!-- Left Falling Emojis -->
+    <div id="left-emojis" 
+         class="absolute left-0 top-0 h-full w-20 pointer-events-none z-10">
+    </div>
+
+    <!-- Right Falling Emojis -->
+    <div id="right-emojis" 
+         class="absolute right-0 top-0 h-full w-28 pointer-events-none z-10">
+    </div>
+
+    <!-- Main Content -->
+    <h1 class="text-6xl md:text-7xl font-bold tracking-tighter">Tenbob</h1>
+    
+    <p class="mt-4 text-2xl md:text-3xl text-zinc-400">Your personal hub on the XRP Ledger</p>
+    
+    <p class="mt-5 text-lg text-zinc-400 max-w-md mx-auto leading-relaxed">
+        Memes I believe in.<br>
+        Tools I actually use.<br>
+        And a bit of common sense in the chaos.
+    </p>
+
+    <!-- Buttons -->
+    <div class="mt-9 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#featured-memes" 
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl text-base transition-all">
+            <i class="fa-solid fa-images text-lg"></i>
+            <span>Explore Featured Memes</span>
+        </a>
+
+        <a href="#tools" 
+           class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-2xl border border-zinc-700 transition-all text-base">
+            <i class="fa-solid fa-tools text-lg"></i>
+            <span>Browse XRPL Tools</span>
+        </a>
+    </div>
+
+    <p class="mt-10 text-sm text-zinc-500">
+        Built with <span class="text-red-500">❤️</span> for the XRPL community
+    </p>
+</div>
+  
+    <!-- Featured XRPL Memes -->
+<section id="featured-memes" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <!-- Section Header -->
+    <div class="flex items-center gap-3 mb-6">
+        <i class="fa-solid fa-star text-emerald-400 text-2xl"></i>
+        <h2 class="text-3xl font-bold tracking-tight">Featured XRPL Memes</h2>
+    </div>
+
+<!-- Featured: $UGA -->
+<section id="uga" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- UGA Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/1800332527711752192/1749716083/1500x500" 
+                 alt="UGA Banner"
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/1997787075853070337/P0CslpXM_400x400.jpg" 
+                     alt="UGA" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$UGA</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p class="mb-3">
+                    <strong>$UGA</strong> (Ugas Brethren) is one of the most established and community-driven meme projects on the XRPL. 
+                    It has built a strong, long-term focused community centered around the Uga Brethren NFT collection and real-world engagement through official merchandise.
+                </p>
+                <p>
+                    Positioned as a more mature meme asset on the XRPL, $UGA emphasizes consistent community building, ecosystem participation, and cultural presence within the XRP Ledger.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                <a href="https://x.com/UgAbugaXRP" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X Profile</span>
+                </a>
+
+                <a href="https://ugaxrpl.gridhosting.xyz/index.html" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website</span>
+                </a>
+
+                <a href="https://ugalabz.store/" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-tshirt"></i>
+                    <span>Merch</span>
+                </a>
+
+                <a href="https://firstledger.net/token-v2/rBFJGmWj6YaabVCxfsjiCM8pfYXs8xFdeC/UGA" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>First Ledger</span>
+                </a>
+
+                <a href="https://dexscreener.com/xrpl/uga.rbfjgmwj6yaabvcxfsjicm8pfyxs8xfdec_xrp" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    <span>Dex Screener</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/ugasbrethren" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Uga Brethren NFTs</span>
+                </a>
+
+                <a href="https://t.me/ugalabz" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+
+                <a href="https://discord.com/invite/vEBXGk5Ucz" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- Featured: $CULT -->
+<section id="cult" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- CULT Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/1872558241030524928/1769133908/1500x500" 
+                 alt="CULT Banner"
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/2014518010132779008/kLmN4sEU_400x400.jpg" 
+                     alt="CULT" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$CULT</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p class="mb-3">
+                    <strong>$CULT</strong> is an innovative XRPL project focused on community-driven value creation and multi-faceted market participation. 
+                    It stands out through its strong emphasis on XRPL tokenomics, on-chain activity, and ecosystem development.
+                </p>
+                <p>
+                    The project actively builds community through consistent content, YouTube livestreams, and thematic narratives. 
+                    It highlights XRPL’s undervalued potential and fosters a unique temple-inspired community culture.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
+
+                <a href="https://x.com/CULTxrplCTO" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X Profile</span>
+                </a>
+
+                <a href="https://www.cultxrp.com/" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website</span>
+                </a>
+
+                <a href="https://xmagnetic.org/amm/CULT+rCULtAKrKbQjk1Tpmg5hkw4dpcf9S9KCs_XRP+XRP?network=mainnet" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>xMagnetic</span>
+                </a>
+
+                <a href="https://firstledger.net/token-v2/rCULtAKrKbQjk1Tpmg5hkw4dpcf9S9KCs/43554C5400000000000000000000000000000000" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>First Ledger</span>
+                </a>
+
+                <a href="https://t.me/CULTnOBEY" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/cultorigin" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Cult Origin NFTs</span>
+                </a>
+
+                <a href="https://www.youtube.com/@CultofXRP" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+
+                <a href="https://www.tiktok.com/@cult.of.xrp" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+
+            </div>
+
+            <!-- Cult Shorts -->
+            <div>
+                <h4 class="text-sm font-semibold text-zinc-300 mb-3">Cult Shorts</h4>
+                
+                <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700">
+
+                    <!-- Short 1 -->
+                    <a href="https://www.youtube.com/shorts/YoSUIGe7mOY" target="_blank"
+                       class="flex-shrink-0 w-52 bg-zinc-800 hover:bg-zinc-700 rounded-2xl overflow-hidden border border-zinc-700 hover:border-emerald-500/50 transition-all group">
+                        
+                        <div class="relative aspect-video bg-zinc-950">
+                            <img src="https://img.youtube.com/vi/YoSUIGe7mOY/hqdefault.jpg" 
+                                 alt="XRPL Tokenomics Explained" 
+                                 class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-all">
+                                <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3">
+                            <div class="text-sm font-medium line-clamp-2">XRPL Tokenomics Explained</div>
+                            <div class="text-xs text-zinc-400 mt-1">@CultofXRP</div>
+                        </div>
+                    </a>
+
+                    <!-- Short 2 -->
+                    <a href="https://www.youtube.com/shorts/RjthchQmhjE" target="_blank"
+                       class="flex-shrink-0 w-52 bg-zinc-800 hover:bg-zinc-700 rounded-2xl overflow-hidden border border-zinc-700 hover:border-emerald-500/50 transition-all group">
+                        
+                        <div class="relative aspect-video bg-zinc-950">
+                            <img src="https://img.youtube.com/vi/RjthchQmhjE/hqdefault.jpg" 
+                                 alt="Understanding On-Chain Activity on XRPL" 
+                                 class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-all">
+                                <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3">
+                            <div class="text-sm font-medium line-clamp-2">Understanding On-Chain Activity on XRPL</div>
+                            <div class="text-xs text-zinc-400 mt-1">@CultofXRP</div>
+                        </div>
+                    </a>
+
+                    <!-- Short 3 -->
+                    <a href="https://www.youtube.com/shorts/NtcJJMjZun0" target="_blank"
+                       class="flex-shrink-0 w-52 bg-zinc-800 hover:bg-zinc-700 rounded-2xl overflow-hidden border border-zinc-700 hover:border-emerald-500/50 transition-all group">
+                        
+                        <div class="relative aspect-video bg-zinc-950">
+                            <img src="https://img.youtube.com/vi/NtcJJMjZun0/hqdefault.jpg" 
+                                 alt="Why XRPL is Undervalued" 
+                                 class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-all">
+                                <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3">
+                            <div class="text-sm font-medium line-clamp-2">Why XRPL is Undervalued</div>
+                            <div class="text-xs text-zinc-400 mt-1">@CultofXRP</div>
+                        </div>
+                    </a>
+
+                    <!-- Short 4 -->
+                    <a href="https://www.youtube.com/shorts/gWLRtk7VhY0" target="_blank"
+                       class="flex-shrink-0 w-52 bg-zinc-800 hover:bg-zinc-700 rounded-2xl overflow-hidden border border-zinc-700 hover:border-emerald-500/50 transition-all group">
+                        
+                        <div class="relative aspect-video bg-zinc-950">
+                            <img src="https://img.youtube.com/vi/gWLRtk7VhY0/hqdefault.jpg" 
+                                 alt="Understanding On-Chain Activity on XRPL" 
+                                 class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-all">
+                                <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3">
+                            <div class="text-sm font-medium line-clamp-2">Understanding On-Chain Activity on XRPL</div>
+                            <div class="text-xs text-zinc-400 mt-1">@CultofXRP</div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- Featured: $Seal -->
+<section id="seal" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- Seal Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/2018570520275673088/1773784692/1500x500" 
+                 alt="Seal Banner"
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/2019839758294507520/wf73LFeY_400x400.jpg" 
+                     alt="Seal" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$Seal</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p class="mb-3">
+                    <strong>$Seal</strong> is a community-driven meme project on the XRPL focused on building a strong, engaged holder base. 
+                    It emphasizes consistent community interaction through active social channels and transparent on-chain presence.
+                </p>
+                <p>
+                    The project aims to create long-term value within the XRPL ecosystem through active participation and community-led initiatives.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                <a href="https://x.com/SealXRP_CTO" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X Profile</span>
+                </a>
+
+                <a href="https://www.sealcto.com/" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website</span>
+                </a>
+
+                <a href="https://discord.com/invite/XDbzAR4mK9" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
+                </a>
+
+                <a href="https://t.me/SealXRP_CTO" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+
+                <a href="https://dexscreener.com/xrpl/5345414c000000000000im000000000000000000.r4pxxqzj8soysx4qkeew4bzrqs1pctvylj_xrp" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    <span>Dex Screener</span>
+                </a>
+
+                <a href="https://firstledger.net/token-v2/r4pXXQzJ8soYSX4QKeeW4BzRQS1PCtVYLJ/5345414C00000000000000000000000000000000" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>First Ledger</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- Featured: $Jester -->
+<section id="jester" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- Jester Banner -->
+        <div class="w-full h-44 bg-zinc-950">
+            <img src="https://github.com/Tenbob-GH/tenbob/blob/main/Jester.jpg?raw=true" 
+                 alt="Jester Chaos Banner" 
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://cdn.bithomp.com/image/QmdAjXmC7oRm5dXqh5tUSbYtN4sUYmgPTWQfirq2fyVHBt" 
+                     alt="Jester" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$Jester</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p>
+                    <strong>$JESTER</strong> and its community represent the fun, social, and high-energy side of crypto. 
+                    It’s the kind of project where people come together to enjoy the memes, the chaos in the best way possible, 
+                    and the shared excitement of being early in a lively corner of the XRPL meme space.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                <a href="https://jesterxrp.web.app/" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website</span>
+                </a>
+
+                <a href="https://t.me/JESTER123123" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/jester-chaos" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Jester Chaos NFTs</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+    <!-- Featured: $Farm -->
+<section id="farm" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+       <!-- Farm Banner -->
+<div class="w-full h-40 bg-zinc-950">
+    <img src="https://pbs.twimg.com/profile_banners/1914086710335410176/1756310380/1500x500" 
+         alt="Farm Banner"
+         class="w-full h-full object-cover object-bottom">
+</div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/2056927318367444993/a1DPveQN_400x400.jpg" 
+                     alt="Farm" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$Farm</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p>
+                    <strong>$Farm</strong> (Farmer’s Union) is a small collective founded by serial X Space farmers who are XRPL enthusiasts. 
+                    They focus on tokenizing engagement and attention in the XRP ecosystem through community-driven activities.
+                </p>
+                <p class="mt-3">
+                    The project frequently hosts and participates in X Spaces while engaging the community through memes, polls, liquidity updates, 
+                    and lighthearted narratives. With over 2,200 followers, their content blends crypto promotion with playful community interaction.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                <a href="https://x.com/FarmerUnionXRPL" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X Profile</span>
+                </a>
+
+                <a href="https://farmerunion.meme/" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Website</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/animal-fam" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Animal Fam Collection</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+    <!-- Featured: $Fuzzy -->
+<section id="fuzzy" class="max-w-6xl mx-auto px-6 pb-8">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- Fuzzy Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://pbs.twimg.com/profile_banners/1879436003498201088/1737576291/1500x500" 
+                 alt="Fuzzy Banner"
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <!-- Logo + Header -->
+            <div class="flex items-center gap-4 mb-4">
+                <img src="https://pbs.twimg.com/profile_images/1879436157596942336/R8yR52lP_400x400.jpg" 
+                     alt="Fuzzy" 
+                     class="w-16 h-16 rounded-2xl border border-zinc-700 object-cover">
+
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-3xl font-bold">$Fuzzy</h2>
+                        <span class="px-3 py-1 text-sm bg-emerald-500/10 text-emerald-400 rounded-full">Featured</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="text-zinc-300 leading-relaxed mb-6 max-w-3xl">
+                <p>
+                    <strong>$Fuzzy</strong> is the memecoin and NFT project behind Fuzzybear on the XRPL. 
+                    It features custom artwork of a fuzzy bear mascot in adventurous and thematic scenes, paired with short, cryptic phrases.
+                </p>
+                <p class="mt-3">
+                    The project keeps the community engaged through regular updates on drops like Fuzzycards phases and Fuzzy Bars mints. 
+                    With strong community engagement around XRP ecosystem tokens and collectibles, it appeals directly to memecoin and NFT enthusiasts.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                <a href="https://x.com/fuzzy_xrp" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X Profile</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/fuzzybears" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>OG Collection</span>
+                </a>
+
+                <a href="https://xrp.cafe/collection/sraebyzzuf" target="_blank"
+                   class="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Mirror Collection</span>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+ <!-- Trusted Trenches -->
+<section id="trenches" class="max-w-6xl mx-auto px-6">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- Degen Trenches Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://github.com/Tenbob-GH/tenbob/blob/main/trust.jpg?raw=true" 
+                 alt="Trust & Honour Banner" 
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                Trusted Trenches
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+            <!-- Profile 1 -->
+            <a href="https://x.com/Pheanor589" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2033603729690345472/3KXF7cOu_400x400.jpg" 
+                     alt="Pheanor589" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@Pheanor589</span>
+            </a>
+
+            <!-- Profile 2 -->
+            <a href="https://x.com/notap_589" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2069131560297938944/mYxcIpzG_400x400.jpg" 
+                     alt="notap_589" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@notap_589</span>
+            </a>
+
+            <!-- Profile 3 -->
+            <a href="https://x.com/CoinMiyamoto" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2069673982333157376/rWi3dNZE_400x400.jpg" 
+                     alt="CoinMiyamoto" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@CoinMiyamoto</span>
+            </a>
+
+            <!-- Profile 4 -->
+            <a href="https://x.com/chaps_GRID" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2072454201867747328/5A-QHpFu_400x400.jpg" 
+                     alt="chaps_GRID" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@chaps_GRID</span>
+            </a>
+
+            <!-- Profile 5 -->
+            <a href="https://x.com/WhisperMyName" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2066163486430748672/HF8I2eYj_400x400.jpg" 
+                     alt="WhisperMyName" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@WhisperMyName</span>
+            </a>
+
+            <!-- Profile 6 -->
+            <a href="https://x.com/ZerpZoo" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2056773633922551808/o8ibmBDS_400x400.jpg" 
+                     alt="ZerpZoo" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@ZerpZoo</span>
+            </a>
+
+            <!-- Profile 7 -->
+            <a href="https://x.com/dpacjones" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2071838401855197184/bqNm1KjS_400x400.jpg" 
+                     alt="dpacjones" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@dpacjones</span>
+            </a>
+
+            <!-- Profile 8 -->
+            <a href="https://x.com/02XRP" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2069298944559947776/0g3tw3ww_400x400.jpg" 
+                     alt="02XRP" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@02XRP</span>
+            </a>
+
+            <!-- Profile 9 -->
+            <a href="https://x.com/peak_arf" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2072877633424052224/3BY29jWv_400x400.jpg" 
+                     alt="peak_arf" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@peak_arf</span>
+            </a>
+
+            <!-- Profile 10 -->
+            <a href="https://x.com/EmperorChing589" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2066943911646380032/bgu5duyC_400x400.jpg" 
+                     alt="EmperorChing589" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@EmperorChing589</span>
+            </a>
+
+            <!-- Profile 11 -->
+            <a href="https://x.com/BunnyBoyTime" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2057887413540888577/zRbS1R42_400x400.jpg" 
+                     alt="BunnyBoyTime" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@BunnyBoyTime</span>
+            </a>
+
+            <!-- Profile 12 -->
+            <a href="https://x.com/AscendXRP" target="_blank"
+               class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+                <img src="https://pbs.twimg.com/profile_images/2072876099571240960/MMLglVhH_400x400.jpg" 
+                     alt="AscendXRP" class="w-10 h-10 rounded-full object-cover">
+                <span class="font-medium">@AscendXRP</span>
+            </a>
+            <!-- New Profile: NFTCookieC -->
+<a href="https://x.com/NFTCookieC" target="_blank"
+   class="flex items-center gap-3 p-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 hover:border-emerald-500/50 transition-all card-hover">
+    <img src="https://pbs.twimg.com/profile_images/2072085980887048192/7ZEvzkoj_400x400.jpg" 
+         alt="NFTCookieC" class="w-10 h-10 rounded-full object-cover">
+    <span class="font-medium">@NFTCookieC</span>
+</a>
+
+        </div>
+
+    </div>
+
+</section>
+            
+<!-- XRPL Tools -->
+<section id="tools" class="max-w-6xl mx-auto px-6">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- XRPL Tools Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://github.com/Tenbob-GH/tenbob/blob/main/XRPL%20Tools%20smaller.jpg?raw=true" 
+                 alt="XRPL Tools Banner" 
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-tools text-emerald-400"></i> 
+                XRPL Tools
+            </h2>
+
+            <!-- Wallets -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4 text-zinc-300">Wallets</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <!-- Xaman -->
+                    <a href="https://xaman.app" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1620905062007554050/EyxZn4XF_400x400.jpg" 
+                             alt="Xaman" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">Xaman</div>
+                            <div class="text-xs text-zinc-400">Most popular XRPL wallet</div>
+                        </div>
+                    </a>
+
+                    <!-- Joey Wallet -->
+                    <a href="https://joeywallet.com" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1930245189236342784/yCbOFPn0_400x400.jpg" 
+                             alt="Joey Wallet" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">Joey Wallet</div>
+                            <div class="text-xs text-zinc-400">Simple & beginner friendly</div>
+                        </div>
+                    </a>
+
+                    <!-- Crossmark -->
+                    <a href="https://crossmark.io" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1800086543639449600/k12WJU1e_400x400.jpg" 
+                             alt="Crossmark" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">Crossmark</div>
+                            <div class="text-xs text-zinc-400">Browser extension wallet</div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- DEX & Marketplaces -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4 text-zinc-300">DEX & Marketplaces</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <!-- xMagnetic -->
+                    <a href="https://xmagnetic.org/dex/MAG+rXmagwMmnFtVet3uL26Q2iwk287SRvVMJ_XRP+XRP?network=mainnet&r=4858992" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1721142767349338112/T59Hc_VM_400x400.jpg" 
+                             alt="xMagnetic" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">xMagnetic</div>
+                            <div class="text-xs text-zinc-400">Popular DEX on XRPL</div>
+                        </div>
+                    </a>
+
+                    <!-- First Ledger -->
+                    <a href="https://firstledger.net/?ref=ZRKAivKfBnDa" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1875159940400054275/ODvOqD3s_400x400.jpg" 
+                             alt="First Ledger" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">First Ledger</div>
+                            <div class="text-xs text-zinc-400">Token launchpad & DEX</div>
+                        </div>
+                    </a>
+
+                    <!-- XPMarket -->
+                    <a href="https://xpmarket.com" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/2005649898516156416/8W13xnsT_400x400.jpg" 
+                             alt="XPMarket" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">XPMarket</div>
+                            <div class="text-xs text-zinc-400">NFT & token marketplace</div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- NFT Marketplaces -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4 text-zinc-300">NFT Marketplaces</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <!-- XRP Cafe -->
+                    <a href="https://xrp.cafe" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1931167932857593856/KAFYj-7J_400x400.jpg" 
+                             alt="XRP Cafe" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">XRP Cafe</div>
+                            <div class="text-xs text-zinc-400">Popular NFT marketplace</div>
+                        </div>
+                    </a>
+
+                    <!-- Bidds (OnXRP) -->
+                    <a href="https://bidds.com" target="_blank"
+                       class="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl border border-zinc-700 transition-all card-hover">
+                        <img src="https://pbs.twimg.com/profile_images/1830954400585523204/hhehzV6K_400x400.jpg" 
+                             alt="Bidds" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <div class="font-semibold">Bidds (OnXRP)</div>
+                            <div class="text-xs text-zinc-400">NFT marketplace</div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- X Profiles -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-zinc-300">X Profiles</h3>
+                <div class="flex flex-wrap gap-3">
+
+                    <a href="https://x.com/XamanWallet" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@XamanWallet</span>
+                    </a>
+
+                    <a href="https://x.com/JoeyWallet" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@JoeyWallet</span>
+                    </a>
+
+                    <a href="https://x.com/crossmarkio" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@crossmarkio</span>
+                    </a>
+
+                    <a href="https://x.com/MagneticXRPL" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@MagneticXRPL</span>
+                    </a>
+
+                    <a href="https://x.com/First_Ledger" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@First_Ledger</span>
+                    </a>
+
+                    <a href="https://x.com/biddsonxrpl" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@biddsonxrpl</span>
+                    </a>
+
+                    <a href="https://x.com/xrpcafe" target="_blank"
+                       class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>@xrpcafe</span>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- Referral Links -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+
+    <h2 class="text-2xl font-semibold mb-6">Referral Links</h2>
+
+    <div class="space-y-6">
+
+        <!-- LuckyHash Banner -->
+        <div class="bg-zinc-800 border border-zinc-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 hover:border-emerald-500/60 transition-all">
+
+            <div class="flex-shrink-0 w-24 h-24 flex items-center justify-center bg-zinc-900 rounded-2xl border border-zinc-700 p-3">
+                <img src="https://luckyhash.win/images/logo.png?v=7266488" 
+                     alt="LuckyHash" 
+                     class="max-h-full max-w-full object-contain"
+                     loading="lazy">
+            </div>
+
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-3xl font-semibold">LuckyHash</h3>
+                <p class="text-zinc-400 mt-2 text-base">
+                    Play games, complete tasks, and earn free crypto rewards every day.
+                </p>
+            </div>
+
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <a href="https://luckyhash.win/?ref=LHKGDKRY" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-3.5 rounded-2xl transition-all">
+                    <span>Visit LuckyHash</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- UgaLabz Banner -->
+        <div class="bg-zinc-800 border border-zinc-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 hover:border-emerald-500/60 transition-all">
+
+            <div class="flex-shrink-0 w-24 h-24 flex items-center justify-center bg-zinc-900 rounded-2xl border border-zinc-700 p-3">
+                <img src="https://ugalabz.store/cdn/shop/files/aef.png?height=68&v=1736727915" 
+                     alt="UgaLabz" 
+                     class="max-h-full max-w-full object-contain"
+                     loading="lazy">
+            </div>
+
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-3xl font-semibold">UgaLabz Merch</h3>
+                <p class="text-zinc-400 mt-2 text-base">
+                    Official UGA merchandise. Support the project and rep the culture.
+                </p>
+            </div>
+
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <a href="https://ugalabz.store/?ref=TENBOB" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-3.5 rounded-2xl transition-all">
+                    <span>Shop UgaLabz</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- First Ledger Banner -->
+        <div class="bg-zinc-800 border border-zinc-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 hover:border-emerald-500/60 transition-all">
+
+            <div class="flex-shrink-0 w-24 h-24 flex items-center justify-center bg-zinc-900 rounded-2xl border border-zinc-700 p-3">
+                <img src="https://pbs.twimg.com/profile_images/1875159940400054275/ODvOqD3s_400x400.jpg" 
+                     alt="First Ledger" 
+                     class="max-h-full max-w-full object-contain rounded-xl"
+                     loading="lazy">
+            </div>
+
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-3xl font-semibold">First Ledger</h3>
+                <p class="text-zinc-400 mt-2 text-base">
+                    A fast and user-friendly decentralized exchange on the XRP Ledger.
+                </p>
+            </div>
+
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <a href="https://firstledger.net/?ref=ZRKAivKfBnDa" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-3.5 rounded-2xl transition-all">
+                    <span>Visit First Ledger</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- XRP Ledger Sniper Bot Banner -->
+        <div class="bg-zinc-800 border border-zinc-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 hover:border-emerald-500/60 transition-all">
+
+            <div class="flex-shrink-0 w-24 h-24 flex items-center justify-center bg-zinc-900 rounded-2xl border border-zinc-700 p-3">
+                <img src="https://cdn4.telesco.pe/file/TCaYKBiR4jiViHbA79vPBoiTOwDukvjh_ANd2K5dg2Xhg4Kx3LhNMAJFydD_42hfRvQGFXLaCU9ZCbxje3tE-lohOnfPrVeB0mbiUZkhqYwyxqBqLpVTMXet3h95S-NJaEChIxHC346BkZTMyygzK-3QDAVp9a3xc5hdOpxCsffYoNUBm_2wskiihtyHYRtkmJ4MPvoM6-NOh5ztD88Ku8mNfHv9jisBzfVCywkezMhB24UaA49wGOG5AI_Y3JLYigoT_feD19pHFSQTDQYIJCWctok0q0Rzyf7eA3Wygi4pCzKjN7eYC-KApuPHwl1L99WNrWqCycbeJKf0oRqABQ.jpg" 
+                     alt="XRP Ledger Sniper Bot" 
+                     class="max-h-full max-w-full object-contain rounded-xl"
+                     loading="lazy">
+            </div>
+
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-3xl font-semibold">XRP Ledger Sniper Bot</h3>
+                <p class="text-zinc-400 mt-2 text-base">
+                    Fast and reliable sniper bot for sniping tokens on the XRP Ledger.
+                </p>
+            </div>
+
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <a href="https://t.me/XrpLedgerSniperBot?start=K0JX67" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-3.5 rounded-2xl transition-all">
+                    <span>Open Sniper Bot</span>
+                    <i class="fa-brands fa-telegram"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- xMagnetic Banner -->
+        <div class="bg-zinc-800 border border-zinc-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 hover:border-emerald-500/60 transition-all">
+
+            <div class="flex-shrink-0 w-24 h-24 flex items-center justify-center bg-zinc-900 rounded-2xl border border-zinc-700 p-3">
+                <img src="https://xmagnetic.org/logo.svg" 
+                     alt="xMagnetic" 
+                     class="max-h-full max-w-full object-contain"
+                     loading="lazy">
+            </div>
+
+            <div class="flex-1 text-center md:text-left">
+                <h3 class="text-3xl font-semibold">xMagnetic</h3>
+                <p class="text-zinc-400 mt-2 text-base">
+                    Decentralized exchange and liquidity provider on the XRP Ledger.
+                </p>
+            </div>
+
+            <div class="flex-shrink-0 w-full md:w-auto">
+                <a href="https://xmagnetic.org/dex/MAG+rXmagwMmnFtVet3uL26Q2iwk287SRvVMJ_XRP+XRP?network=mainnet&r=4858992" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-2 w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-8 py-3.5 rounded-2xl transition-all">
+                    <span>Visit xMagnetic</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+    
+<!-- Top Tips for XRPL Newbies -->
+<section id="newbie-tips" class="max-w-6xl mx-auto px-6">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- Newbie Tips Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://github.com/Tenbob-GH/tenbob/blob/main/noobs%203.jpg?raw=true" 
+                 alt="Noobs Beware Banner" 
+                 class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-6">
+
+            <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-lightbulb text-emerald-400"></i>
+                Top Tips for XRPL Newbies
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- Tip 1 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Avoid FOMO</h4>
+                            <p class="text-sm text-zinc-400">Don’t get caught in the hype. Take your time before buying — especially when everyone is screaming about a token.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 2 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-user-secret text-yellow-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Trust No One (Fully)</h4>
+                            <p class="text-sm text-zinc-400">Even in “good” communities, always do your own research. Scams and rugs can happen anywhere.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 3 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-users text-emerald-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Take Time to Find the Right Community</h4>
+                            <p class="text-sm text-zinc-400">Don’t just join the loudest group. Look for communities that feel genuine and helpful over time.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 4 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-exclamation-circle text-orange-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Expect Drama & Dips</h4>
+                            <p class="text-sm text-zinc-400">Memecoins are volatile. Expect drama in communities and big price swings. Don’t panic sell or FOMO in.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 5 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-chart-line text-red-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Don’t Buy Green Candles</h4>
+                            <p class="text-sm text-zinc-400">Buying when a token is already pumping hard is one of the fastest ways to lose money. Be patient.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 6 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-heart-broken text-pink-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Only Trade Memes You Believe In</h4>
+                            <p class="text-sm text-zinc-400">Don’t “date” memes. Only trade tokens you actually have conviction in. Emotional attachment usually leads to bad decisions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 7 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-shield-halved text-red-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Stay Vigilant – Scams Are Everywhere</h4>
+                            <p class="text-sm text-zinc-400">No one will ever send you free money. If something sounds too good to be true, it almost always is a scam.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 8 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-search text-emerald-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Do Your Own Research (DYOR)</h4>
+                            <p class="text-sm text-zinc-400">Never buy a token just because someone shilled it. Check the chart, community, and token info yourself.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip 9 -->
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-wallet text-emerald-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold">Start Small</h4>
+                            <p class="text-sm text-zinc-400">Only put in what you’re okay losing while you’re still learning. Treat it like paying for experience.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+    
+<!-- My NFTs -->
+<section id="nfts" class="max-w-6xl mx-auto px-6">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+        <!-- My NFTs Banner -->
+        <div class="w-full h-40 bg-zinc-950">
+            <img src="https://github.com/Tenbob-GH/tenbob/blob/main/My%20NFTs%202.jpg?raw=true" 
+                 alt="My NFTs Banner" 
+                 class="w-full h-full object-cover" 
+                 width="1200" height="320" loading="lazy">
+        </div>
+
+        <div class="p-6">
+
+            <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-images text-emerald-400"></i> 
+                My NFTs
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">  
+
+                <!-- NFT 1 -->
+                <a href="https://bithomp.com/nft/000827106890E20B191BCFB6D662465B2C45F7E2BD932DA9AFFD700705D30FA7" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeihm4u7tuhwrdw2nsb75migw7dcpz2k4nwfshh5pcte7uf6nrosupe/cultist-18.png" 
+                             alt="Cultist 18" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Cultist 18</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">CULT Origin</div>
+                    </div>
+                </a>
+
+                <!-- NFT 2 -->
+                <a href="https://bithomp.com/nft/00082328BCFC5A746819F63032849A71F928B7899E1524F054124E0A05E93272" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmU2Rm9PM6NXDMyxZvLD3y6qtr5XuruxGPp73zNUP8NAr1" 
+                             alt="F1 ELON 2077" class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">F1 ELON 2077</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Jungle Boutique</div>
+                    </div>
+                </a>
+
+                <!-- NFT 3 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E8152BC571B9E04D69F03" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeibkvgc7zqweyou4ucqjlph5sivhmt4pjaddzj6shiebzq2rds4ula" 
+                             alt="Tree Face 426" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Tree Face 426</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Tree Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 4 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E81521E226EBF00000124" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeickwviottjvjolfbflss4oqplpcpabrvpxu4fgd4xnj5wnvna3z6e" 
+                             alt="Tree Face 287" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Tree Face 287</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Tree Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 5 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E815252857BFF04D69F63" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmQfTZ5f9hXawh9qqbY2WYWhMerLHttj5ZqT5HUGnVqvWm" 
+                             alt="Fire Face 16" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Fire Face 16</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Fire Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 6 -->
+                <a href="https://bithomp.com/nft/00081388C545AA833857B145D4246271C0A22ECCF82FE18976A224FB0584111B" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeiaqtmgksdogsfwrgskcj3kb2q6amhh6jq37isjzgyrab37f7yjg5m/uga701.png" 
+                             alt="Uga701" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Uga701</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Ugas Brethren</div>
+                    </div>
+                </a>
+
+                <!-- NFT 7 -->
+                <a href="https://bithomp.com/nft/00081388C545AA833857B145D4246271C0A22ECCF82FE1894308D19E05840F38" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeiaqtmgksdogsfwrgskcj3kb2q6amhh6jq37isjzgyrab37f7yjg5m/uga792.png" 
+                             alt="Uga792" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Uga792</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Ugas Brethren</div>
+                    </div>
+                </a>
+
+                <!-- NFT 8 -->
+                <a href="https://bithomp.com/nft/000827109E71F179C72E6230DE1FCAA974663C771598748E6B2267EE05C4C549" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmVVgTsbHeoek86zaiZEMMhokQbDFYtcGshyLcF7ffgFFH" 
+                             alt="The Hooded Singularity" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">The Hooded Singularity</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">i see pixels</div>
+                    </div>
+                </a>
+
+                <!-- NFT 9 -->
+                <a href="https://bithomp.com/nft/00181388208AE9E5739668CEE25874F9BBE7EB2452EC4B8D8D654FAB0637070F" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeiayyqbms26cxp7cbhqishygrsys4jeyi6n2qc4mwdcqfjohjjidjy/781.png" 
+                             alt="Ape" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Ape</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Animal Fam</div>
+                    </div>
+                </a>
+
+                <!-- NFT 10 -->
+                <a href="https://bithomp.com/nft/00181388208AE9E5739668CEE25874F9BBE7EB2452EC4B8D82DF8D89063706ED" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeiayyqbms26cxp7cbhqishygrsys4jeyi6n2qc4mwdcqfjohjjidjy/1141.png" 
+                             alt="Punk Chicken" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Punk Chicken</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Animal Fam</div>
+                    </div>
+                </a>
+
+                <!-- NFT 11 -->
+                <a href="https://bithomp.com/nft/0008138808C4E53F4F6EF5D5B2AF64F96B457F42E0ED9530B701F2D200000237" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeienvbxkuolk7x3c36awhj44noohwva3ph5h7ktjxamhmoc32es62q/nerd_bird_no_69.jpg" 
+                             alt="nerd bird no 69" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">nerd bird no 69</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">birdjpg</div>
+                    </div>
+                </a>
+
+                <!-- NFT 12 -->
+                <a href="https://bithomp.com/nft/00081388E4B1FEC868A27B165AADB008370A6B286D45416279DF70B405CB2D1A" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeiccwfghm5m4uwt6gijmnrxkqera647da3vu6k4clgj336vmx7fvfm/phnix281.png" 
+                             alt="PHNIX281" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">PHNIX281</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">PHNIXs</div>
+                    </div>
+                </a>
+
+                <!-- NFT 13 -->
+                <a href="https://bithomp.com/nft/00181B58BF4A7749111EB83E36BF7681E9F02E25B89CD2CDA39958EA06045847" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://ipfs.io/ipfs/bafybeifqizcc5mjlcez2nksmkb3xlrlkauvgjuxhwyviolihz4zs7cppym/jester-268.png" 
+                             alt="JESTER 268" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">JESTER 268</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">JESTER CHAOS</div>
+                    </div>
+                </a>
+
+                <!-- NFT 14 -->
+                <a href="https://bithomp.com/nft/00181B58BF4A7749111EB83E36BF7681E9F02E25B89CD2CD57134778060458D5" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://ipfs.io/ipfs/bafybeifqizcc5mjlcez2nksmkb3xlrlkauvgjuxhwyviolihz4zs7cppym/jester-60.png" 
+                             alt="JESTER 60" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">JESTER 60</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">JESTER CHAOS</div>
+                    </div>
+                </a>
+
+                <!-- NFT 15 -->
+                <a href="https://bithomp.com/nft/000813885E423427ABA856BAE5FAC55F140071E9BE114D43C29F6486059C1224" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeid7lgky24ndqdmrcwooeeyuqugrqobuek5n4xudb333kge5g55jnu/354.png" 
+                             alt="X Raptor Punk #354" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">X Raptor Punk #354</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">X Raptor Punks</div>
+                    </div>
+                </a>
+
+                <!-- NFT 16 -->
+                <a href="https://bithomp.com/nft/000813885E423427ABA856BAE5FAC55F140071E9BE114D434F1EEFCA059C1358" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeid7lgky24ndqdmrcwooeeyuqugrqobuek5n4xudb333kge5g55jnu/357.png" 
+                             alt="X Raptor Punk #357" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">X Raptor Punk #357</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">X Raptor Punks</div>
+                    </div>
+                </a>
+
+                <!-- NFT 17 -->
+                <a href="https://bithomp.com/nft/0008271003D1E3A4BF9BD5C0A9BBFA392D2C7CBD96D60A4904A3568300000836" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmVcioi57ZqReGBey22NDLPNQDxmwJZDDEfQmWEUXR2AXn" 
+                             alt="Mutant Apes XRP. #1589" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Mutant Apes XRP. #1589</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Mutant Apes XRP</div>
+                    </div>
+                </a>
+
+                <!-- NFT 18 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E81525D76A99904D6A000" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmfMvrvVBjYpJ5d2y42BfAvjm7TcJvRBAt5PRp6U4HwTxs" 
+                             alt="Rock Face 64" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Rock Face 64</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Rock Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 19 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E81526C1C70B004D6A017" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmbMGn3uD8SNnS5jCZVHkLnxb2ERcTMG8wSHN5Si1GAvxy" 
+                             alt="Rock Face 87" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Rock Face 87</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Rock Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 20 -->
+                <a href="https://bithomp.com/nft/00081388C545AA833857B145D4246271C0A22ECCF82FE189E047268C058412EA" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeihwtamg7yad2npasqzagii6kf6w4rro3nt72xehr7utonh4ynzk5q/gnostic-elder-uga292.png" 
+                             alt="Gnostic Elder Uga292" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Gnostic Elder Uga292</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Gnostic Ugas Elders Circle</div>
+                    </div>
+                </a>
+
+                <!-- NFT 21 -->
+                <a href="https://bithomp.com/nft/00081388C545AA833857B145D4246271C0A22ECCF82FE18905D2BE9405841302" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeihwtamg7yad2npasqzagii6kf6w4rro3nt72xehr7utonh4ynzk5q/gnostic-elder-uga1956.png" 
+                             alt="Gnostic Elder Uga1956" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">Gnostic Elder Uga1956</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Gnostic Ugas Elders Circle</div>
+                    </div>
+                </a>
+
+                <!-- NFT 22 -->
+                <a href="https://bithomp.com/nft/000813882D9136BEC023FA9C2E73B64A7A57CA58307E81527FB913B104D6A119" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmQiYhsQGQtYYzb9yyKxQmumWjRQpJXCecAmb3KvHXFMoG" 
+                             alt="MF42" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-xl tracking-tight">MF42</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Monster Faces</div>
+                    </div>
+                </a>
+
+                <!-- NFT 23 -->
+                <a href="https://bithomp.com/nft/0008138832C2DFBFB9B273AE88747A66503FF75BBC18AF14F7DEFC5605C376BC" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/bafybeieyrhmwpfy4k4gi5td45zrj7yc62nhr2zuecgpjqb3wvjm2nklucy/scandles-%231982.png" 
+                             alt="Scandles #1982" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-4">
+                        <div class="font-semibold text-lg tracking-tight">Scandles #1982</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">Scandles</div>
+                    </div>
+                </a>
+
+                <!-- NFT 24 -->
+                <a href="https://bithomp.com/nft/00080FAAA858C390071E889539E7F607057F269C55BEF6FF5E5F6CFC05793261" target="_blank"
+                   class="group block bg-zinc-800 hover:bg-zinc-700 rounded-3xl overflow-hidden border border-zinc-700 hover:border-emerald-500/60 transition-all duration-200 shadow-lg">
+                    <div class="aspect-square bg-zinc-950">
+                        <img src="https://cdn.bithomp.com/image/QmRrKFHZXriDFwrJ4vHt6c7yC8jp3uBHGLYZVnuWS2vWXz" 
+                             alt="#311 SIGMA" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                             width="400" height="400" loading="lazy">
+                    </div>
+                    <div class="p-4">
+                        <div class="font-semibold text-lg tracking-tight">#311 SIGMA</div>
+                        <div class="text-emerald-400 text-sm mt-0.5 font-medium">SIGMA</div>
+                    </div>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+    
+            
+<!-- Final Section: About + Socials + Tip + Visitors Book -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+
+        <!-- About Tenbob -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-3">About Tenbob</h2>
+            <p class="text-zinc-300 max-w-2xl mx-auto">
+                Hey, I'm <strong>Tenbob</strong>. I'm passionate about LFC and following the Premier League and Champions League, 
+                while also being deeply involved in the XRPL memecoin and NFT space. I built this site as a personal hub to share 
+                the projects, tools, and memes I believe in on the XRP Ledger.
+            </p>
+        </div>
+
+        <!-- Socials -->
+        <div class="mb-10">
+            <h3 class="text-lg font-semibold mb-4">Connect with me</h3>
+            <div class="flex flex-wrap justify-center gap-3">
+
+                <a href="https://x.com/tenbob_x" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>X / Twitter</span>
+                </a>
+
+                <a href="https://t.me/tenbob_tg" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+
+                <a href="https://discord.gg/tenbob_d" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
+                </a>
+
+                <a href="https://www.youtube.com/@Tenbob_YT" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+
+                <a href="https://www.tiktok.com/@tenbob_tt" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+
+                <a href="https://www.instagram.com/tenbob.x" target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">
+                    <i class="fa-brands fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+
+            </div>
+        </div>
+
+        <hr class="border-zinc-700 my-8">
+
+        <!-- Tip + Visitors Book Side by Side -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
+
+            <!-- Tip Section -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Support Tenbob</h3>
+                <p class="text-sm text-zinc-400 mb-4">Tips are always appreciated ❤️</p>
+
+                <div class="bg-zinc-800 border border-zinc-700 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">XRP Address</span>
+                        <span class="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">No Tag</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-zinc-950 border border-zinc-700 rounded-xl p-2">
+                        <code class="flex-1 text-xs break-all text-zinc-300">
+                            rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4
+                        </code>
+                        <button onclick="copyToClipboard('rp7CkmnPZ8z8vPxX9LNGwUuuw6BVo3bhm4', this)"
+                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visitors Book -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Visitors Book</h3>
+                <p class="text-sm text-zinc-400 mb-4">Leave a message or shoutout!</p>
+
+                <form id="visitors-book-form" action="https://api.web3forms.com/submit" method="POST" class="space-y-4">
+
+                    <input type="hidden" name="access_key" value="77293574-7207-49e2-89eb-e332d90df80e">
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Name</label>
+                        <input type="text" name="name" required
+                               class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">X Handle (Optional)</label>
+                        <input type="text" name="x_handle" placeholder="@yourhandle"
+                               class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Message</label>
+                        <textarea name="message" rows="3" required
+                                  class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 resize-y"></textarea>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-2xl transition text-sm">
+                        Leave a Message
+                    </button>
+
+                    <div id="result" class="hidden text-center text-sm mt-2"></div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+    <!-- Defer non-critical scripts -->
+<script src="https://cdn.tailwindcss.com" defer></script>
+
+<!-- Add to images that don't have it yet -->
+<img loading="lazy" ...>
+
+<!-- Add explicit dimensions to reduce CLS too -->
+<img width="..." height="..." loading="lazy" ...>
 
