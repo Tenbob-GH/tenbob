@@ -38,6 +38,23 @@ function spawnFallingEmojis() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const hashRoutes = {
+    '#uga': '/memes/uga.html',
+    '#cult': '/memes/cult.html',
+    '#seal': '/memes/seal.html',
+    '#jester': '/memes/jester.html',
+    '#farm': '/memes/farm.html',
+    '#fuzzy': '/memes/fuzzy.html',
+    '#trenches': '/trenches.html',
+    '#tools': '/tools.html',
+    '#newbie-tips': '/noobs.html',
+    '#nfts': '/nfts.html'
+  };
+  if (hashRoutes[location.hash]) {
+    location.replace(hashRoutes[location.hash]);
+    return;
+  }
+
   spawnFallingEmojis();
 
   const form = document.getElementById('visitors-book-form');
