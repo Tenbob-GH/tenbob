@@ -14,14 +14,17 @@
 <nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between h-14">
-            <a href="/" class="font-bold text-xl tracking-tight hover:text-emerald-400">Tenbob</a>
+            <a href="/" class="font-bold text-xl tracking-tight text-emerald-400">Tenbob</a>
             <div class="hidden md:flex items-center gap-x-6 text-[15px]">
                 <a href="/memes/uga.html" class="hover:text-emerald-400">Uga</a>
                 <a href="/memes/cult.html" class="hover:text-emerald-400">Cult</a>
                 <a href="/memes/seal.html" class="hover:text-emerald-400">Seal</a>
-                <a href="/memes/jester.html" class="text-emerald-400">Jester</a>
+                <a href="/memes/jester.html" class="hover:text-emerald-400">Jester</a>
                 <a href="/memes/farm.html" class="hover:text-emerald-400">Farm</a>
                 <a href="/memes/fuzzy.html" class="hover:text-emerald-400">Fuzzy</a>
+                <a href="/memes/bearchamp.html" class="hover:text-emerald-400">Bear Champ</a>
+                <a href="/memes/army.html" class="hover:text-emerald-400">Army</a>
+                <a href="/memes/phoenix.html" class="hover:text-emerald-400">Phoenix</a>
                 <a href="/trenches.html" class="hover:text-emerald-400">Trusted Trenches</a>
                 <a href="/tools.html" class="hover:text-emerald-400">XRPL Tools</a>
                 <a href="/noobs.html" class="hover:text-emerald-400">Noobs Beware</a>
@@ -29,7 +32,7 @@
                 <a href="/about.html" class="hover:text-emerald-400">About</a>
             </div>
             <div class="md:hidden">
-                <button onclick="toggleMobileMenu()" class="text-zinc-400 hover:text-white">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-zinc-400 hover:text-white">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
@@ -37,8 +40,19 @@
     </div>
     <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
         <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
+            <a href="/memes/uga.html">Uga</a>
+            <a href="/memes/cult.html">Cult</a>
+            <a href="/memes/seal.html">Seal</a>
             <a href="/memes/jester.html">Jester</a>
+            <a href="/memes/farm.html">Farm</a>
+            <a href="/memes/fuzzy.html">Fuzzy</a>
+            <a href="/memes/bearchamp.html">Bear Champ</a>
+            <a href="/memes/army.html">Army</a>
+            <a href="/memes/phoenix.html">Phoenix</a>
+            <a href="/trenches.html">Trusted Trenches</a>
             <a href="/tools.html">XRPL Tools</a>
+            <a href="/noobs.html">Noobs Beware</a>
+            <a href="/nfts.html">My NFTs</a>
             <a href="/about.html">About</a>
         </div>
     </div>
