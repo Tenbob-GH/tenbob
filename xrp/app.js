@@ -89,31 +89,41 @@ addEventListener("resize", () => { clearTimeout(layoutT); layoutT = setTimeout(l
 addEventListener("orientationchange", () => setTimeout(layout, 250));
 
 /* ---------------- UI updates ---------------- */
+function putText(id, text){ const n = $(id); if (n && n.textContent !== text) n.textContent = text; }
+let paintedPrice = null;
 function renderPrice(){
   const p = S.price; if (p == null) return;
   const el = $("price"), txt = "$" + fmt(p);
   const relayout = txt.length !== el.textContent.length;
-  el.textContent = txt;
+  if (el.textContent !== txt) el.textContent = txt;
   if (relayout) layout();
-  if (S.prevPrice != null && p !== S.prevPrice){
+  if (paintedPrice != null && p !== paintedPrice){
     el.classList.remove("up", "down"); void el.offsetWidth;
-    el.classList.add(p > S.prevPrice ? "up" : "down");
+    el.classList.add(p > paintedPrice ? "up" : "down");
   }
+  paintedPrice = p;
   if (S.pct != null && isFinite(S.pct)){
     const up = S.pct >= 0;
     $("change").className = up ? "up" : "down";
     el.classList.toggle("tUp", up); el.classList.toggle("tDown", !up);
-    $("arrow").textContent = up ? "▲" : "▼";
-    $("pct").textContent = (up ? "+" : "") + S.pct.toFixed(2) + "%";
+    putText("arrow", up ? "▲" : "▼");
+    putText("pct", (up ? "+" : "") + S.pct.toFixed(2) + "%");
   }
-  if (SHOW_EUR && S.eurRate) $("eur").textContent = "€" + fmt(p * S.eurRate);
+  if (SHOW_EUR && S.eurRate) putText("eur", "€" + fmt(p * S.eurRate));
   const hiTxt = S.hi != null ? "$" + fmt(S.hi) : "-", loTxt = S.lo != null ? "$" + fmt(S.lo) : "-";
   const hlRelayout = hiTxt.length !== $("hlHighV").textContent.length || loTxt.length !== $("hlLowV").textContent.length;
-  $("hlHighV").textContent = hiTxt; $("hlLowV").textContent = loTxt;
-  $("vol").textContent = fmtBig(S.vol);
-  $("qvol").textContent = S.qvol != null ? "$" + fmtBig(S.qvol) : "-";
-  document.title = "$" + fmt(p) + " XRP Live Price 24/7 | Tenbob";
+  putText("hlHighV", hiTxt); putText("hlLowV", loTxt);
+  putText("vol", fmtBig(S.vol));
+  putText("qvol", S.qvol != null ? "$" + fmtBig(S.qvol) : "-");
+  const title = txt + " XRP Live Price 24/7 | Tenbob";
+  if (document.title !== title) document.title = title;
   if (hlRelayout && !relayout) layout();
+}
+let priceQueued = false;
+function queuePrice(){
+  if (priceQueued || document.hidden) return;
+  priceQueued = true;
+  requestAnimationFrame(() => { priceQueued = false; if (!document.hidden) renderPrice(); });
 }
 function setSource(label, cls){
   S.source = label; $("creditText").textContent = "Live: " + label;
@@ -129,10 +139,19 @@ function onPrice(p, ts = Date.now()){
   else if (!last || m > last.t){ S.candles.push({t: m, o: last ? last.c : p, h: p, l: p, c: p}); trimCandles(); }
   const sl = S.samples[S.samples.length - 1];
   if (!sl || ts - sl.t >= 1000) S.samples.push({t: ts, p});
-  while (S.samples.length && ts - S.samples[0].t > MOVE_WIN_MS) S.samples.shift();
-  renderPrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
+  if (S.samples.length && ts - S.samples[0].t > MOVE_WIN_MS){
+    const cut = ts - MOVE_WIN_MS;
+    let drop = 0;
+    while (drop < S.samples.length && S.samples[drop].t <= cut) drop++;
+    if (drop) S.samples.splice(0, drop);
+  }
+  if (S.samples.length > 1200) S.samples.splice(0, S.samples.length - 900);
+  queuePrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
 }
-function trimCandles(){ while (S.candles.length > WINDOW_MIN + MA_EXTRA) S.candles.shift(); }
+function trimCandles(){
+  const max = WINDOW_MIN + MA_EXTRA;
+  if (S.candles.length > max) S.candles.splice(0, S.candles.length - max);
+}
 function setCandles(arr){
   const live = S.candles.filter(c => c.t > (arr.length ? arr[arr.length-1].t : 0));
   S.candles = arr.concat(live); trimCandles();
@@ -166,6 +185,7 @@ function checkMilestone(p){
   const key = crossed.toFixed(2), now = Date.now();
   if (now - (S.milestoneAt[key] || 0) < 30 * 60e3) return;
   S.milestoneAt[key] = now;
+  for (const old of Object.keys(S.milestoneAt)) if (now - S.milestoneAt[old] > 6 * 3600e3) delete S.milestoneAt[old];
   showBanner("mile", `XRP CROSSES $${key} ${up ? "⬆" : "⬇"}`);
 }
 function checkHighLow(p){
@@ -180,7 +200,12 @@ function checkHighLow(p){
 
 /* ---------------- banner + particle FX ---------------- */
 const bannerQ = []; let bannerBusy = false;
-function showBanner(kind, text, sub){ bannerQ.push({kind, text, sub}); if (!bannerBusy) nextBanner(); }
+function showBanner(kind, text, sub){
+  if (document.hidden) return;
+  if (bannerQ.length >= 3) bannerQ.shift();
+  bannerQ.push({kind, text, sub});
+  if (!bannerBusy) nextBanner();
+}
 function nextBanner(){
   const b = bannerQ.shift(); if (!b){ bannerBusy = false; return; }
   bannerBusy = true;
@@ -240,6 +265,7 @@ function confetti(kind, small){
   }
 }
 function drawFx(){
+  if (parts.length > 240) parts.splice(0, parts.length - 240);
   if (!parts.length && !fxDirty) return;
   fxc.clearRect(0, 0, innerWidth, innerHeight); fxDirty = parts.length > 0;
   for (const p of parts){
@@ -310,7 +336,7 @@ function drawChart(now){
     cx.fillText("Connecting to the live feed...", Lm + 8, Math.max(24, H - 24)); return;
   }
   if (dispPrice == null) dispPrice = S.price;
-  dispPrice += (S.price - dispPrice) * 0.15;
+  dispPrice += (S.price - dispPrice) * 0.55;
   if (Math.abs(S.price - dispPrice) < 1e-6) dispPrice = S.price;
   const last = data[data.length-1];
   let lo = Infinity, hi = -Infinity;
@@ -677,8 +703,10 @@ function toggleFs(){
   else { const r = (docEl.requestFullscreen || docEl.webkitRequestFullscreen).call(docEl); if (r && r.catch) r.catch(() => {}); }
 }
 const fsLabel = () => { $("fsBtn").textContent = fsEl() ? "⛶ Exit full screen" : "⛶ Full screen"; };
+function onFullscreen(){ fsLabel(); setTimeout(layout, 60); }
 $("fsBtn").addEventListener("click", toggleFs);
-document.addEventListener("fullscreenchange", fsLabel); document.addEventListener("webkitfullscreenchange", fsLabel);
+document.addEventListener("fullscreenchange", onFullscreen);
+document.addEventListener("webkitfullscreenchange", onFullscreen);
 addEventListener("keydown", e => {
   if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName) && e.key !== "f" && e.key !== "m") return;
   if (e.key === "f" || e.key === "F"){ if (fsEnabled) toggleFs(); }
@@ -709,23 +737,39 @@ updateSoundUI();
 /* test / debugging helper */
 window.__xrpSfx = {play: playSfx, ctx: () => AC, on: () => soundOn};
 
-/* ---------------- main loop (~30fps, rAF) ---------------- */
-let lastFrame = 0;
+/* ---------------- main loop: rAF, chart at most 4 times a second ---------------- */
+const CHART_MS = 250;
+let lastFrame = 0, rafId = 0, looping = false;
 function loop(now){
-  requestAnimationFrame(loop);
-  if (now - lastFrame < 33) return; lastFrame = now;
-  drawChart(now); drawFx(); if (now - volAt > 500){ volAt = now; drawVol(); }
+  rafId = 0;
+  if (document.hidden){ looping = false; parts.length = 0; fxc.clearRect(0, 0, innerWidth, innerHeight); return; }
+  rafId = requestAnimationFrame(loop);
+  if (parts.length) drawFx();
+  if (now - lastFrame < CHART_MS) return;
+  lastFrame = now;
+  drawChart(now);
+  S.chartDraws = (S.chartDraws || 0) + 1;
+  chartDirty = false;
+  if (now - volAt > 1000){ volAt = now; drawVol(); }
+}
+function startLoop(){
+  if (looping || document.hidden) return;
+  looping = true;
+  rafId = requestAnimationFrame(loop);
 }
 
 /* ---------------- rotating ticker lines ---------------- */
 let tIdx = 0, tEl = null;
 function rotateTicker(){
-  const box = $("tickerText"), s = document.createElement("div"), t = document.createElement("span"), line = TICKER_LINES[tIdx++ % TICKER_LINES.length];
+  if (document.hidden) return;
+  const box = $("tickerText");
+  while (box.children.length > 2) box.removeChild(box.firstChild);
+  const s = document.createElement("div"), t = document.createElement("span"), line = TICKER_LINES[tIdx++ % TICKER_LINES.length];
   s.className = "tline"; s.appendChild(t);
   if (line.h) t.innerHTML = line.h; else t.textContent = line.t;
   s.style.transform = "translateY(100%)"; s.style.opacity = "0"; box.appendChild(s);
   requestAnimationFrame(() => requestAnimationFrame(() => { s.style.transform = "translateY(0)"; s.style.opacity = "1"; }));
-  if (tEl){ const old = tEl; old.style.transform = "translateY(-100%)"; old.style.opacity = "0"; setTimeout(() => old.remove(), 700); }
+  if (tEl && tEl !== s){ const old = tEl; old.style.transform = "translateY(-100%)"; old.style.opacity = "0"; setTimeout(() => { if (old.parentNode) old.remove(); }, 700); }
   tEl = s;
 }
 rotateTicker(); setInterval(rotateTicker, 6000);
@@ -821,16 +865,26 @@ function startPolling(){
 function stopPolling(){ clearInterval(restTimer); clearInterval(cgTimer); restTimer = cgTimer = null; }
 
 /* watchdog: stale data -> reconnect; periodic reseed to heal gaps (e.g. after the tab slept) */
-setInterval(() => { if (S.mode === "ws" && Date.now() - S.lastTickAt > 45000) scheduleReconnect(true); }, 10000);
-setInterval(() => { if (S.mode !== "poll" || restTimer) seedBinance().catch(() => {}); }, 30 * 60e3);
+setInterval(() => {
+  if (document.hidden) return;
+  if (S.mode === "ws" && Date.now() - S.lastTickAt > 45000) scheduleReconnect(true);
+}, 10000);
+setInterval(() => {
+  if (document.hidden) return;
+  if (S.mode !== "poll" || restTimer) seedBinance().catch(() => {});
+}, 30 * 60e3);
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && Date.now() - S.lastTickAt > 60000) seedBinance().catch(() => {});
+  if (document.hidden){ parts.length = 0; return; }
+  startLoop();
+  chartDirty = true;
+  queuePrice();
+  if (Date.now() - S.lastTickAt > 60000) seedBinance().catch(() => {});
 });
 
 /* ---------------- boot ---------------- */
 layout();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
-requestAnimationFrame(loop);
+startLoop();
 (async () => {
   setSource("connecting...", "warn");
   try { await seedBinance(); setSource("Binance public feed", "warn"); }
@@ -1032,12 +1086,14 @@ requestAnimationFrame(loop);
     pg.style.transform = "translateX(-50%) scale(" + k.toFixed(3) + ")";
   }
   function show(i){
+    if (document.hidden) return;
     pages[cur].classList.remove("on");
     cur = ((i % pages.length) + pages.length) % pages.length;
     pages[cur].classList.add("on");
     fit(pages[cur]);
   }
   function renderCoins(){
+    if (document.hidden) return;
     el.querySelectorAll(".ci").forEach(ci => {
       const d = data[ci.dataset.s] || {}, c = d.c;
       const cp = ci.children[1], pc = ci.children[2];
@@ -1055,10 +1111,10 @@ requestAnimationFrame(loop);
   setTimeout(() => window.__fitCoins(), 400);
   setTimeout(() => window.__fitCoins(), 1500);
   if (pages.length > 1) setInterval(() => show(cur + 1), 8000);
-  setInterval(renderCoins, 5000);
+  setInterval(() => { if (!document.hidden) renderCoins(); }, 5000);
   pollMajors().then(renderCoins);
-  setInterval(() => pollMajors().then(renderCoins), 15000);
-  if (SHOW_MEMES){ setTimeout(pollMemes, 1500); setInterval(pollMemes, 60000); }
+  setInterval(() => { if (!document.hidden) pollMajors().then(renderCoins); }, 15000);
+  if (SHOW_MEMES){ setTimeout(pollMemes, 1500); setInterval(() => { if (!document.hidden) pollMemes(); }, 60000); }
   window.__coins = data;
 })();
 
