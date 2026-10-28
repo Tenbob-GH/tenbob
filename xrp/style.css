@@ -17,8 +17,18 @@ button,input{font-family:inherit}
   padding:max(6px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
   gap:6px}
 
+/* home control sits in the coin row, clear of the chips, price and chart */
+#topRow{display:flex;align-items:center;gap:8px;flex:0 0 auto;position:relative;z-index:8;min-height:clamp(46px,6.2vh,64px)}
+#homeBtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 11px 0 9px;border-radius:999px;
+  background:rgba(8,12,22,.9);border:1px solid rgba(255,255,255,.22);color:#fff;text-decoration:none;
+  font:800 13px/1 system-ui,-apple-system,sans-serif}
+#homeBtn svg{display:block}
+#homeBtn:hover{color:#34d399;border-color:rgba(52,211,153,.75)}
+#homeBtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+html:fullscreen #homeBtn,html:-webkit-full-screen #homeBtn{display:none}
+
 /* coin strip */
-#coins{position:relative;z-index:8;flex:0 0 auto;height:clamp(46px,6.2vh,64px);overflow:hidden}
+#coins{position:relative;flex:1 1 auto;min-width:0;height:clamp(46px,6.2vh,64px);overflow:hidden}
 #coins .cpage{position:absolute;top:0;bottom:0;left:50%;width:max-content;display:flex;align-items:center;justify-content:center;gap:clamp(4px,1.1vw,22px);
   opacity:0;transition:opacity .6s ease;font-size:clamp(12px,1.55vw,28px);font-weight:700;transform:translateX(-50%);transform-origin:center center}
 #coins .cpage.on{opacity:1}
@@ -202,7 +212,8 @@ body.nofs #fsBtn{display:none}
 #noscript{position:fixed;inset:auto 0 40% 0;text-align:center;font:700 22px sans-serif;color:#fff}
 
 @media (max-width:560px){
-  #coins{height:44px}
+  #topRow,#coins{height:44px;min-height:44px}
+  #homeBtn{height:36px}
   #coins .cpage{font-size:12px;gap:4px}
   #coins .ci{padding:2px 5px;gap:3px}
   #coins .ctag{font-size:9px;letter-spacing:0}
@@ -230,7 +241,8 @@ body.nofs #fsBtn{display:none}
 }
 @media (max-height:520px) and (min-aspect-ratio:1/1){
   #foot{display:none}
-  #coins{height:40px}
+  #topRow,#coins{height:40px;min-height:40px}
+  #homeBtn{height:30px;padding:0 8px 0 7px}
   #mascot{width:64px;bottom:8px}
   #hero{top:0;bottom:22%}
   #hl{top:70%}
