@@ -6,7 +6,7 @@
     <title>Tenbob • XRPL Hub</title>
     <meta name="description" content="Personal hub on the XRP Ledger. Memes I believe in, tools I actually use, and a bit of common sense in the chaos.">
     <link rel="icon" href="https://tenbob.xyz/favicon.ico" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         html { scroll-behavior: smooth; }
@@ -42,7 +42,7 @@
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between h-14">
             <a href="/" class="font-bold text-xl tracking-tight text-emerald-400">Tenbob</a>
-            <div class="hidden md:flex items-center gap-x-3 text-[14px] xl:gap-x-4 xl:text-[15px]">
+            <div class="hidden xl:flex items-center gap-x-3 text-[14px] xl:gap-x-4 xl:text-[15px]">
                 <a href="/memes/uga.html" class="hover:text-emerald-400">Uga</a>
                 <a href="/memes/cult.html" class="hover:text-emerald-400">Cult</a>
                 <a href="/memes/seal.html" class="hover:text-emerald-400">Seal</a>
@@ -59,14 +59,14 @@
                 <a href="/xrp/" class="hover:text-emerald-400">Live XRP</a>
                 <a href="/about.html" class="hover:text-emerald-400">About</a>
             </div>
-            <div class="md:hidden">
-                <button onclick="toggleMobileMenu()" class="text-zinc-400 hover:text-white">
+            <div class="xl:hidden">
+                <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center w-11 h-11 text-zinc-400 hover:text-white">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
     </div>
-    <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800">
+    <div id="mobile-menu" class="hidden xl:hidden border-t border-zinc-800">
         <div class="px-6 py-4 flex flex-col gap-y-3 text-sm">
             <a href="/memes/uga.html">Uga</a>
             <a href="/memes/cult.html">Cult</a>

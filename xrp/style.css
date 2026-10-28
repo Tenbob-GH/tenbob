@@ -223,8 +223,10 @@ body.nofs #fsBtn{display:none}
   #hero{top:2%;bottom:38%}
   #hl{top:auto;bottom:40%;width:calc(100% - 8px)}
   #haze{left:0;right:8%;height:52%}
-  #mascot{width:74px;bottom:19%;left:4px}
-  #mascot .bub{font-size:11px;max-width:46vw;white-space:normal}
+  /* keep the frog in the lower-left, under the HIGH/LOW row, so it does not cover those boxes */
+  #mascot{width:52px;bottom:1%;left:2px}
+  #mascot .bub{left:0;top:auto;bottom:calc(100% + 4px);font-size:10px;max-width:34vw;white-space:normal;transform-origin:left bottom}
+  #mascot .bub:after{left:10px;top:auto;bottom:-7px;margin:0;border:6px solid transparent;border-top:8px solid #000;border-bottom:0;border-right-width:6px;border-left-width:6px}
   #change{font-size:clamp(26px,8vw,42px)}
   #stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
   .stat{flex-direction:column;align-items:flex-start;gap:1px;padding:5px 7px}
