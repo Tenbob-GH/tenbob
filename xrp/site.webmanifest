@@ -1,0 +1,14 @@
+{
+  "name": "XRP Live Price 24/7 | Tenbob",
+  "short_name": "XRP Live",
+  "start_url": "/xrp/",
+  "scope": "/xrp/",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "favicon.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

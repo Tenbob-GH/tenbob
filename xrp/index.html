@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<base href="/xrp/">
+<title>XRP Live Price 24/7 | Tenbob</title>
+<meta name="description" content="Live XRP / USD price on Tenbob: chart, day high and low, volume, RSI, and alerts. Not financial advice.">
+<meta name="theme-color" content="#05070d">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tenbob">
+<meta property="og:title" content="XRP Live Price 24/7 | Tenbob">
+<meta property="og:description" content="Live XRP / USD price, chart, day high and low, and alerts. By Tenbob. Not financial advice.">
+<meta property="og:image" content="https://tenbob.xyz/xrp/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="XRP live price page by Tenbob">
+<meta property="og:url" content="https://tenbob.xyz/xrp/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="XRP Live Price 24/7 | Tenbob">
+<meta name="twitter:description" content="Live XRP / USD price on Tenbob. Not financial advice.">
+<meta name="twitter:image" content="https://tenbob.xyz/xrp/og.jpg">
+<link rel="canonical" href="https://tenbob.xyz/xrp/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>html,body{background:#05070d;color:#fff}</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9J19MRHCP3');
+</script>
+</head>
+<body class="front">
+<div id="app">
+  <div id="coins" aria-label="Other prices"></div>
+
+  <div id="plot">
+    <canvas id="chart" aria-hidden="true"></canvas>
+    <div id="haze" aria-hidden="true"></div>
+    <canvas id="volChart" aria-hidden="true"></canvas>
+
+    <div id="hero">
+      <div id="heroInner">
+        <div id="heroGlow" aria-hidden="true"></div>
+        <h1 id="pair">
+          <svg id="xrpMark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#fff"/>
+            <path d="M27 28h9l14 13 14-13h9L56 44a9 9 0 0 1-12 0zM27 72h9l14-13 14 13h9L56 56a9 9 0 0 0-12 0z" fill="#0b1424"/></svg>
+          XRP / USD
+        </h1>
+        <div id="priceWrap"><div id="price" aria-label="XRP price in US dollars">$-.----</div></div>
+        <div id="change" class="up"><span id="arrow">▲</span><span id="pct">0.00%</span><small>24H</small></div>
+      </div>
+    </div>
+
+    <div id="hl">
+      <div class="hlBox" id="hlHigh"><span class="k">HIGH</span><span class="v" id="hlHighV">-</span></div>
+      <div class="hlBox" id="hlLow"><span class="k">LOW</span><span class="v" id="hlLowV">-</span></div>
+    </div>
+
+    <div id="mascot">
+      <div class="aura" aria-hidden="true"></div>
+      <div class="body">
+        <img src="frog.webp" alt="">
+        <div class="tint" aria-hidden="true"></div>
+      </div>
+      <span class="fx sp" style="left:78%;top:18%" aria-hidden="true">✨</span>
+      <span class="fx sp" style="left:4%;top:36%" aria-hidden="true">✨</span>
+      <span class="fx sp" style="left:40%;top:4%" aria-hidden="true">⭐</span>
+      <span class="fx sw" aria-hidden="true">💧</span>
+      <div class="bub"></div>
+    </div>
+
+    <div id="maCross"></div>
+    <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
+    <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
+
+    <a id="subCard" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener">
+      <span class="sfrog"><span class="sfw"><img alt="" src="frog.webp" id="subFrog"></span></span>
+      <span class="sbtn"><svg width="44" height="32" viewBox="0 0 44 32" aria-hidden="true"><rect width="44" height="32" rx="8" fill="#fff"/><path d="M17 9l12 7-12 7z" fill="#ff0000"/></svg>SUBSCRIBE</span>
+      <span class="stxt"><b>@Tenbob_YT</b><span>for 24/7 XRP live price</span></span>
+    </a>
+  </div>
+
+  <section id="stats" aria-label="24 hour stats">
+    <div class="stat"><span class="k">Vol XRP</span><span class="v" id="vol">-</span></div>
+    <div class="stat"><span class="k">Vol USD</span><span class="v" id="qvol">-</span></div>
+    <div class="stat" id="eurStat"><span class="k">EUR</span><span class="v" id="eur">-</span></div>
+  </section>
+
+  <div id="ticker">
+    <div id="tickerTag">LIVE</div>
+    <div id="tickerText"></div>
+    <span id="credit"><i id="status"></i><span id="creditText">Connecting...</span></span>
+  </div>
+
+  <div id="controls" role="toolbar" aria-label="Sound and display controls">
+    <button id="sndBtn" type="button" aria-pressed="false">Tap for sound</button>
+    <label id="volWrap" title="Volume"><span aria-hidden="true">Vol</span>
+      <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5" aria-label="Volume"></label>
+    <button id="ticksBtn" type="button" aria-pressed="true" title="Ping or pong on a price move">Ticks: ON</button>
+    <button id="musicBtn" type="button" aria-pressed="false">Music: OFF</button>
+    <span id="trackName" aria-live="polite"></span>
+    <button id="fsBtn" type="button" title="Full screen (F)">Full screen</button>
+    <a id="ytBtn" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener">LIVE NOW on YouTube</a>
+  </div>
+
+  <footer id="foot">
+    <a href="/">Tenbob</a>
+    <span class="sep">·</span>
+    <span>Not financial advice. Not a promise of gains. Public prices can be delayed. Not affiliated with Ripple.</span>
+  </footer>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<noscript><div id="noscript">Please enable JavaScript to see the live XRP price.</div></noscript>
+<script src="app.js"></script>
+<script src="music.js"></script>
+</body>
+</html>
