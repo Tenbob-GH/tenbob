@@ -1,37 +1,27 @@
-/* TENBOB · XRP LIVE 24/7 - live XRP/USD price page.
-   No libraries, no API keys. Sounds are synthesized live with the Web Audio API (no audio files).
+/* TENBOB · XRP LIVE 24/7 - live XRP/USD price page (v16 card look, matches the stream overlay v16).
+   No libraries, no API keys. Sounds are synthesized live with the Web Audio API; spoken callouts load only after sound is on.
    Data: Binance public websocket (port 443, then 9443, then the data-stream.binance.vision mirror),
          Binance REST polling (data-api.binance.vision / api.binance.com), then CoinGecko as last resort.
-   Test options (URL):  ?demo=pump | dip | milestone | high | low | ticks    ?chart=candles    ?eur=0 */
+   Test options (URL):  ?demo=pump | dip | milestone | high | low | ticks    ?alerttest=1 | up | down    ?crosstest=1
+                        ?subtest=1    ?mood=up | big | down | flat    ?eur=0 */
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
 const Q = new URLSearchParams(location.search);
-const CANDLES = Q.get("chart") === "candles";
 const SHOW_EUR = Q.get("eur") !== "0";
 const DEMO = Q.get("demo");
-document.body.classList.add("front");
-const TZ = "Europe/Dublin";
-const WINDOW_MIN = 240;                        // chart window: 4h of 1-minute candles
-const MA_EXTRA = 60;                           // extra minutes so MA50 covers the visible chart
+const WINDOW_MIN = 240;                        // 4h of 1-minute candles
+const MA_EXTRA = 60;                           // extra minutes so the average covers the visible chart
 const MOVE_PCT = 1.0, MOVE_WIN_MS = 15 * 60e3; // pump/dip trigger: 1% within 15 min
 const MOVE_COOLDOWN_MS = 10 * 60e3;
 const moveText = (up, pct) => "XRP " + (up ? "UP" : "DOWN") + " " + Math.abs(pct).toFixed(1) + "% IN 15 MIN";
-const STEP = 0.05;                             // milestone step in USD
+const STEP = 0.05;                             // level step in USD
 const WS_HOSTS = ["wss://stream.binance.com:443", "wss://stream.binance.com:9443", "wss://data-stream.binance.vision"];
 const REST_HOSTS = ["https://data-api.binance.vision", "https://api.binance.com"];
 const CG = "https://api.coingecko.com/api/v3";
-const YT = "https://www.youtube.com/@Tenbob_YT";
-const TICKER_LINES = [
-  {t: "Not financial advice"},
-  {t: "Like and subscribe"},
-  {h: `Drop your XRP price prediction in the <a href="${YT}" target="_blank" rel="noopener">YouTube chat</a>`},
-  {t: "XRP live price 24/7"},
-  {t: "Prices move both ways. NFA."}
-];
 const TICK_GAP_MS = 1500;                      // ping/pong at most once per 1.5 s (net direction)
 const HL_COOLDOWN_MS = 5 * 60e3;               // NEW DAY HIGH / LOW cooldown
-if (!SHOW_EUR) $("eur").parentNode.style.display = "none";
+if (!SHOW_EUR) $("eurStat").style.display = "none";
 
 /* ---------------- state ---------------- */
 const S = {
@@ -40,90 +30,125 @@ const S = {
   lastMoveBanner: {pump: 0, dip: 0}, milestoneLevel: null, milestoneAt: {}, bootAt: Date.now(),
   hl: {hi: null, lo: null, at: {high: 0, low: 0}}
 };
-const fmt = (v, d = 4) => { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d) : "-"; };
-const fmtBig = v => v == null || isNaN(v) ? "-" : v >= 1e9 ? (v/1e9).toFixed(2)+"B" : v >= 1e6 ? (v/1e6).toFixed(1)+"M" : v >= 1e3 ? (v/1e3).toFixed(1)+"K" : v.toFixed(0);
+const fmt = (v, d = 4) => { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d) : "--"; };
+const fmtBig = v => v == null || isNaN(v) ? "--" : v >= 1e9 ? (v/1e9).toFixed(2)+"B" : v >= 1e6 ? (v/1e6).toFixed(1)+"M" : v >= 1e3 ? (v/1e3).toFixed(1)+"K" : v.toFixed(0);
 
-/* ---------------- responsive layout: make the price as big as the screen allows ---------------- */
-const L = {k: 1, chart: {x: 0, y: 0, w: 1, h: 1}, bannerY: 100};
-function fitPrice(){
-  const el = $("price"), plot = $("plot");
-  if (!el || !plot || plot.clientWidth < 20) return;
-  const portrait = innerWidth / innerHeight < 0.9;
-  const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
-  let size = portrait
-    ? Math.min(plot.clientWidth * 0.2, plot.clientHeight * 0.24, 128)
-    : Math.min(250 * Math.max(scale, 0.55), plot.clientHeight * 0.36, plot.clientWidth * 0.18);
-  size = Math.max(portrait ? 44 : 78, Math.floor(size || 64));
-  el.style.fontSize = size + "px";
-  const maxW = plot.clientWidth * (portrait ? 0.74 : 0.82);
-  if (el.scrollWidth > maxW && el.scrollWidth > 0) el.style.fontSize = Math.max(32, Math.floor(size * maxW / el.scrollWidth)) + "px";
-}
+/* ---------------- characters (art has a baked soft dark edge; red tint baked as a second image) ---------------- */
+const CHAR = {leopard: {w: 150, h: 194, p: 12}, uga: {w: 199, h: 194, p: 12}, cyborg: {w: 176, h: 194, p: 12}, frog: {w: 219, h: 255, p: 12}};
+// face effect spots (fractions of each character box): sweat on the brow, sparkles around the head
+const FXPOS = {leopard: {sw: [.05, .07], sp: [[.62, .30], [.02, .48], [.36, .22]]},
+               uga:     {sw: [.05, .25], sp: [[.70, .36], [.02, .55], [.42, .24]]},
+               cyborg:  {sw: [.11, .16], sp: [[.70, .30], [.02, .50], [.40, .22]]},
+               frog:    {sw: [.06, .14], sp: [[.80, .30], [.02, .40], [.40, .08]]}};
+document.querySelectorAll("#crew .cw").forEach(cw => {
+  const n = cw.dataset.c, c = CHAR[n], f = FXPOS[n];
+  const place = img => Object.assign(img.style, {left: (-c.p / c.w * 100) + "%", top: (-c.p / c.h * 100) + "%",
+    width: ((c.w + 2 * c.p) / c.w * 100) + "%", height: ((c.h + 2 * c.p) / c.h * 100) + "%"});
+  const art = new Image(); art.className = "art"; art.alt = ""; art.decoding = "async"; art.src = "char-" + n + ".webp"; place(art);
+  const tint = new Image(); tint.className = "tint"; tint.alt = ""; tint.decoding = "async"; tint.src = "char-" + n + "-tint.webp"; place(tint);
+  cw.append(art, tint);
+  const sw = document.createElement("span"); sw.className = "fx sw"; sw.style.left = f.sw[0] * 100 + "%"; sw.style.top = f.sw[1] * 100 + "%"; cw.appendChild(sw);
+  f.sp.forEach((p, i) => { const e = document.createElement("span"); e.className = "fx sp sp" + (i + 1); e.style.left = p[0] * 100 + "%"; e.style.top = p[1] * 100 + "%"; cw.appendChild(e); });
+});
+
+/* ---------------- responsive layout ---------------- */
+const MONO = getComputedStyle(document.documentElement).getPropertyValue("--mono").trim() || "monospace";
+const L = {k: 1, narrow: false, chart: {w: 1, h: 1}};
+const measure = (() => { const c = document.createElement("canvas").getContext("2d");
+  return (txt, px) => { c.font = "800 " + px + "px " + MONO; const m = c.measureText(txt);
+    return {w: (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) || m.width, asc: m.actualBoundingBoxAscent || px * .72}; }; })();
 function layout(){
-  const plot = $("plot");
-  if (!plot || plot.clientWidth < 20) return;
-  const portrait = innerWidth / innerHeight < 0.9;
-  L.k = portrait ? Math.max(.4, innerWidth / 900) : Math.max(.5, Math.min(innerWidth / 1920, innerHeight / 1080));
-  fitPrice();
-  const total = Math.max(140, plot.clientHeight);
-  const vh = Math.round(Math.max(46, Math.min(120, total * (portrait ? 0.18 : 0.15))));
-  const h = Math.max(90, total - vh);
-  const cv = $("chart");
-  cv.style.top = "0px";
-  cv.style.height = h + "px";
-  sizeCanvas(cv, plot.clientWidth, h);
-  const vc = $("volChart");
-  vc.style.top = h + "px";
-  vc.style.height = (total - h) + "px";
-  sizeCanvas(vc, plot.clientWidth, total - h);
-  L.chart = {x: 0, y: 0, w: plot.clientWidth, h};
-  L.vol = {y: h, h: total - h};
-  chartDirty = true;
-  volAt = 0;
+  const W = innerWidth, H = innerHeight, body = document.body;
+  L.narrow = W < 760 || W / H < 0.9;
+  body.classList.toggle("narrow", L.narrow);
+  body.classList.toggle("short", !L.narrow && H < 560);
+  // --k: 1 at 1920x1080 (same proportions as the stream card), shrinks with the window
+  L.k = L.narrow ? Math.max(.35, W / 1100) : Math.max(.42, Math.min(W / 1920, H / 1080));
+  document.documentElement.style.setProperty("--k", L.k.toFixed(4));
+  fitHead();
+  sizeChart();
   sizeCanvas($("fx"), innerWidth, innerHeight);
   fxc.setTransform(devicePixelRatio || 1, 0, 0, devicePixelRatio || 1, 0, 0);
   if (window.__fitCoins) window.__fitCoins();
 }
-function sizeCanvas(c, w, h){ const r = devicePixelRatio || 1; c.width = Math.round(w * r); c.height = Math.round(h * r); }
+/* price ink = 50% of the card's inner width on wide screens (as on the stream); the 4 characters fill the space to its right,
+   frog a bit taller than the digits, crew as tall as fits with equal gaps. On phones the price spans the card and the crew sit below it. */
+function fitHead(){
+  const card = $("card"), el = $("price"), crew = $("crew");
+  const cs = getComputedStyle(card), inner = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  if (inner < 50) return;
+  const txt = el.textContent.length > 3 && el.textContent.indexOf("-") < 0 ? el.textContent : "$0.0000";
+  const ink100 = measure(txt, 100);
+  const AR = n => CHAR[n].w / CHAR[n].h, crewAR = AR("leopard") + AR("uga") + AR("cyborg");
+  let fs, frogH, crewH, gap;
+  if (!L.narrow){
+    const inkW = Math.min(inner * 0.5, 924 * L.k);
+    fs = Math.min(100 * inkW / ink100.w, card.clientHeight * 0.27);   // keep room for the boxes and the chart on short screens
+    const inkH = ink100.asc * fs / 100;
+    frogH = Math.round(inkH * 1.2);
+    gap = Math.round(14 * L.k + 2);
+    const frogW = frogH * AR("frog"), avail = inner - ink100.w * fs / 100 - 24;
+    crewH = Math.min(frogH, Math.floor((avail - frogW - 4 * gap) / crewAR));
+    if (crewH < frogH * 0.6){                            // narrow desktop window: shrink the price to make room
+      crewH = Math.round(frogH * 0.75);
+      const need = crewH * crewAR + frogW + 4 * gap + 24;
+      fs = Math.max(40, Math.min(fs, 100 * (inner - need) / ink100.w));
+    }
+  } else {
+    fs = Math.min(100 * inner * 0.9 / ink100.w, 120);
+    gap = 8;
+    crewH = Math.max(50, Math.min(120, Math.floor((inner - 4 * gap) / (crewAR + AR("frog")))));
+    frogH = crewH;
+  }
+  el.style.fontSize = fs.toFixed(1) + "px";
+  crew.style.setProperty("--ch", crewH + "px");
+  crew.style.setProperty("--fh", frogH + "px");
+  crew.style.setProperty("--cg", gap + "px");
+  crew.style.setProperty("--bf", Math.round(L.narrow ? Math.max(13, crewH * 0.16) : Math.max(14, 39 * L.k)) + "px");
+  crew.style.setProperty("--bgap", Math.round(L.narrow ? 12 : Math.max(10, frogH * 0.12)) + "px");
+  document.querySelectorAll("#crew .cw").forEach(cw => { const n = cw.dataset.c, h = n === "frog" ? frogH : crewH; cw.style.width = Math.round(h * AR(n)) + "px"; });
+}
+function sizeCanvas(c, w, h){ const r = devicePixelRatio || 1; c.width = Math.max(1, Math.round(w * r)); c.height = Math.max(1, Math.round(h * r)); }
+function sizeChart(){
+  const w = $("chartWrap"); L.chart = {w: Math.max(10, w.clientWidth), h: Math.max(10, w.clientHeight)};
+  sizeCanvas($("chart"), L.chart.w, L.chart.h); chartDirty = true;
+}
 let layoutT = null;
-addEventListener("resize", () => { clearTimeout(layoutT); layoutT = setTimeout(layout, 60); });
+const relayout = () => { clearTimeout(layoutT); layoutT = setTimeout(layout, 80); };
+addEventListener("resize", relayout);
 addEventListener("orientationchange", () => setTimeout(layout, 250));
 
-/* ---------------- UI updates ---------------- */
+/* ---------------- UI updates (price painted at most once a second, trailing update keeps it exact) ---------------- */
 function putText(id, text){ const n = $(id); if (n && n.textContent !== text) n.textContent = text; }
-let paintedPrice = null;
+let shownP = null, rpAt = -1e9, rpT = 0;
 function renderPrice(){
+  if (document.hidden) return;
+  const now = performance.now();
+  if (now - rpAt < 1000){ if (!rpT) rpT = setTimeout(() => { rpT = 0; renderPrice(); }, 1000 - (now - rpAt)); return; }
+  rpAt = now;
   const p = S.price; if (p == null) return;
   const el = $("price"), txt = "$" + fmt(p);
-  const relayout = txt.length !== el.textContent.length;
+  const sizeChange = txt.length !== el.textContent.length;
   if (el.textContent !== txt) el.textContent = txt;
-  if (relayout) layout();
-  if (paintedPrice != null && p !== paintedPrice){
+  if (sizeChange) layout();
+  if (shownP != null && p !== shownP){
     el.classList.remove("up", "down"); void el.offsetWidth;
-    el.classList.add(p > paintedPrice ? "up" : "down");
+    el.classList.add(p > shownP ? "up" : "down");
   }
-  paintedPrice = p;
+  shownP = p;
   if (S.pct != null && isFinite(S.pct)){
     const up = S.pct >= 0;
-    $("change").className = up ? "up" : "down";
-    el.classList.toggle("tUp", up); el.classList.toggle("tDown", !up);
-    putText("arrow", up ? "▲" : "▼");
+    $("change").className = "box " + (up ? "up" : "down");
+    el.classList.toggle("neg", !up);
     putText("pct", (up ? "+" : "") + S.pct.toFixed(2) + "%");
   }
   if (SHOW_EUR && S.eurRate) putText("eur", "€" + fmt(p * S.eurRate));
-  const hiTxt = S.hi != null ? "$" + fmt(S.hi) : "-", loTxt = S.lo != null ? "$" + fmt(S.lo) : "-";
-  const hlRelayout = hiTxt.length !== $("hlHighV").textContent.length || loTxt.length !== $("hlLowV").textContent.length;
-  putText("hlHighV", hiTxt); putText("hlLowV", loTxt);
+  putText("hlHighV", S.hi != null ? "$" + fmt(S.hi) : "--");
+  putText("hlLowV", S.lo != null ? "$" + fmt(S.lo) : "--");
   putText("vol", fmtBig(S.vol));
-  putText("qvol", S.qvol != null ? "$" + fmtBig(S.qvol) : "-");
+  putText("qvol", S.qvol != null ? "$" + fmtBig(S.qvol) : "--");
   const title = txt + " XRP Live Price 24/7 | Tenbob";
   if (document.title !== title) document.title = title;
-  if (hlRelayout && !relayout) layout();
-}
-let priceQueued = false;
-function queuePrice(){
-  if (priceQueued || document.hidden) return;
-  priceQueued = true;
-  requestAnimationFrame(() => { priceQueued = false; if (!document.hidden) renderPrice(); });
 }
 function setSource(label, cls){
   S.source = label; $("creditText").textContent = "Live: " + label;
@@ -140,18 +165,14 @@ function onPrice(p, ts = Date.now()){
   const sl = S.samples[S.samples.length - 1];
   if (!sl || ts - sl.t >= 1000) S.samples.push({t: ts, p});
   if (S.samples.length && ts - S.samples[0].t > MOVE_WIN_MS){
-    const cut = ts - MOVE_WIN_MS;
-    let drop = 0;
+    const cut = ts - MOVE_WIN_MS; let drop = 0;
     while (drop < S.samples.length && S.samples[drop].t <= cut) drop++;
     if (drop) S.samples.splice(0, drop);
   }
   if (S.samples.length > 1200) S.samples.splice(0, S.samples.length - 900);
-  queuePrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
+  renderPrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
 }
-function trimCandles(){
-  const max = WINDOW_MIN + MA_EXTRA;
-  if (S.candles.length > max) S.candles.splice(0, S.candles.length - max);
-}
+function trimCandles(){ const max = WINDOW_MIN + MA_EXTRA; if (S.candles.length > max) S.candles.splice(0, S.candles.length - max); }
 function setCandles(arr){
   const live = S.candles.filter(c => c.t > (arr.length ? arr[arr.length-1].t : 0));
   S.candles = arr.concat(live); trimCandles();
@@ -162,7 +183,7 @@ function setCandles(arr){
   chartDirty = true;
 }
 
-/* ---------------- pump / dip / milestone / new day high-low ---------------- */
+/* ---------------- pump / dip / level / new day high-low ---------------- */
 function checkMove(){
   if (DEMO || Date.now() - S.bootAt < 20e3 || S.samples.length < 2) return;
   const now = Date.now(), p = S.price;
@@ -170,10 +191,10 @@ function checkMove(){
   for (const s of S.samples){ if (s.p < min) min = s.p; if (s.p > max) max = s.p; }
   if (p >= min * (1 + MOVE_PCT/100) && now - S.lastMoveBanner.pump > MOVE_COOLDOWN_MS){
     S.lastMoveBanner.pump = now; S.samples = [{t: now, p}];
-    showBanner("pump", moveText(true, (p / min - 1) * 100), "XRP PUMPING");
+    showBanner("pump", moveText(true, (p / min - 1) * 100), "XRP PUMPING 🚀");
   } else if (p <= max * (1 - MOVE_PCT/100) && now - S.lastMoveBanner.dip > MOVE_COOLDOWN_MS){
     S.lastMoveBanner.dip = now; S.samples = [{t: now, p}];
-    showBanner("dip", moveText(false, (1 - p / max) * 100), "XRP DIPPING");
+    showBanner("dip", moveText(false, (1 - p / max) * 100), "XRP DIPPING 📉");
   }
 }
 function checkMilestone(p){
@@ -198,34 +219,32 @@ function checkHighLow(p){
   else if (prevLo != null && p < prevLo && now - H.at.low > HL_COOLDOWN_MS){ H.at.low = now; showBanner("low", "NEW DAY LOW 📉"); }
 }
 
-/* ---------------- banner + particle FX ---------------- */
+/* ---------------- alerts: banner / big move flash + particle FX ---------------- */
 const bannerQ = []; let bannerBusy = false;
-function showBanner(kind, text, sub){
+let showBanner = function(kind, text, sub){
   if (document.hidden) return;
   if (bannerQ.length >= 3) bannerQ.shift();
   bannerQ.push({kind, text, sub});
   if (!bannerBusy) nextBanner();
-}
+};
 function nextBanner(){
   const b = bannerQ.shift(); if (!b){ bannerBusy = false; return; }
   bannerBusy = true;
-  const move = (b.kind === "pump" || b.kind === "dip") && $("flash");
+  const move = b.kind === "pump" || b.kind === "dip";
   const el = $(move ? "flash" : "banner");
   el.className = ""; void el.offsetWidth;
   if (move){
     el.classList.add(b.kind === "pump" ? "up" : "down", "show");
-    $("flashTag").textContent = b.sub || (b.kind === "pump" ? "XRP PUMPING" : "XRP DIPPING");
-    const ft = $("flashText");
-    ft.style.fontSize = "";
-    ft.textContent = b.text;
-    const avail = Math.max(80, el.clientWidth - 24), w = ft.scrollWidth;
-    if (w > avail) ft.style.fontSize = Math.max(16, Math.floor(parseFloat(getComputedStyle(ft).fontSize) * avail / w)) + "px";
-  } else {
-    $("bannerText").textContent = b.text;
-    el.classList.add(b.kind, "show");
-  }
+    $("flashTag").textContent = b.sub || (b.kind === "pump" ? "XRP PUMPING 🚀" : "XRP DIPPING 📉");
+    const ft = $("flashText"); ft.style.fontSize = ""; ft.textContent = b.text;
+    if (!L.narrow){
+      const avail = el.clientWidth - 60, w = ft.scrollWidth;          // one layout read per alert: shrink if too wide
+      if (w > avail) ft.style.fontSize = Math.max(18, Math.floor(parseFloat(getComputedStyle(ft).fontSize) * avail / w)) + "px";
+    }
+  } else { $("bannerText").textContent = b.text; el.classList.add(b.kind, "show"); }
   burst(b.kind); setTimeout(() => burst(b.kind, true), 900);
   playSfx(b.kind);
+  if (window.__voice) window.__voice.callout(b.kind, b.text);         // spoken callout (when sound is on) + matching frog bubble
   if (b.kind === "high" || b.kind === "low"){
     const r = $(b.kind === "high" ? "hlHigh" : "hlLow");
     r.classList.remove("flash"); void r.offsetWidth; r.classList.add("flash");
@@ -234,27 +253,24 @@ function nextBanner(){
   setTimeout(() => { el.className = ""; nextBanner(); }, move ? 5500 : 8100);
 }
 const fx = $("fx"), fxc = fx.getContext("2d"); let parts = [], fxDirty = false;
-function burstOrigin(){
-  const node = ($("flash") && $("flash").classList.contains("show")) ? $("flashText") : $("bannerText");
-  const r = node.getBoundingClientRect();
-  return [innerWidth / 2, r.height ? r.top + r.height / 2 : 90];
-}
+function burstOrigin(){ const r = $("chartWrap").getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
 function burst(kind, small){
   if (kind === "high" || kind === "low") return confetti(kind, small);
   const cols = kind === "pump" ? ["#16e08a","#7dffc4","#ffffff","#ffd23f"] :
                kind === "dip" ? ["#ff4d5e","#ff9aa4","#ffffff","#ff6a3d"] : ["#ffd23f","#fff2a8","#ffffff","#23c4ff"];
   const emo = kind === "pump" ? "🚀" : kind === "dip" ? "📉" : "⭐";
-  const k = L.k, n = small ? 40 : 90, [cx, cy] = burstOrigin();
+  const k = Math.max(.5, L.k), n = small ? 20 : 45, [cx, cy] = burstOrigin();
   for (let i = 0; i < n; i++){
     const a = Math.random() * Math.PI * 2, v = (6 + Math.random() * (small ? 10 : 18)) * k;
     parts.push({x: cx + Math.cos(a)*120*k, y: cy + Math.sin(a)*40*k, vx: Math.cos(a)*v*1.6, vy: Math.sin(a)*v*0.6 - 6*k, g: .35*k,
       life: 0, max: 70 + Math.random()*60, r: (4 + Math.random()*8)*k, c: cols[i % cols.length], e: i % 9 === 0 ? emo : null});
   }
+  kick();
 }
 function confetti(kind, small){
-  const hi = kind === "high", k = L.k;
+  const hi = kind === "high", k = Math.max(.5, L.k);
   const cols = hi ? ["#ff3fa4","#ffd23f","#19f08f","#23c4ff","#a45bff","#ffffff","#ff7a2f"] : ["#26508f","#5f86c9","#9fb8e6","#3a4f73"];
-  const emo = hi ? "🎉" : "📉", n = hi ? (small ? 70 : 160) : (small ? 25 : 55), [cx, cy] = burstOrigin();
+  const emo = hi ? "🎉" : "📉", n = hi ? (small ? 35 : 80) : (small ? 14 : 28), [cx, cy] = burstOrigin();
   const spread = Math.min(innerWidth * .8, (hi ? 300 : 700) * k);
   for (let i = 0; i < n; i++){
     const a = hi ? Math.random() * Math.PI * 2 : Math.PI * (0.15 + Math.random() * 0.7);
@@ -263,17 +279,18 @@ function confetti(kind, small){
       life: 0, max: (hi ? 90 : 80) + Math.random() * 70, r: (5 + Math.random() * 7)*k, c: cols[i % cols.length],
       e: i % (hi ? 12 : 9) === 0 ? emo : null, sq: true, rot: Math.random() * 6.283, vr: (Math.random() - .5) * .4, alpha: hi ? 1 : .7});
   }
+  kick();
 }
 function drawFx(){
-  if (parts.length > 240) parts.splice(0, parts.length - 240);
+  if (parts.length > 200) parts.splice(0, parts.length - 200);
   if (!parts.length && !fxDirty) return;
   fxc.clearRect(0, 0, innerWidth, innerHeight); fxDirty = parts.length > 0;
   for (const p of parts){
-    p.life++; p.x += p.vx; p.y += p.vy; p.vx *= .97; p.vy = p.vy * .97 + p.g;
+    for (let s = 0; s < 2; s++){ p.life++; p.x += p.vx; p.y += p.vy; p.vx *= .97; p.vy = p.vy * .97 + p.g; if (p.sq) p.rot += p.vr; }   // 2 physics steps per frame (~30 fps)
     const a = Math.max(0, 1 - p.life / p.max);
     fxc.globalAlpha = p.alpha ? a * p.alpha : a;
     if (p.e){ fxc.font = (p.r*5)+"px serif"; fxc.fillText(p.e, p.x, p.y); }
-    else if (p.sq){ p.rot += p.vr; fxc.save(); fxc.translate(p.x, p.y); fxc.rotate(p.rot); fxc.fillStyle = p.c;
+    else if (p.sq){ fxc.save(); fxc.translate(p.x, p.y); fxc.rotate(p.rot); fxc.fillStyle = p.c;
       fxc.fillRect(-p.r, -p.r * .45, p.r * 2, p.r * .9 * Math.abs(Math.cos(p.rot * 1.7)) + 1); fxc.restore(); }
     else { fxc.fillStyle = p.c; fxc.beginPath(); fxc.arc(p.x, p.y, p.r * (0.5 + a/2), 0, 6.283); fxc.fill(); }
   }
@@ -281,212 +298,33 @@ function drawFx(){
   parts = parts.filter(p => p.life < p.max);
 }
 
-/* ---------------- chart (own canvas renderer, faded behind the price) ---------------- */
-const FONT = getComputedStyle(document.body).fontFamily;
-const cv = $("chart"), cx = cv.getContext("2d"); let chartDirty = true, dispPrice = null;
-const timeFmt = new Intl.DateTimeFormat("en-GB", {timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false});
-function niceStep(range, n){ const raw = range / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
-  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag; }
-/* ---------- volume bars + RSI(14) strip (1-minute Binance klines, same feed as the chart) ---------- */
-let volAt = 0;
-function rsi14(cl){ const n = 14; if (cl.length <= n) return [];
-  let g = 0, l = 0; for (let i = 1; i <= n; i++){ const d = cl[i] - cl[i-1]; if (d > 0) g += d; else l -= d; }
-  g /= n; l /= n; const out = new Array(n).fill(null); out.push(l === 0 ? 100 : 100 - 100 / (1 + g / l));
-  for (let i = n + 1; i < cl.length; i++){ const d = cl[i] - cl[i-1]; g = (g * (n-1) + Math.max(d, 0)) / n; l = (l * (n-1) + Math.max(-d, 0)) / n;
-    out.push(l === 0 ? 100 : 100 - 100 / (1 + g / l)); } return out; }
-function drawVol(){
-  const cv = $("volChart"); if (!cv || !L.vol) return; const vx = cv.getContext("2d");
-  const r = devicePixelRatio || 1, k = L.k, W = L.chart.w, H = L.vol.h; vx.setTransform(r, 0, 0, r, 0, 0); vx.clearRect(0, 0, W, H);
-  const data = S.candles.slice(-WINDOW_MIN); if (data.length < 2) return;
-  const Lm = (W < 720 ? 8 : 12) * k, R = (W < 720 ? 78 : 120) * k, pw = Math.max(40, W - Lm - R), T = 4, B = 4, ph = H - T - B;
-  const t0 = data[0].t, t1 = Math.max(t0 + (WINDOW_MIN - 1) * 60e3, data[data.length-1].t), X = t => Lm + (t - t0) / (t1 - t0) * pw;
-  vx.fillStyle = "rgba(5,8,16,.55)"; vx.fillRect(0, 0, W, H);
-  vx.strokeStyle = "rgba(255,255,255,.12)"; vx.lineWidth = 1; vx.beginPath(); vx.moveTo(0, .5); vx.lineTo(W, .5); vx.stroke();
-  const vmax = Math.max(...data.map(c => c.v || 0)); const bw = Math.max(1, pw / WINDOW_MIN * 0.7);
-  if (vmax > 0) for (const c of data){ if (!c.v) continue; const bh = c.v / vmax * ph * 0.9;
-    vx.fillStyle = c.c >= c.o ? "rgba(25,240,143,.55)" : "rgba(255,77,94,.55)"; vx.fillRect(X(c.t) - bw / 2, T + ph - bh, bw, bh); }
-  const Y = v => T + (1 - v / 100) * ph;
-  vx.setLineDash([6, 6]); vx.strokeStyle = "rgba(255,255,255,.22)";
-  for (const g of [30, 70]){ vx.beginPath(); vx.moveTo(Lm, Y(g)); vx.lineTo(Lm + pw, Y(g)); vx.stroke(); }
-  vx.setLineDash([]);
-  const rs = rsi14(data.map(c => c.c)); let lastR = null;
-  vx.strokeStyle = "#23c4ff"; vx.lineWidth = Math.max(2, 2.5 * k); vx.lineJoin = "round"; vx.beginPath(); let st = false;
-  rs.forEach((v, i) => { if (v == null) return; const x = X(data[i].t), y = Y(v); st ? vx.lineTo(x, y) : vx.moveTo(x, y); st = true; lastR = v; });
-  vx.stroke();
-  const fs = Math.round(Math.max(14, Math.min(H * 0.3, 26 * k)));
-  vx.font = `800 ${fs}px ${FONT}`; vx.textBaseline = "middle";
-  vx.fillStyle = "#b4bfd8"; vx.fillText("VOL", Lm + 6, T + fs * 0.7);
-  vx.fillStyle = "rgba(255,255,255,.5)"; vx.font = `700 ${Math.round(fs*0.7)}px ${FONT}`;
-  vx.fillText("70", Lm + pw + 6, Y(70)); vx.fillText("30", Lm + pw + 6, Y(30));
-  if (lastR != null){ const txt = "RSI " + Math.round(lastR); vx.font = `900 ${fs}px ${FONT}`;
-    const tw = vx.measureText(txt).width, bx = W - tw - 16, by = H / 2;
-    vx.fillStyle = "rgba(5,8,16,.9)"; vx.fillRect(bx - 8, by - fs * 0.7, tw + 16, fs * 1.4);
-    vx.strokeStyle = "#23c4ff"; vx.lineWidth = 2; vx.strokeRect(bx - 8, by - fs * 0.7, tw + 16, fs * 1.4);
-    vx.fillStyle = lastR >= 70 ? "#19f08f" : lastR <= 30 ? "#ff4d5e" : "#fff"; vx.fillText(txt, bx, by); }
-}
-function drawChart(now){
-  const r = devicePixelRatio || 1, k = L.k, W = L.chart.w, H = L.chart.h;
-  cx.setTransform(r, 0, 0, r, 0, 0);
-  const narrow = W < 720;
-  const Lm = (narrow ? 8 : 12) * k, R = (narrow ? 96 : 140) * k, T = (H < 280 ? 16 : 28) * k, B = (H < 280 ? 20 : 30) * k, pw = Math.max(40, W - Lm - R), ph = Math.max(40, H - T - B);
-  cx.clearRect(0, 0, W, H);
-  const data = S.candles.slice(-WINDOW_MIN);
-  if (data.length < 2 || S.price == null){
-    cx.fillStyle = "#8a96b3"; cx.font = `700 ${Math.round(30*k)}px ${FONT}`;
-    cx.fillText("Connecting to the live feed...", Lm + 8, Math.max(24, H - 24)); return;
+/* ---------------- chart: plain line (2-minute steps, last 4 h) + one faint dashed average (MA20) ---------------- */
+const cv = $("chart"), cx = cv.getContext("2d"); let chartDirty = true;
+function drawChart(){
+  const r = devicePixelRatio || 1, W = L.chart.w, H = L.chart.h;
+  cx.setTransform(r, 0, 0, r, 0, 0); cx.clearRect(0, 0, W, H);
+  if (S.candles.length < 2 || S.price == null){
+    cx.fillStyle = "#93a7a3"; cx.font = "700 " + Math.round(Math.max(14, 30 * L.k)) + "px " + MONO;
+    cx.fillText("Connecting to live feed...", 10, H / 2); return;
   }
-  if (dispPrice == null) dispPrice = S.price;
-  dispPrice += (S.price - dispPrice) * 0.55;
-  if (Math.abs(S.price - dispPrice) < 1e-6) dispPrice = S.price;
-  const last = data[data.length-1];
-  let lo = Infinity, hi = -Infinity;
-  for (const c of data){ const l = CANDLES ? c.l : c.c, h = CANDLES ? c.h : c.c; if (l < lo) lo = l; if (h > hi) hi = h; }
-  lo = Math.min(lo, dispPrice); hi = Math.max(hi, dispPrice);
-  const dHi = S.hi, dLo = S.lo, baseR = Math.max(hi - lo, hi * 0.002);
-  // y-axis fits the visible data only (24h high/low lines are drawn only when they fall inside it)
-  const pad = Math.max((hi - lo) * 0.07, hi * 0.0004); lo -= pad; hi += pad;
-  const t0 = data[0].t, t1 = t0 + (WINDOW_MIN - 1) * 60e3 > last.t ? t0 + (WINDOW_MIN - 1) * 60e3 : last.t;
-  const X = t => Lm + (t - t0) / (t1 - t0) * pw;
-  const Y = v => T + (hi - v) / (hi - lo) * ph;
-  const f = px => `${Math.round(px * k)}px ${FONT}`;
-  const step = niceStep(hi - lo, Math.max(3, Math.round(ph / (150 * k))));
-  cx.font = "700 " + f(20); cx.textBaseline = "middle";
-  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step){
-    const y = Math.round(Y(v)) + .5;
-    cx.strokeStyle = "rgba(255,255,255,.06)"; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(Lm, y); cx.lineTo(Lm + pw, y); cx.stroke();
-    if (W >= 560){ cx.fillStyle = "rgba(200,210,235,.55)"; cx.fillText(v.toFixed(4), Lm + pw + 16*k, y); }
-  }
-  cx.textBaseline = "alphabetic"; cx.textAlign = "center";
-  const xStep = pw < 600 * k ? 36e5 : 18e5;
-  for (let t = Math.ceil(t0 / xStep) * xStep; t <= t1; t += xStep){
-    const x = X(t); cx.strokeStyle = "rgba(255,255,255,.04)"; cx.beginPath(); cx.moveTo(x, T); cx.lineTo(x, T + ph); cx.stroke();
-    cx.fillStyle = "rgba(200,210,235,.5)"; cx.fillText(timeFmt.format(t), x, H - 10*k);
-  }
-  cx.textAlign = "left";
-  const dayLine = (v, rgb, txt) => {
-    if (v == null) return;
-    let y = Y(v), off = "";
-    if (y < T - 10*k){ y = T - 10*k; off = " ▲"; } else if (y > T + ph + 10*k){ y = T + ph + 10*k; off = " ▼"; }
-    if (!off){ cx.setLineDash([14*k, 10*k]); cx.strokeStyle = `rgba(${rgb},.75)`; cx.lineWidth = 2.5*k;
-      cx.beginPath(); cx.moveTo(Lm, y); cx.lineTo(Lm + pw, y); cx.stroke(); cx.setLineDash([]); }
-  };
-  dayLine(dHi, "25,240,143", "24H HIGH"); dayLine(dLo, "255,90,106", "24H LOW");
-  // MA20 (gold) and MA50 (violet). Extra history lets both lines span the 4h window.
-  const full = S.candles, off = full.length - data.length;
-  const maSeries = n => {
-    const out = new Array(data.length).fill(null);
-    if (full.length < n) return out;
-    let sum = 0;
-    for (let i = 0; i < full.length; i++){
-      sum += full[i].c;
-      if (i >= n) sum -= full[i - n].c;
-      const vi = i - off;
-      if (vi >= 0 && i >= n - 1) out[vi] = sum / n;
-    }
-    return out;
-  };
-  const ma20 = maSeries(20), ma50 = maSeries(50);
-  const maPath = arr => {
-    const pts = [];
-    arr.forEach((v, i) => { if (v != null && isFinite(v)) pts.push([X(data[i].t), Y(v)]); });
-    if (pts.length < 2) return null;
-    const path = new Path2D();
-    path.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length - 1; i++) path.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
-    path.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
-    return path;
-  };
-  const strokeMa = (arr, col, dash) => {
-    const path = maPath(arr); if (!path) return;
-    cx.save();
-    cx.beginPath(); cx.rect(Lm, T - 2, pw, ph + 4); cx.clip();
-    cx.lineJoin = "round"; cx.lineCap = "round"; cx.setLineDash(dash || []);
-    cx.strokeStyle = "rgba(0,0,0,.55)"; cx.lineWidth = Math.max(2, 4 * k); cx.stroke(path);
-    cx.strokeStyle = col; cx.lineWidth = Math.max(1.5, 2.4 * k); cx.stroke(path);
-    cx.restore();
-  };
-  strokeMa(ma50, "#c48bff", [10 * k, 7 * k]);
-  strokeMa(ma20, "#ffb627");
-  const lastOf = a => { for (let i = a.length - 1; i >= 0; i--) if (a[i] != null && isFinite(a[i])) return a[i]; return null; };
-  {
-    const fs = Math.round(Math.max(11, Math.min(22, 18 * k)));
-    cx.save(); cx.font = "800 " + fs + "px " + FONT; cx.textBaseline = "middle"; cx.textAlign = "left";
-    const items = [["MA20", "#ffb627", lastOf(ma20), []], ["MA50", "#c48bff", lastOf(ma50), [5, 4]]]
-      .map(([l, c, v, d]) => [l, c, v == null ? "--" : "$" + v.toFixed(4), d]);
-    const sw = fs * 1.35, g1 = 6, g2 = 6, sep = 12, padX = 10, boxH = fs + 14;
-    const ws = items.map(([l,,v]) => sw + g1 + cx.measureText(l).width + g2 + cx.measureText(v).width);
-    const tot = padX * 2 + ws[0] + sep + ws[1];
-    const lx = Lm + 6, ly = T + boxH * 0.62;
-    cx.fillStyle = "rgba(5,8,16,.84)"; cx.strokeStyle = "rgba(255,255,255,.18)"; cx.lineWidth = 1;
-    cx.beginPath();
-    if (cx.roundRect) cx.roundRect(lx, ly - boxH / 2, tot, boxH, boxH / 2); else cx.rect(lx, ly - boxH / 2, tot, boxH);
-    cx.fill(); cx.stroke();
-    let x = lx + padX;
-    items.forEach(([l, c, v, d], i) => {
-      cx.setLineDash(d); cx.strokeStyle = c; cx.lineWidth = 3;
-      cx.beginPath(); cx.moveTo(x, ly); cx.lineTo(x + sw - 4, ly); cx.stroke(); cx.setLineDash([]);
-      let tx = x + sw + g1; cx.fillStyle = c; cx.fillText(l, tx, ly);
-      tx += cx.measureText(l).width + g2; cx.fillStyle = "#fff"; cx.fillText(v, tx, ly);
-      x += ws[i] + sep;
-    });
-    window.__maLegBox = {x: lx, y: ly - boxH / 2, w: tot, h: boxH};
-    cx.restore();
-  }
-  const upTrend = S.pct != null && isFinite(S.pct) ? S.pct >= 0 : dispPrice >= data[0].o, col = upTrend ? "22,224,138" : "255,77,94";
-  if (CANDLES){
-    const bw = Math.max(1, pw / WINDOW_MIN * 0.7);
-    for (let i = 0; i < data.length; i++){
-      const c = data[i], cl = i === data.length - 1 ? dispPrice : c.c;
-      const x = X(c.t), g = cl >= c.o; cx.strokeStyle = cx.fillStyle = g ? "#16e08a" : "#ff4d5e"; cx.lineWidth = Math.max(1, k);
-      cx.beginPath(); cx.moveTo(x, Y(Math.max(c.h, cl))); cx.lineTo(x, Y(Math.min(c.l, cl))); cx.stroke();
-      const y1 = Y(Math.max(c.o, cl)), y2 = Y(Math.min(c.o, cl)); cx.fillRect(x - bw/2, y1, bw, Math.max(1, y2 - y1));
-    }
-  } else {
-    const pts = data.map((c, i) => [X(c.t), Y(i === data.length - 1 ? dispPrice : c.c)]);
-    const path = new Path2D(); path.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length - 1; i++){
-      const mx = (pts[i][0] + pts[i+1][0]) / 2, my = (pts[i][1] + pts[i+1][1]) / 2;
-      path.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
-    }
-    const lp = pts[pts.length-1]; path.lineTo(lp[0], lp[1]);
-    const fill = new Path2D(path); fill.lineTo(lp[0], T + ph); fill.lineTo(pts[0][0], T + ph); fill.closePath();
-    const gr = cx.createLinearGradient(0, T, 0, T + ph);
-    gr.addColorStop(0, `rgba(${col},.38)`); gr.addColorStop(.6, `rgba(${col},.08)`); gr.addColorStop(1, `rgba(${col},0)`);
-    cx.fillStyle = gr; cx.fill(fill);
-    cx.lineJoin = "round"; cx.lineWidth = 5 * k; cx.strokeStyle = `rgb(${col})`;
-    cx.shadowColor = `rgba(${col},.7)`; cx.shadowBlur = 14 * k; cx.stroke(path); cx.shadowBlur = 0;
-  }
-  const yp = Y(dispPrice), xp = X(last.t);
-  cx.setLineDash([8*k, 8*k]); cx.strokeStyle = `rgba(${col},.75)`; cx.lineWidth = 2*k;
-  cx.beginPath(); cx.moveTo(Lm, yp); cx.lineTo(Lm + pw, yp); cx.stroke(); cx.setLineDash([]);
-  const pulse = (now % 1600) / 1600;
-  cx.fillStyle = `rgba(${col},${.5 * (1 - pulse)})`; cx.beginPath(); cx.arc(xp, yp, (8 + pulse * 22)*k, 0, 6.283); cx.fill();
-  cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(xp, yp, 8*k, 0, 6.283); cx.fill();
-  cx.fillStyle = `rgb(${col})`; cx.beginPath(); cx.arc(xp, yp, 5*k, 0, 6.283); cx.fill();
-  if (W < 560){ cx.textBaseline = "alphabetic"; }
-  else {
-  const label = dispPrice.toFixed(4);
-  let tagFs = Math.round(Math.max(11, (W < 720 ? 15 : 26) * k));
-  cx.font = "900 " + tagFs + "px " + FONT;
-  let tw = cx.measureText(label).width;
-  const gutter = Math.max(36, W - (Lm + pw) - 8);
-  if (tw + 18 > gutter){
-    tagFs = Math.max(10, Math.floor(tagFs * gutter / (tw + 18)));
-    cx.font = "900 " + tagFs + "px " + FONT;
-    tw = cx.measureText(label).width;
-  }
-  const th = Math.max(16, tagFs * 1.65);
-  const tx = Lm + pw + 2, ty = Math.min(Math.max(yp - th / 2, T), Math.max(T, T + ph - th));
-  const tip = Math.min(12, tagFs * 0.45);
-  cx.fillStyle = `rgb(${col})`; cx.beginPath();
-  cx.moveTo(tx, yp); cx.lineTo(tx + tip, ty); cx.lineTo(Math.min(W - 2, tx + tip + tw + tagFs * 0.7), ty);
-  cx.lineTo(Math.min(W - 2, tx + tip + tw + tagFs * 0.7), ty + th); cx.lineTo(tx + tip, ty + th); cx.closePath(); cx.fill();
-  cx.fillStyle = upTrend ? "#02240f" : "#fff"; cx.textBaseline = "middle";
-  cx.fillText(label, tx + tip + 4, ty + th / 2 + 1); cx.textBaseline = "alphabetic";
-  }
+  const full = S.candles, n = full.length, STEPM = 2, hist = [];
+  for (let k = n - 1; k >= 0; k -= STEPM) hist.unshift(k === n - 1 ? S.price : full[k].c);
+  const ser = hist.slice(-120), off = hist.length - ser.length;
+  const ma = ser.map((_, i) => { const j = off + i; let a = 0, q = 0; for (let k = Math.max(0, j - 19); k <= j; k++){ a += hist[k]; q++; } return a / q; });
+  let mn = Infinity, mx = -Infinity; for (const v of ser){ if (v < mn) mn = v; if (v > mx) mx = v; }
+  const rg = (mx - mn) || 1e-6;
+  const LW = Math.max(2.5, 4 * L.k), PT = H * 6 / 90, PH = H * 78 / 90;
+  const Xi = i => LW / 2 + i / (ser.length - 1) * (W - LW), Yv = v => PT + PH - (v - mn) / rg * PH;
+  const upT = S.pct != null && isFinite(S.pct) ? S.pct >= 0 : ser[ser.length - 1] >= ser[0];
+  cx.lineJoin = "round"; cx.lineCap = "round"; cx.setLineDash([]);
+  cx.beginPath(); ser.forEach((v, i) => i ? cx.lineTo(Xi(i), Yv(v)) : cx.moveTo(Xi(i), Yv(v)));
+  cx.strokeStyle = upT ? "#22f08a" : "#ff4d5e"; cx.lineWidth = LW; cx.stroke();
+  const dk = Math.max(.55, L.k);
+  cx.beginPath(); ma.forEach((v, i) => i ? cx.lineTo(Xi(i), Yv(v)) : cx.moveTo(Xi(i), Yv(v)));
+  cx.strokeStyle = "rgba(255,207,77,.6)"; cx.lineWidth = Math.max(1.5, 2.5 * L.k); cx.lineCap = "butt"; cx.setLineDash([13 * dk, 9 * dk]); cx.stroke(); cx.setLineDash([]);
 }
 
-/* ---------------- sound (all synthesized with Web Audio, no audio files) ---------------- */
+/* ---------------- sound (all synthesized with Web Audio, same sounds as the stream overlay) ---------------- */
 const SYNTH = (() => {
   const noiseCache = new WeakMap();
   function noise(ac){                                  // 2 s of white noise, cached per context
@@ -528,7 +366,21 @@ const SYNTH = (() => {
     const o = osc(ac, "sine", up ? 220 : 880, t, .85, tv); o.frequency.exponentialRampToValueAtTime(up ? 880 : 220, t + .8);
     return 1;
   }
-  const pump = (ac, out, t) => whoosh(ac, out, t, true);
+  // PUMP: celebration = air horn blasts + rising fanfare + crowd cheer
+  function horn(ac, out, t, dur){
+    const v = g(ac, 0, out); v.gain.setValueAtTime(0.0001, t); v.gain.exponentialRampToValueAtTime(.22, t + .03);
+    v.gain.setValueAtTime(.22, t + dur - .06); v.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const f = ac.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 2600; f.Q.value = 2; f.connect(v);
+    [466.16, 587.33, 698.46].forEach(fr => [-9, 9].forEach(c => { const o = osc(ac, "sawtooth", fr, t, dur, f); o.detune.value = c; }));
+  }
+  function pump(ac, out, t){
+    whoosh(ac, out, t, true);
+    horn(ac, out, t + .05, .28); horn(ac, out, t + .4, .28); horn(ac, out, t + .75, .9);
+    const bus = g(ac, .8, out);
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => brass(ac, bus, f, t + 1.0 + i * .1, i === 4 ? 1.1 : .18, .9, i === 4));
+    cheer(ac, out, t + .3, 2.8);
+    return 3.2;
+  }
   const dip = (ac, out, t) => whoosh(ac, out, t, false);
   function mile(ac, out, t){
     whoosh(ac, out, t, true, .12);
@@ -613,10 +465,10 @@ const SYNTH = (() => {
   }
   return {ping, pong, pump, dip, mile, high, low};
 })();
-function sfxChain(ac, vol){                       // master volume -> gentle limiter -> speakers
+function sfxChain(ac, vol){                       // master volume -> limiter -> speakers
   const m = ac.createGain(); m.gain.value = vol;
   const lim = ac.createDynamicsCompressor();
-  lim.threshold.value = -6; lim.knee.value = 0; lim.ratio.value = 12; lim.attack.value = .003; lim.release.value = .25;
+  lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = .001; lim.release.value = .2;
   m.connect(lim); lim.connect(ac.destination); return m;
 }
 
@@ -628,21 +480,27 @@ const store = {
 let soundOn = store.get("sound", "0") === "1";
 let volume = (() => { const v = parseFloat(store.get("vol", "0.5")); return isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5; })();
 let ticksOn = store.get("ticks", "1") !== "0";
-let AC = null, SFX_OUT = null;
+let AC = null, SFX_OUT = null, SFX_DUCK = null;
 function ensureAC(){
   if (AC) return AC;
   try {
     AC = new (window.AudioContext || window.webkitAudioContext)();
     SFX_OUT = sfxChain(AC, volume);
+    SFX_DUCK = AC.createGain(); SFX_DUCK.connect(SFX_OUT);         // alert sounds go through this so the voice can duck them
     AC.onstatechange = updateSoundUI;
   } catch(e){ AC = null; }
   return AC;
 }
 const audioRunning = () => !!AC && AC.state === "running";
-function startAudio(){                                  // must be called from a tap/click/key
+let voiceLoading = false;
+function loadVoice(){                                     // spoken callouts (~300 KB) are fetched only once sound is on
+  if (window.__VOICE_CLIPS || voiceLoading) return; voiceLoading = true;
+  const s = document.createElement("script"); s.src = "voice.js?v=16"; s.async = true; s.onerror = () => { voiceLoading = false; }; document.head.appendChild(s);
+}
+function startAudio(){                                    // must be called from a tap/click/key
   if (!ensureAC()) return Promise.resolve(false);
   const p = AC.state === "running" ? Promise.resolve() : AC.resume();
-  return p.then(() => { updateSoundUI(); return audioRunning(); }, () => false);
+  return p.then(() => { updateSoundUI(); if (audioRunning()) loadVoice(); return audioRunning(); }, () => false);
 }
 function setSound(on){
   soundOn = on; store.set("sound", on ? "1" : "0");
@@ -654,15 +512,52 @@ function updateSoundUI(){
   const b = $("sndBtn"), live = soundOn && audioRunning();
   b.classList.toggle("on", live);
   b.setAttribute("aria-pressed", String(live));
-  b.textContent = live ? "Sound ON" : "Tap for sound";
-  b.title = live ? "Tap to mute (M)" : "Tap to turn sound on (M)";
+  b.textContent = live ? "Sound: ON" : "Tap for sound";
+  b.title = live ? "Tap to mute (M)" : "Alert sounds and voice (M)";
   $("ticksBtn").textContent = "Ticks: " + (ticksOn ? "ON" : "OFF");
   $("ticksBtn").setAttribute("aria-pressed", String(ticksOn));
 }
 function playSfx(name){
   if (!soundOn || !audioRunning() || !SYNTH[name]) return;
-  try { SYNTH[name](AC, SFX_OUT, AC.currentTime + .02); } catch(e){}
+  try { SYNTH[name](AC, SFX_DUCK || SFX_OUT, AC.currentTime + .02); } catch(e){}
 }
+/* voice callouts: decoded on first use, played after the alert sound (which ducks under it); the frog bubble shows the same line */
+window.__voice = (() => {
+  const bufs = {};
+  const BUB = {pump: "XRP PUMPING!", dip: "XRP DIPPING", high: "NEW DAY HIGH!", low: "NEW DAY LOW", golden: "GOLDEN CROSS!", death: "DEATH CROSS",
+               lvl_up: "NEW LEVEL!", lvl_dn: "BELOW KEY LEVEL"};
+  const DELAY = {pump: 1.0, dip: .55, high: .9, low: .7, mile: .6, golden: .15, death: .15};
+  let busyUntil = 0;
+  const VC = () => window.__VOICE_CLIPS || {};
+  const b64 = b => { const bin = atob(b), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; };
+  function get(id){
+    if (bufs[id]) return bufs[id];
+    bufs[id] = new Promise((res, rej) => AC.decodeAudioData(b64(VC()[id]), res, rej));
+    bufs[id].catch(() => { delete bufs[id]; }); return bufs[id];
+  }
+  function clipFor(kind, text){
+    if (kind === "mile"){
+      const m = /\$(\d+\.\d\d)\s*(⬆|⬇)/.exec(text || ""), up = !m || m[2] === "⬆";
+      if (m && VC()[(up ? "up_" : "dn_") + m[1]]) return [(up ? "up_" : "dn_") + m[1], (up ? "ABOVE $" : "BELOW $") + m[1] + (up ? "!" : "")];
+      return up ? ["lvl_up", BUB.lvl_up] : ["lvl_dn", BUB.lvl_dn];
+    }
+    return [kind, BUB[kind]];
+  }
+  const say = (t, ms) => { if (t && window.__mascot) window.__mascot.say(t, ms); };
+  const log = [];
+  async function callout(kind, text){
+    const [id, bub] = clipFor(kind, text), delay = DELAY[kind] != null ? DELAY[kind] : .3;
+    if (!soundOn || !audioRunning() || !VC()[id]){ setTimeout(() => say(bub, 6500), delay * 1000); return; }
+    let buf; try { buf = await get(id); } catch(e){ say(bub, 6500); return; }
+    const t0 = Math.max(AC.currentTime + delay, busyUntil + .25), dur = buf.duration;
+    const src = AC.createBufferSource(); src.buffer = buf; src.connect(SFX_OUT); src.start(t0);
+    const d = SFX_DUCK.gain; d.setTargetAtTime(.3, Math.max(AC.currentTime, t0 - .12), .05); d.setTargetAtTime(1, t0 + dur, .2);
+    busyUntil = t0 + dur; log.push(id);
+    if (window.__music) window.__music.duck(Math.max(0, t0 - AC.currentTime), dur);   // music dips under the voice
+    setTimeout(() => say(bub, Math.max(5000, dur * 1000 + 3000)), Math.max(0, (t0 - AC.currentTime) * 1000));
+  }
+  return {callout, log};
+})();
 /* price-tick ping/pong: at most once per TICK_GAP_MS, direction = net move since the last tick sound */
 const TK = {ref: null, last: 0, timer: null};
 function tickSound(p){
@@ -678,10 +573,10 @@ function flushTick(){
   TK.ref = p; TK.last = performance.now();
 }
 
-/* ---------------- controls: sound / volume / ticks / fullscreen, auto-hide when idle ---------------- */
+/* ---------------- controls: sound / volume / ticks / full screen ---------------- */
 $("volume").value = volume;
 $("sndBtn").addEventListener("click", () => {
-  if (soundOn && !audioRunning()) startAudio().then(ok => { if (ok) playSfx("ping"); });   // remembered "on" but browser had it blocked
+  if (soundOn && !audioRunning()) startAudio().then(ok => { if (ok) playSfx("ping"); });   // remembered "on" but the browser had it blocked
   else setSound(!soundOn);
 });
 $("volume").addEventListener("input", e => {
@@ -693,6 +588,7 @@ $("ticksBtn").addEventListener("click", () => { ticksOn = !ticksOn; store.set("t
 // any tap/key starts audio if the visitor already chose "sound on" on an earlier visit
 const gestureStart = e => { if (soundOn && !audioRunning() && !(e.target && e.target.closest && e.target.closest("#sndBtn"))) startAudio(); };
 addEventListener("pointerdown", gestureStart, true); addEventListener("keydown", gestureStart, true);
+window.__xrpVolume = () => volume;
 
 const docEl = document.documentElement;
 const fsEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
@@ -702,8 +598,7 @@ function toggleFs(){
   if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
   else { const r = (docEl.requestFullscreen || docEl.webkitRequestFullscreen).call(docEl); if (r && r.catch) r.catch(() => {}); }
 }
-const fsLabel = () => { $("fsBtn").textContent = fsEl() ? "⛶ Exit full screen" : "⛶ Full screen"; };
-function onFullscreen(){ fsLabel(); setTimeout(layout, 60); }
+function onFullscreen(){ const on = !!fsEl(); document.body.classList.toggle("isfs", on); $("fsBtn").textContent = on ? "Exit full screen" : "Full screen"; setTimeout(layout, 60); }
 $("fsBtn").addEventListener("click", toggleFs);
 document.addEventListener("fullscreenchange", onFullscreen);
 document.addEventListener("webkitfullscreenchange", onFullscreen);
@@ -721,58 +616,27 @@ async function keepAwake(){
 }
 document.addEventListener("visibilitychange", keepAwake);
 addEventListener("pointerdown", keepAwake, {once: true});
-
-// hide the controls (and mouse cursor) after a few seconds without movement; show again on move / tap / key
+// hide the mouse cursor in full screen after a few seconds without movement
 let idleT = null;
-function wake(){
-  document.body.classList.remove("idle");
-  clearTimeout(idleT);
-  idleT = setTimeout(() => document.body.classList.add("idle"), 4000);
-}
-["mousemove", "pointerdown", "touchstart", "keydown", "wheel"].forEach(ev => addEventListener(ev, wake, {passive: true, capture: true}));
-$("controls").addEventListener("focusin", wake);
-wake(); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 7000);   // a bit longer on first load
+function wake(){ document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 4000); }
+["mousemove", "pointerdown", "keydown"].forEach(ev => addEventListener(ev, wake, {passive: true, capture: true}));
 updateSoundUI();
-
-/* test / debugging helper */
 window.__xrpSfx = {play: playSfx, ctx: () => AC, on: () => soundOn};
 
-/* ---------------- main loop: rAF, chart at most 4 times a second ---------------- */
-const CHART_MS = 250;
-let lastFrame = 0, rafId = 0, looping = false;
+/* ---------------- main loop: rAF only while confetti flies, otherwise a 4 Hz timer; chart redrawn at most once a second ---------------- */
+let lastFrame = 0, chartAt = -1e9, loopT = 0, rafOn = false;
 function loop(now){
-  rafId = 0;
-  if (document.hidden){ looping = false; parts.length = 0; fxc.clearRect(0, 0, innerWidth, innerHeight); return; }
-  rafId = requestAnimationFrame(loop);
-  if (parts.length) drawFx();
-  if (now - lastFrame < CHART_MS) return;
-  lastFrame = now;
-  drawChart(now);
-  S.chartDraws = (S.chartDraws || 0) + 1;
-  chartDirty = false;
-  if (now - volAt > 1000){ volAt = now; drawVol(); }
+  rafOn = false;
+  if (document.hidden){ parts.length = 0; fxc.clearRect(0, 0, innerWidth, innerHeight); return; }
+  if (now - lastFrame >= 30){
+    lastFrame = now;
+    if ((chartDirty && now - chartAt >= 1000) || now - chartAt >= 5000){ chartAt = now; chartDirty = false; drawChart(); }
+    drawFx();
+  }
+  if (parts.length || fxDirty){ rafOn = true; requestAnimationFrame(loop); }
+  else { clearTimeout(loopT); loopT = setTimeout(() => { rafOn = true; requestAnimationFrame(loop); }, 250); }
 }
-function startLoop(){
-  if (looping || document.hidden) return;
-  looping = true;
-  rafId = requestAnimationFrame(loop);
-}
-
-/* ---------------- rotating ticker lines ---------------- */
-let tIdx = 0, tEl = null;
-function rotateTicker(){
-  if (document.hidden) return;
-  const box = $("tickerText");
-  while (box.children.length > 2) box.removeChild(box.firstChild);
-  const s = document.createElement("div"), t = document.createElement("span"), line = TICKER_LINES[tIdx++ % TICKER_LINES.length];
-  s.className = "tline"; s.appendChild(t);
-  if (line.h) t.innerHTML = line.h; else t.textContent = line.t;
-  s.style.transform = "translateY(100%)"; s.style.opacity = "0"; box.appendChild(s);
-  requestAnimationFrame(() => requestAnimationFrame(() => { s.style.transform = "translateY(0)"; s.style.opacity = "1"; }));
-  if (tEl && tEl !== s){ const old = tEl; old.style.transform = "translateY(-100%)"; old.style.opacity = "0"; setTimeout(() => { if (old.parentNode) old.remove(); }, 700); }
-  tEl = s;
-}
-rotateTicker(); setInterval(rotateTicker, 6000);
+function kick(){ if (!rafOn){ clearTimeout(loopT); rafOn = true; requestAnimationFrame(loop); } }
 
 /* ---------------- networking ---------------- */
 async function getJSON(url, ms = 8000){
@@ -810,7 +674,6 @@ async function pollCoinGecko(usePrice){
     return true;
   } catch(e){ return false; }
 }
-
 /* websockets with auto-reconnect and host failover (443 -> 9443 -> binance.vision mirror) */
 let wsHostIdx = 0, wsFails = 0, sockets = [], restTimer = null, cgTimer = null, wsGen = 0;
 function openWS(){
@@ -831,14 +694,14 @@ function openWS(){
     const c = {t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v}, last = S.candles[S.candles.length-1];
     if (last && last.t === c.t) Object.assign(last, c); else if (!last || c.t > last.t){ S.candles.push(c); trimCandles(); }
     chartDirty = true; });
-  setTimeout(() => { if (!gotMsg && gen === wsGen) scheduleReconnect(false); }, 7000);   // nothing within 7 s -> next host
+  setTimeout(() => { if (!gotMsg && gen === wsGen) scheduleReconnect(false); }, 7000);
 }
 let reconnectT = null;
 function scheduleReconnect(hadData){
   if (reconnectT) return;
   sockets.forEach(s => { try { s.onclose = null; s.close(); } catch(e){} }); sockets = [];
   if (!hadData){ wsFails++; wsHostIdx++; }
-  if (wsFails >= WS_HOSTS.length) startPolling();          // websockets look blocked -> REST / CoinGecko polling meanwhile
+  if (wsFails >= WS_HOSTS.length) startPolling();
   const delay = hadData ? 2000 : Math.min(60000, 1000 * Math.pow(2, Math.min(Math.max(0, wsFails - 1), 6)));
   setSource((S.source || "Binance public feed").replace(/ · reconnecting\.\.\.$/, "") + " · reconnecting...", "warn");
   reconnectT = setTimeout(() => { reconnectT = null; openWS(); }, delay);
@@ -853,9 +716,9 @@ function startPolling(){
   S.mode = "poll";
   const tick = async () => {
     if (await restPollOnce()) return;
-    if (!cgTimer){                                           // Binance fully blocked -> CoinGecko every 30 s
+    if (!cgTimer){
       clearInterval(restTimer); restTimer = null;
-      const cg = async () => { if (await pollCoinGecko(true)) setSource("CoinGecko", "warn"); else setSource("offline · retrying…", "bad"); };
+      const cg = async () => { if (await pollCoinGecko(true)) setSource("CoinGecko", "warn"); else setSource("offline · retrying...", "bad"); };
       cg(); cgTimer = setInterval(cg, 30000);
       if (S.candles.length < 2) seedCoinGecko().catch(() => {});
     }
@@ -863,28 +726,19 @@ function startPolling(){
   tick(); restTimer = setInterval(tick, 5000);
 }
 function stopPolling(){ clearInterval(restTimer); clearInterval(cgTimer); restTimer = cgTimer = null; }
-
-/* watchdog: stale data -> reconnect; periodic reseed to heal gaps (e.g. after the tab slept) */
-setInterval(() => {
-  if (document.hidden) return;
-  if (S.mode === "ws" && Date.now() - S.lastTickAt > 45000) scheduleReconnect(true);
-}, 10000);
-setInterval(() => {
-  if (document.hidden) return;
-  if (S.mode !== "poll" || restTimer) seedBinance().catch(() => {});
-}, 30 * 60e3);
+setInterval(() => { if (!document.hidden && S.mode === "ws" && Date.now() - S.lastTickAt > 45000) scheduleReconnect(true); }, 10000);
+setInterval(() => { if (!document.hidden && (S.mode !== "poll" || restTimer)) seedBinance().catch(() => {}); }, 30 * 60e3);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden){ parts.length = 0; return; }
-  startLoop();
-  chartDirty = true;
-  queuePrice();
+  chartDirty = true; kick(); renderPrice();
   if (Date.now() - S.lastTickAt > 60000) seedBinance().catch(() => {});
 });
 
 /* ---------------- boot ---------------- */
 layout();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
-startLoop();
+if (window.ResizeObserver) new ResizeObserver(relayout).observe($("card"));
+kick();
 (async () => {
   setSource("connecting...", "warn");
   try { await seedBinance(); setSource("Binance public feed", "warn"); }
@@ -896,25 +750,20 @@ startLoop();
   if (SHOW_EUR){ eur(); setInterval(eur, 5 * 60e3); }
 })();
 
-
-/* ---------------- Buddha frog ---------------- */
+/* ---------------- the crew (frog + 3 characters): one mood and one reaction for all four ---------------- */
 (function(){
-  const M = $("mascot");
-  if (!M) return;
-  if (Q.get("mascot") === "0"){ M.classList.add("off"); return; }
-  const BUB = M.querySelector(".bub");
-  const TEST = Q.get("mascottest");
-  const TXT = {pump: ["XRP UP", "NICE MOVE", "LETS GO"], dip: ["HODL", "STAY CALM", "BREATHE"],
-               mile: ["NEW LEVEL", "STEADY"], calm: ["NAMASTE", "BE WATER"]};
-  const MOODS = {up: "XRP UP", big: "BIG MOVE", down: "HODL", flat: "CHILL"};
+  const CR = $("crew"), BUB = $("bub");
+  const TXT = {pump: ["XRP UP!", "NICE MOVE", "LET'S GO"], dip: ["HODL", "STAY CALM", "BREATHE"],
+               mile: ["NEW LEVEL", "OMMMM"], calm: ["NAMASTE", "BE WATER"]};
+  const MOODS = {up: "XRP UP!", big: "XRP UP BIG!", down: "HODL", flat: "CHILL"};   // short, no promises
   let mood = null, moodSaidAt = 0, state = "calm", until = 0, sayT = 0, lockUntil = 0;
   const MOOD_FORCE = MOODS[Q.get("mood")] ? Q.get("mood") : null;
   const pick = a => a[Math.floor(Math.random() * a.length)];
-  function say(t, ms){ BUB.textContent = t; M.classList.add("say"); clearTimeout(sayT); sayT = setTimeout(() => M.classList.remove("say"), ms); }
+  function say(t, ms){ BUB.textContent = t; CR.classList.add("say"); clearTimeout(sayT); sayT = setTimeout(() => CR.classList.remove("say"), ms); }
+  function callSay(t, ms){ lockUntil = Date.now() + ms; say(t, ms); }
   function setMood(m){
     if (m === mood) return;
-    M.classList.remove("m-up", "m-big", "m-down", "m-flat");
-    mood = m; M.classList.add("m-" + m);
+    CR.classList.remove("m-up", "m-big", "m-down", "m-flat"); mood = m; CR.classList.add("m-" + m);
     if (state === "calm" && Date.now() > lockUntil){ say(MOODS[m], MOOD_FORCE ? 1e9 : 7000); moodSaidAt = Date.now(); }
   }
   function moodFrom(ch15){
@@ -923,23 +772,21 @@ startLoop();
     if (ch15 != null){ if (ch15 >= 0.6 && (m === "flat" || m === "down")) m = "up"; else if (ch15 <= -0.6 && m !== "down") m = "down"; }
     return m;
   }
-  function jump(){ M.classList.remove("jump"); void M.offsetWidth; M.classList.add("jump"); clearTimeout(jump.t); jump.t = setTimeout(() => M.classList.remove("jump"), 2200); }
-  function setFrog(s, ms){
-    if (TEST && s !== TEST) return;
+  function jump(){ CR.classList.remove("jump"); void CR.offsetWidth; CR.classList.add("jump"); clearTimeout(jump.t); jump.t = setTimeout(() => CR.classList.remove("jump"), 2200); }
+  function set(s, ms){
     state = s; until = Date.now() + (ms || 0);
-    M.classList.remove("pump", "dip", "mile");
-    if (s !== "calm"){ void M.offsetWidth; M.classList.add(s); }
+    CR.classList.remove("pump", "dip", "mile");
+    if (s !== "calm"){ void CR.offsetWidth; CR.classList.add(s); }
     if (s !== "calm" && Date.now() > lockUntil) say(pick(TXT[s]), Math.min(ms || 8000, 8000));
     else if (MOOD_FORCE && mood) say(MOODS[mood], 1e9);
   }
-  window.__mascot = {set: setFrog, setMood, jump};
+  window.__mascot = {set: (s, ms) => set(s, ms || 20000), setMood, jump, say: callSay, get state(){ return state; }, get mood(){ return mood; }};
   if (MOOD_FORCE) setMood(MOOD_FORCE); else setMood("flat");
-  if (TEST){ const s = ["pump", "dip", "mile", "calm"].includes(TEST) ? TEST : "calm"; setFrog(s, 1e12); say(pick(TXT[s] || TXT.calm), 1e9); return; }
   const orig = showBanner;
   showBanner = function(kind, text, sub){
-    if (kind === "pump" || kind === "high"){ setFrog("pump", 45000); jump(); }
-    else if (kind === "dip" || kind === "low") setFrog("dip", 45000);
-    else if (kind === "mile" && state === "calm") setFrog("mile", 3500);
+    if (kind === "pump" || kind === "high"){ set("pump", 45000); jump(); }        // sparkles + celebratory jump
+    else if (kind === "dip" || kind === "low") set("dip", 45000);                  // sweat + shake
+    else if (kind === "mile" && state === "calm") set("mile", 3500);
     return orig(kind, text, sub);
   };
   const buf = [];
@@ -952,9 +799,9 @@ startLoop();
       if (state === "calm" && now > lockUntil && now - moodSaidAt > 120e3){ moodSaidAt = now; say(MOODS[mood], 6000); }
     }
     if (now > until){
-      if (ch >= MOVE_PCT && state !== "pump") setFrog("pump", 30000);
-      else if (ch <= -MOVE_PCT && state !== "dip") setFrog("dip", 30000);
-      else if (state !== "calm" && Math.abs(ch) < MOVE_PCT) setFrog("calm");
+      if (ch >= MOVE_PCT && state !== "pump") set("pump", 30000);
+      else if (ch <= -MOVE_PCT && state !== "dip") set("dip", 30000);
+      else if (state !== "calm" && Math.abs(ch) < MOVE_PCT) set("calm");
       else if (state !== "calm") until = now + 10000;
     }
   }, 5000);
@@ -962,7 +809,6 @@ startLoop();
 
 /* ---------------- coin strip: majors on Binance, XRPL meme market caps ---------------- */
 (function(){
-  if (Q.get("coins") === "0"){ const el = $("coins"); if (el) el.style.display = "none"; return; }
   const SHOW_MEMES = Q.get("memes") !== "0";
   const el = $("coins");
   if (!el) return;
@@ -1072,25 +918,30 @@ startLoop();
     }
   }
   const MEME_SET = new Set(MEMES.map(m => m[0]));
-  const PAGES = [{tag:false, s:["BTC","ETH","BNB","SOL"]}, {tag:false, s:["HBAR","FET","ONDO","WLFI"]}];
-  if (SHOW_MEMES) PAGES.push({tag:true, s:["FUZZY","BCHAMP","PHNIX","UGA"]}, {tag:true, s:["SEAL","CULT","ARMY"]});
+  // rotating pages (cross-faded by opacity only): 4 coins per page on wide screens, 2 on phones
+  const MAJ = ["BTC","ETH","BNB","SOL","HBAR","FET","ONDO","WLFI"], MEM = ["FUZZY","BCHAMP","PHNIX","UGA","SEAL","CULT","ARMY"];
   const cell = s => '<span class="ci' + (MEME_SET.has(s) ? " m" : "") + '" data-s="' + s + '"><b>' + s + '</b><span class="cp">--</span><span class="pc na">--</span></span>';
-  el.innerHTML = PAGES.map((pg, i) => '<div class="cpage' + (i ? "" : " on") + '">' +
-    (pg.tag ? '<span class="ctag">XRPL MCs</span>' : "") + pg.s.map(cell).join("") + "</div>").join("");
-  const pages = [...el.querySelectorAll(".cpage")];
-  let cur = 0;
+  let pages = [], cur = 0, perPage = 0;
+  function build(){
+    const per = L.narrow ? 2 : 4; if (per === perPage) return; perPage = per;
+    const P = [];
+    for (let i = 0; i < MAJ.length; i += per) P.push({tag: false, s: MAJ.slice(i, i + per)});
+    if (SHOW_MEMES) for (let i = 0; i < MEM.length; i += per) P.push({tag: true, s: MEM.slice(i, i + per)});
+    el.innerHTML = P.map((pg, i) => '<div class="cpage' + (i ? "" : " on") + '">' +
+      (pg.tag ? '<span class="ctag">XRPL MCs</span>' : "") + pg.s.map(cell).join("") + "</div>").join("");
+    pages = [...el.querySelectorAll(".cpage")]; cur = 0; renderCoins();
+  }
   function fit(pg){
-    pg.style.transform = "translateX(-50%)";
+    pg.style.transform = "translate(-50%,-50%)";
     const w = pg.scrollWidth, avail = el.clientWidth - 6;
     const k = w > 0 && avail > 0 ? Math.min(1, avail / w) : 1;
-    pg.style.transform = "translateX(-50%) scale(" + k.toFixed(3) + ")";
+    if (k < 1) pg.style.transform = "translate(-50%,-50%) scale(" + k.toFixed(3) + ")";
   }
   function show(i){
-    if (document.hidden) return;
+    if (document.hidden || !pages.length) return;
     pages[cur].classList.remove("on");
     cur = ((i % pages.length) + pages.length) % pages.length;
-    pages[cur].classList.add("on");
-    fit(pages[cur]);
+    pages[cur].classList.add("on"); fit(pages[cur]);
   }
   function renderCoins(){
     if (document.hidden) return;
@@ -1105,70 +956,57 @@ startLoop();
       if (pc.className !== cls) pc.className = cls;
     });
   }
-  renderCoins();
-  fit(pages[0]);
-  window.__fitCoins = () => pages.forEach(fit);
-  setTimeout(() => window.__fitCoins(), 400);
-  setTimeout(() => window.__fitCoins(), 1500);
-  if (pages.length > 1) setInterval(() => show(cur + 1), 8000);
-  setInterval(() => { if (!document.hidden) renderCoins(); }, 5000);
+  window.__fitCoins = () => { build(); pages.forEach(fit); };
+  window.__fitCoins();
+  setTimeout(() => pages.forEach(fit), 1500);
+  setInterval(() => show(cur + 1), 8000);
+  setInterval(() => { if (!document.hidden){ renderCoins(); if (pages[cur]) fit(pages[cur]); } }, 5000);
   pollMajors().then(renderCoins);
   setInterval(() => { if (!document.hidden) pollMajors().then(renderCoins); }, 15000);
   if (SHOW_MEMES){ setTimeout(pollMemes, 1500); setInterval(() => { if (!document.hidden) pollMemes(); }, 60000); }
   window.__coins = data;
 })();
 
-/* ---------------- MA20 / MA50 cross label ---------------- */
+/* ---------------- MA20 / MA50 cross label (closed candles, 30 min cooldown) ---------------- */
 (function(){
   const el = $("maCross"); if (!el) return;
   let sign = null, lastAt = 0, hideT = 0;
-  const maClosed = n => {
-    const c = S.candles, e = c.length - 1;
-    if (e < n) return null;
-    let s = 0;
-    for (let i = e - n; i < e; i++) s += c[i].c;
-    return s / n;
-  };
-  function place(gold){
-    const box = window.__maLegBox, plot = $("plot");
-    el.textContent = gold ? "GOLDEN CROSS . MA20 ABOVE MA50" : "DEATH CROSS . MA20 BELOW MA50";
+  const maClosed = n => { const c = S.candles, e = c.length - 1; if (e < n) return null; let s = 0; for (let i = e - n; i < e; i++) s += c[i].c; return s / n; };
+  function show(gold){
+    el.textContent = gold ? "GOLDEN CROSS" : "DEATH CROSS";
     el.className = gold ? "gold" : "death";
-    if (box && plot){
-      const right = box.x + box.w + 10;
-      if (right + 220 < plot.clientWidth){ el.style.left = right + "px"; el.style.top = Math.max(0, box.y) + "px"; }
-      else { el.style.left = box.x + "px"; el.style.top = Math.max(0, box.y - 34) + "px"; }
-    }
+    if (window.__voice) window.__voice.callout(gold ? "golden" : "death");
     void el.offsetWidth; el.classList.add("on");
     clearTimeout(hideT); hideT = setTimeout(() => el.classList.remove("on"), 9000);
   }
   const check = () => {
-    const a = maClosed(20), b = maClosed(50);
-    if (a == null || b == null) return;
-    const sg = a > b ? 1 : a < b ? -1 : 0;
-    if (!sg) return;
-    if (sign != null && sg !== sign && Date.now() - lastAt > 30 * 60e3 && !DEMO){ lastAt = Date.now(); place(sg > 0); }
+    const a = maClosed(20), b = maClosed(50); if (a == null || b == null) return;
+    const sg = a > b ? 1 : a < b ? -1 : 0; if (!sg) return;
+    if (sign != null && sg !== sign && Date.now() - lastAt > 30 * 60e3 && !DEMO){ lastAt = Date.now(); show(sg > 0); }
     sign = sg;
   };
-  setInterval(check, 15000);
-  setTimeout(check, 5000);
+  setInterval(check, 15000); setTimeout(check, 5000);
+  if (Q.get("crosstest") === "1"){ let g = true; setTimeout(() => { show(g); setInterval(() => { g = !g; show(g); }, 12000); }, 3000); }
+  window.__cross = show;
 })();
 
-/* ---------------- subscribe card ---------------- */
+/* ---------------- SUBSCRIBE prompt: every 15 min (first after 2 min), 10 s ---------------- */
 (function(){
   const card = $("subCard"); if (!card) return;
   if (Q.get("sub") === "0"){ card.remove(); return; }
   const test = Q.get("subtest") === "1";
   const first = test ? 2500 : 120000, every = test ? 30000 : 15 * 60e3;
-  const show = () => { card.classList.remove("show"); void card.offsetWidth; card.classList.add("show"); setTimeout(() => card.classList.remove("show"), 10100); };
+  const show = () => { if (document.hidden) return; card.classList.remove("show"); void card.offsetWidth; card.classList.add("show"); setTimeout(() => card.classList.remove("show"), 10100); };
   setTimeout(() => { show(); setInterval(show, every); }, first);
+  window.__sub = show;
 })();
 
-/* ---------------- demo mode (testing only) ---------------- */
+/* ---------------- test modes (only with URL options) ---------------- */
 if (DEMO){
   const go = () => {
     const p = S.price || 1;
-    if (DEMO === "pump") showBanner("pump", moveText(true, 1.2), "XRP PUMPING");
-    else if (DEMO === "dip") showBanner("dip", moveText(false, 1.4), "XRP DIPPING");
+    if (DEMO === "pump") showBanner("pump", moveText(true, 1.2), "XRP PUMPING 🚀");
+    else if (DEMO === "dip") showBanner("dip", moveText(false, 1.4), "XRP DIPPING 📉");
     else if (DEMO === "milestone") showBanner("mile", `XRP CROSSES $${(Math.round(p / STEP) * STEP).toFixed(2)} ⬆`);
   };
   if (DEMO === "high" || DEMO === "low"){
@@ -1178,5 +1016,14 @@ if (DEMO){
     let up = true; setInterval(() => { playSfx(up ? "ping" : "pong"); up = !up; }, 1500);
   } else { setTimeout(go, 3000); setInterval(go, 10000); }
 }
+{ const at = Q.get("alerttest");
+  if (at){
+    let n = 0;
+    const fire = () => { const up = at === "up" ? true : at === "down" ? false : (n++ % 2 === 0);
+      showBanner(up ? "pump" : "dip", moveText(up, up ? 1.2 : 1.4), up ? "XRP PUMPING 🚀" : "XRP DIPPING 📉"); };
+    setTimeout(() => { fire(); setInterval(fire, 10000); }, 3000);
+  }
+}
 window.__xrp = S;
+window.__alert = (kind, text, sub) => showBanner(kind, text, sub);   // for testing in the browser console
 })();

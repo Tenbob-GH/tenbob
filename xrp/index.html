@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <base href="/xrp/">
 <title>XRP Live Price 24/7 | Tenbob</title>
-<meta name="description" content="Live XRP / USD price on Tenbob: chart, day high and low, volume, RSI, and alerts. Not financial advice.">
-<meta name="theme-color" content="#05070d">
+<meta name="description" content="Live XRP / USD price on Tenbob: chart, 24H change, day high and low, and alerts. Not financial advice.">
+<meta name="theme-color" content="#03070a">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Tenbob">
@@ -28,9 +28,9 @@
 <link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css">
-<style>html,body{background:#05070d;color:#fff}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap">
+<link rel="stylesheet" href="style.css?v=16">
+<style>html,body{background:#03070a;color:#fff}</style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -39,74 +39,56 @@
   gtag('config', 'G-9J19MRHCP3');
 </script>
 </head>
-<body class="front">
+<body>
 <div id="app">
   <div id="topRow">
-    <a id="homeBtn" href="/">
+    <a id="homeBtn" href="/" title="Tenbob home">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 3 11h2v9h6v-6h2v6h6v-9h2L12 3.2z"/></svg>
       <span>Home</span>
     </a>
     <div id="coins" aria-label="Other prices"></div>
   </div>
 
-  <div id="plot">
-    <canvas id="chart" aria-hidden="true"></canvas>
-    <div id="haze" aria-hidden="true"></div>
-    <canvas id="volChart" aria-hidden="true"></canvas>
-
-    <div id="hero">
-      <div id="heroInner">
-        <div id="heroGlow" aria-hidden="true"></div>
-        <h1 id="pair">
-          <svg id="xrpMark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#fff"/>
-            <path d="M27 28h9l14 13 14-13h9L56 44a9 9 0 0 1-12 0zM27 72h9l14-13 14 13h9L56 56a9 9 0 0 0-12 0z" fill="#0b1424"/></svg>
-          XRP / USD
-        </h1>
-        <div id="priceWrap"><div id="price" aria-label="XRP price in US dollars">$-.----</div></div>
-        <div id="change" class="up"><span id="arrow">▲</span><span id="pct">0.00%</span><small>24H</small></div>
+  <main id="card">
+    <div id="head">
+      <div id="hero">
+        <h1 id="pair">XRP / USD</h1>
+        <div id="price" aria-label="XRP price in US dollars">$-.----</div>
+      </div>
+      <div id="crew" class="m-flat" aria-hidden="true">
+        <div class="cw" id="cw1" data-c="leopard"></div>
+        <div class="cw" id="cw2" data-c="uga"></div>
+        <div class="cw" id="cw3" data-c="cyborg"></div>
+        <div class="cw frog" id="cw4" data-c="frog"></div>
+        <div class="bub" id="bub"></div>
       </div>
     </div>
 
     <div id="hl">
-      <div class="hlBox" id="hlHigh"><span class="k">HIGH</span><span class="v" id="hlHighV">-</span></div>
-      <div class="hlBox" id="hlLow"><span class="k">LOW</span><span class="v" id="hlLowV">-</span></div>
+      <div class="box" id="change"><span class="k">24H</span><span class="v"><span id="pct">0.00%</span></span></div>
+      <div class="box" id="hlHigh"><span class="k">HIGH</span><span class="v" id="hlHighV">--</span></div>
+      <div class="box" id="hlLow"><span class="k">LOW</span><span class="v" id="hlLowV">--</span></div>
     </div>
 
-    <div id="mascot">
-      <div class="aura" aria-hidden="true"></div>
-      <div class="body">
-        <img src="frog.webp" alt="">
-        <div class="tint" aria-hidden="true"></div>
-      </div>
-      <span class="fx sp" style="left:78%;top:18%" aria-hidden="true">✨</span>
-      <span class="fx sp" style="left:4%;top:36%" aria-hidden="true">✨</span>
-      <span class="fx sp" style="left:40%;top:4%" aria-hidden="true">⭐</span>
-      <span class="fx sw" aria-hidden="true">💧</span>
-      <div class="bub"></div>
+    <div id="chartWrap">
+      <canvas id="chart" aria-hidden="true"></canvas>
+      <div id="maCross" aria-hidden="true"></div>
+      <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
+      <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
     </div>
-
-    <div id="maCross"></div>
-    <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
-    <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
-
-    <a id="subCard" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener">
-      <span class="sfrog"><span class="sfw"><img alt="" src="frog.webp" id="subFrog"></span></span>
-      <span class="sbtn"><svg width="44" height="32" viewBox="0 0 44 32" aria-hidden="true"><rect width="44" height="32" rx="8" fill="#fff"/><path d="M17 9l12 7-12 7z" fill="#ff0000"/></svg>SUBSCRIBE</span>
-      <span class="stxt"><b>@Tenbob_YT</b><span>for 24/7 XRP live price</span></span>
-    </a>
-  </div>
+  </main>
 
   <section id="stats" aria-label="24 hour stats">
-    <div class="stat"><span class="k">Vol XRP</span><span class="v" id="vol">-</span></div>
-    <div class="stat"><span class="k">Vol USD</span><span class="v" id="qvol">-</span></div>
-    <div class="stat" id="eurStat"><span class="k">EUR</span><span class="v" id="eur">-</span></div>
+    <div class="stat"><span class="k">Vol XRP</span><span class="v" id="vol">--</span></div>
+    <div class="stat"><span class="k">Vol USD</span><span class="v" id="qvol">--</span></div>
+    <div class="stat" id="eurStat"><span class="k">EUR</span><span class="v" id="eur">--</span></div>
+    <div class="stat creditStat"><span id="credit"><i id="status"></i><span id="creditText">Connecting...</span></span></div>
+    <a id="subCard" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener" tabindex="-1">
+      <span class="sbtn"><svg width="34" height="24" viewBox="0 0 44 32" aria-hidden="true"><rect width="44" height="32" rx="8" fill="#fff"/><path d="M17 9l12 7-12 7z" fill="#ff0000"/></svg>SUBSCRIBE</span>
+      <span class="stxt"><b>@Tenbob_YT</b><span>for 24/7 XRP live price</span></span>
+      <svg class="sbell" width="30" height="32" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 2a1.6 1.6 0 0 1 1.6 1.6v.5A7 7 0 0 1 19 11v5l2.4 3H2.6L5 16v-5a7 7 0 0 1 5.4-6.9v-.5A1.6 1.6 0 0 1 12 2z" fill="#ffd23f"/><path d="M9.2 21h5.6a2.8 2.8 0 0 1-5.6 0z" fill="#ffd23f"/></svg>
+    </a>
   </section>
-
-  <div id="ticker">
-    <div id="tickerTag">LIVE</div>
-    <div id="tickerText"></div>
-    <span id="credit"><i id="status"></i><span id="creditText">Connecting...</span></span>
-  </div>
 
   <div id="controls" role="toolbar" aria-label="Sound and display controls">
     <button id="sndBtn" type="button" aria-pressed="false">Tap for sound</button>
@@ -116,7 +98,7 @@
     <button id="musicBtn" type="button" aria-pressed="false">Music: OFF</button>
     <span id="trackName" aria-live="polite"></span>
     <button id="fsBtn" type="button" title="Full screen (F)">Full screen</button>
-    <a id="ytBtn" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener">LIVE NOW on YouTube</a>
+    <a id="ytBtn" href="https://www.youtube.com/@Tenbob_YT/live" target="_blank" rel="noopener"><i class="live" aria-hidden="true"></i>LIVE NOW on YouTube</a>
   </div>
 
   <footer id="foot">
@@ -128,7 +110,7 @@
 
 <canvas id="fx" aria-hidden="true"></canvas>
 <noscript><div id="noscript">Please enable JavaScript to see the live XRP price.</div></noscript>
-<script src="app.js"></script>
-<script src="music.js"></script>
+<script src="app.js?v=16"></script>
+<script src="music.js?v=16"></script>
 </body>
 </html>

@@ -1,0 +1,22 @@
+xrp/music  (background music for the tenbob.xyz/xrp live price page; off until the visitor taps Music)
+Built 29 Oct 2026. All tracks CC0 1.0 (public domain dedication) as stated on each OpenGameArt page.
+No attribution is required, but credits are listed below.
+
+Mastering: silence trimmed, loudness normalised to -16 LUFS integrated with true peak at or below -1.5 dBTP
+(two-pass ffmpeg loudnorm, linear mode; Funky Disco uses a plain -0.9 dB gain because its source was already -16 LUFS),
+0.4 s fade in, 0.6 s fade out, MP3 192 kbps, 44.1 kHz stereo. Measured results after encoding:
+
+ file                              artist    integrated   sample peak   source page / licence
+ upbeat-1-funky-disco-beats.mp3    Fupi      -17.2 LUFS   -2.1 dBFS     https://opengameart.org/content/funky-disco-beats-to-boogiewoogie-to  CC0
+ upbeat-2-joyfully.mp3             MintoDog  -16.2 LUFS   -5.4 dBFS     https://opengameart.org/content/joyfully      CC0
+ upbeat-3-cool-city.mp3            MintoDog  -16.2 LUFS   -5.5 dBFS     https://opengameart.org/content/cool-city     CC0
+ upbeat-4-funked-up.mp3            Joth      -16.2 LUFS   -4.2 dBFS     https://opengameart.org/content/funked-up     CC0
+ upbeat-5-urban-theme.mp3 (NEW)    MintoDog  -16.2 LUFS   -5.0 dBFS     https://opengameart.org/content/urban-theme   CC0
+ upbeat-6-space-city.mp3  (NEW)    MintoDog  -16.2 LUFS   -5.0 dBFS     https://opengameart.org/content/space-city    CC0
+
+Dropped from the old music-upbeat folder (distortion baked into the source files, cannot be repaired by turning down):
+ - Energetic Electro Tune  https://opengameart.org/content/energetic-electro-tune
+   source peaks +2.0 dBFS, 352,562 samples over full scale, 33,212 flat-topped (clipped) runs, about -5.5 LUFS.
+ - Funky House  https://opengameart.org/content/funky-house
+   brickwalled: 307 flat-topped runs at 0 dBFS, crest factor 8.1 dB, about -6.8 LUFS.
+Fixed: Funked Up had 51 samples over 0 dBFS in the 160 kbps source; it is now 4.4 dB lower with no overs.
