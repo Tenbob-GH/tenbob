@@ -47,12 +47,12 @@ html:fullscreen #homeBtn,html:-webkit-full-screen #homeBtn,body.isfs #homeBtn{di
   background:var(--card);border:2px solid var(--bd);border-radius:calc(30px * var(--k) + 6px);
   padding:calc(22px * var(--k) + 8px) calc(40px * var(--k) + 8px) calc(16px * var(--k) + 6px)}
 #head{position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,1.22fr) auto;
-  align-items:stretch;gap:calc(16px * var(--k));flex:0 0 auto;z-index:6;min-width:0;
+  align-items:stretch;gap:clamp(18px, calc(14px * var(--k) + 12px), 28px);flex:0 0 auto;z-index:6;min-width:0;
   min-height:calc(210px * var(--k))}
-#hero{min-width:0;align-self:end;padding-bottom:2px}
+#hero{min-width:0;align-self:end;padding-bottom:2px;overflow:hidden}
 #pair{font-family:var(--mono);font-size:calc(32px * var(--k));line-height:1.4;font-weight:800;letter-spacing:.13em;color:#fff;white-space:nowrap}
-#price{--pc:var(--ng);--pg:34,240,138;font-family:var(--mono);font-weight:800;line-height:.92;letter-spacing:0;white-space:nowrap;
-  font-variant-numeric:tabular-nums;color:var(--pc);font-size:150px;margin-top:calc(6px * var(--k));
+#price{--pc:var(--ng);--pg:34,240,138;display:inline-block;font-family:var(--mono);font-weight:800;line-height:.92;letter-spacing:0;white-space:nowrap;
+  font-variant-numeric:tabular-nums;color:var(--pc);font-size:clamp(42px, 6.4vw, 148px);margin-top:calc(6px * var(--k));
   text-shadow:0 0 calc(38px * var(--k)) rgba(var(--pg),.55),0 0 calc(100px * var(--k)) rgba(var(--pg),.25)}
 #price.neg{--pc:var(--nr);--pg:255,77,94}
 #price.up{animation:nFlashUp .45s steps(2,end)} #price.down{animation:nFlashDown .45s steps(2,end)}
@@ -241,9 +241,9 @@ body.narrow #coins .cpage{gap:6px}
 body.narrow #coins .ci{padding:3px 6px;border-radius:10px}
 body.narrow #card{padding:12px 10px 8px;border-radius:18px;flex:1 0 auto;min-height:0}
 body.narrow #head{display:block;min-height:0}
-body.narrow #hero{padding-right:86px}
+body.narrow #hero{padding-right:96px}
 body.narrow #pair{font-size:13px;line-height:1.3;letter-spacing:.08em}
-body.narrow #price{margin-top:2px}
+body.narrow #price{margin-top:2px;font-size:clamp(28px, 12vw, 52px)}
 body.narrow #dataP{margin-top:8px;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:6px}
 body.narrow #dpT{grid-column:1 / -1;grid-row:auto;min-height:58px;padding:7px 8px 0}
 body.narrow #dpT .dk{font-size:10px}
@@ -257,7 +257,7 @@ body.narrow #dataP .mini .dk{font-size:9px;letter-spacing:.02em}
 body.narrow #dataP .mini .dch{font-size:10px}
 body.narrow #dataP .mini .dv{margin-top:3px;font-size:12px}
 body.narrow #dpF .bar{height:5px;margin-left:4px} body.narrow #dpF .bar i{top:-3px;height:11px}
-body.narrow #mascot{position:absolute;right:0;top:0;width:78px;height:108px;min-height:0}
+body.narrow #mascot{position:absolute;right:0;top:18px;width:72px;height:100px;min-height:0}
 body.narrow #mascot .fclip,body.narrow #mascot .swr{height:72px;top:auto}
 body.narrow #mascot .bub{font-size:10px;letter-spacing:0;padding:3px 6px;border-width:2px;max-width:148px;white-space:normal;text-align:center;line-height:1.15;right:0;top:0}
 body.narrow #hl{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}

@@ -84,16 +84,32 @@ function layout(){
   fxc.setTransform(devicePixelRatio || 1, 0, 0, devicePixelRatio || 1, 0, 0);
   if (window.__fitCoins) window.__fitCoins();
 }
-/* price ink fills the left column (about 42% of the card on a wide screen) and leaves the frog a column on phones */
+/* Fit the price into the hero column: left of the trades panel on desktop, left of the frog on phones.
+   The live string is measured (tabular digits), so $1.0359, $10.0000 and $100.0000 each scale to that box. */
 function fitHead(){
-  const card = $("card"), el = $("price");
-  const cs = getComputedStyle(card), inner = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-  if (inner < 50) return;
-  const txt = el.textContent.length > 3 && el.textContent.indexOf("-") < 0 ? el.textContent : "$0.0000";
-  const ink100 = measure(txt, 100);
-  const inkW = L.narrow ? inner * 0.72 : Math.min(inner * 0.42, 820 * L.k);
-  const fs = Math.max(L.narrow ? 36 : 56, Math.min(L.narrow ? 64 : 168, 100 * inkW / ink100.w, card.clientHeight * (L.narrow ? 0.16 : 0.24)));
+  const el = $("price"), hero = $("hero"), card = $("card");
+  if (!el || !hero || hero.clientWidth < 40) return;
+  const cs = getComputedStyle(hero);
+  const padL = parseFloat(cs.paddingLeft) || 0, padR = parseFloat(cs.paddingRight) || 0;
+  const slack = L.narrow ? 8 : Math.max(18, Math.round(16 * L.k));
+  const avail = Math.max(48, hero.clientWidth - padL - padR - slack);
+  const live = el.textContent.length > 3 && el.textContent.indexOf("-") < 0 ? el.textContent : "$0.0000";
+  const ink = measure(live, 100).w || live.length * 62;
+  const maxFs = L.narrow ? 52 : Math.min(148, (card ? card.clientHeight : 800) * 0.22);
+  const minFs = L.narrow ? 26 : 36;
+  let fs = Math.min(maxFs, Math.max(minFs, 100 * avail / ink));
   el.style.fontSize = fs.toFixed(1) + "px";
+  const overflow = () => {
+    const box = hero.getBoundingClientRect();
+    const inkBox = el.getBoundingClientRect();
+    const limit = box.left + hero.clientWidth - padR - 2;
+    return inkBox.right - limit;
+  };
+  const over = overflow();
+  if (over > 0.5){
+    fs = Math.max(minFs, fs * avail / (avail + over));
+    el.style.fontSize = fs.toFixed(1) + "px";
+  }
   const t = $("dpT");
   if (t){
     const rows = L.narrow ? 2 : 4;
