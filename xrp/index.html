@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=22">
 <style>html,body{background:#03070a;color:#fff}</style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
 <script>
@@ -55,16 +55,28 @@
         <h1 id="pair">XRP / USD</h1>
         <div id="price" aria-label="XRP price in US dollars">$-.----</div>
       </div>
-      <div id="crew" class="m-flat" aria-hidden="true">
-        <div class="cw" id="cw1" data-c="leopard"></div>
-        <div class="cw" id="cw2" data-c="uga"></div>
-        <div class="cw" id="cw3" data-c="cyborg"></div>
-        <div class="cw frog" id="cw4" data-c="frog"></div>
+      <div id="dataP">
+        <div class="dp" id="dpT">
+          <div class="dh"><span class="dk" id="dpTk">BIG TRADES</span><i class="dot" id="dpTdot"></i></div>
+          <div class="rows" id="dpTrows"><div class="empty">—</div></div>
+        </div>
+        <div class="dp mini" id="dpM"><div class="dh"><span class="dk">XRP/EUR</span><span class="dch na" id="dpMc">—</span></div><div class="dv" id="dpMv">—</div></div>
+        <div class="dp mini" id="dpB"><div class="dh"><span class="dk">XRP/BTC</span><span class="dch na" id="dpBc">—</span></div><div class="dv" id="dpBv">—</div></div>
+        <div class="dp mini nodata" id="dpF"><div class="dh"><span class="dk">FEAR &amp; GREED</span></div><div class="dv"><span id="dpFv">—</span><span class="bar"><i id="dpFm"></i></span></div></div>
+      </div>
+      <div id="mascot" class="m-flat" aria-hidden="true">
         <div class="bub" id="bub"></div>
+        <div class="fclip"><div class="body">
+          <img class="art" alt="" src="char-frog.webp" width="219" height="255">
+          <img class="tint" alt="" src="char-frog-tint.webp" width="219" height="255">
+        </div></div>
+        <div class="swr"><span class="fx sw"></span><span class="fx sp sp1"></span><span class="fx sp sp2"></span><span class="fx sp sp3"></span></div>
+        <div class="pop"></div>
       </div>
     </div>
 
     <div id="hl">
+      <div id="chartView"><span id="chartViewLbl">5M · 1 HOUR</span><i id="chartViewTick" aria-hidden="true"><b></b></i></div>
       <div class="box" id="change"><span class="k">24H</span><span class="v"><span id="pct">0.00%</span></span></div>
       <div class="box" id="hlHigh"><span class="k">HIGH</span><span class="v" id="hlHighV">--</span></div>
       <div class="box" id="hlLow"><span class="k">LOW</span><span class="v" id="hlLowV">--</span></div>
@@ -72,6 +84,7 @@
 
     <div id="chartWrap">
       <canvas id="chart" aria-hidden="true"></canvas>
+      <canvas id="chartFade" aria-hidden="true"></canvas>
       <div id="maCross" aria-hidden="true"></div>
       <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
       <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
@@ -81,8 +94,8 @@
   <section id="stats" aria-label="24 hour stats">
     <div class="stat"><span class="k">Vol XRP</span><span class="v" id="vol">--</span></div>
     <div class="stat"><span class="k">Vol USD</span><span class="v" id="qvol">--</span></div>
-    <div class="stat" id="eurStat"><span class="k">EUR</span><span class="v" id="eur">--</span></div>
-    <div class="stat creditStat"><span id="credit"><i id="status"></i><span id="creditText">Connecting...</span></span></div>
+    <div class="stat"><span class="k">XRP Ledger txns 24H</span><span class="v" id="tcount">--</span></div>
+    <div class="stat creditStat"><span id="credit"><i id="status"></i><span id="creditText">Data: Binance · Coinbase · Kraken · Bybit · Upbit · XRPL · DexScreener</span></span></div>
     <a id="subCard" href="https://www.youtube.com/@Tenbob_YT" target="_blank" rel="noopener" tabindex="-1">
       <span class="sbtn"><svg width="34" height="24" viewBox="0 0 44 32" aria-hidden="true"><rect width="44" height="32" rx="8" fill="#fff"/><path d="M17 9l12 7-12 7z" fill="#ff0000"/></svg>SUBSCRIBE</span>
       <span class="stxt"><b>@Tenbob_YT</b><span>for 24/7 XRP live price</span></span>
@@ -110,7 +123,7 @@
 
 <canvas id="fx" aria-hidden="true"></canvas>
 <noscript><div id="noscript">Please enable JavaScript to see the live XRP price.</div></noscript>
-<script src="app.js?v=16"></script>
-<script src="music.js?v=16"></script>
+<script src="app.js?v=22"></script>
+<script src="music.js?v=22"></script>
 </body>
 </html>

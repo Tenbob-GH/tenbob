@@ -1,55 +1,68 @@
-/* TENBOB · XRP LIVE 24/7 - live XRP/USD price page (v16 card look, matches the stream overlay v16).
+/* TENBOB · XRP LIVE 24/7 - website page matching stream overlay v22.
    No libraries, no API keys. Sounds are synthesized live with the Web Audio API; spoken callouts load only after sound is on.
-   Data: Binance public websocket (port 443, then 9443, then the data-stream.binance.vision mirror),
-         Binance REST polling (data-api.binance.vision / api.binance.com), then CoinGecko as last resort.
+   Data: Binance public websocket (data-stream.binance.vision, then 9443, then 443) for price + 5m/4h/1d klines,
+         Binance REST (data-api.binance.vision / api.binance.com), CoinGecko last resort,
+         big trades on Binance, Coinbase, Kraken, Bybit and Upbit, XRP/BTC, Fear & Greed,
+         XRP Ledger 24h txn count (XRPScan + rippled), XRPL meme caps via DexScreener.
    Test options (URL):  ?demo=pump | dip | milestone | high | low | ticks    ?alerttest=1 | up | down    ?crosstest=1
-                        ?subtest=1    ?mood=up | big | down | flat    ?eur=0 */
+                        ?subtest=1    ?mood=up | big | down | flat    ?eur=0    ?view=5m|4h|1d    ?rotate=0    ?rotsec=N    ?panels=0 */
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
 const Q = new URLSearchParams(location.search);
 const SHOW_EUR = Q.get("eur") !== "0";
 const DEMO = Q.get("demo");
-const WINDOW_MIN = 240;                        // 4h of 1-minute candles
-const MA_EXTRA = 60;                           // extra minutes so the average covers the visible chart
+const TZ = "Europe/Dublin";
+const MA_EXTRA = 50;                           // extra closed candles so MA50 spans the visible window
+const ROTATE = Q.get("rotate") !== "0";
+const ROT_SEC = (() => { const v = parseFloat(Q.get("rotsec")); return isFinite(v) && v >= 1 ? v : 60; })();
+const VIEW_PIN = ({"5m":"5m","4h":"4h","1d":"1d"}[(Q.get("view") || "").toLowerCase()] || null);
+const VIEWS = {
+  "5m": {id:"5m", label:"5M · 1 HOUR",  tf:"5m", interval: 5 * 60e3,     visible: 12, keep: 12 + MA_EXTRA},
+  "4h": {id:"4h", label:"4H · 1 WEEK",  tf:"4h", interval: 4 * 3600e3,   visible: 42, keep: 42 + MA_EXTRA},
+  "1d": {id:"1d", label:"1D · 1 MONTH", tf:"1d", interval: 24 * 3600e3,  visible: 30, keep: 30 + MA_EXTRA}
+};
+const ROT_ORDER = ["5m", "4h", "1d"];
 const MOVE_PCT = 1.0, MOVE_WIN_MS = 15 * 60e3; // pump/dip trigger: 1% within 15 min
 const MOVE_COOLDOWN_MS = 10 * 60e3;
 const moveText = (up, pct) => "XRP " + (up ? "UP" : "DOWN") + " " + Math.abs(pct).toFixed(1) + "% IN 15 MIN";
 const STEP = 0.05;                             // level step in USD
-const WS_HOSTS = ["wss://stream.binance.com:443", "wss://stream.binance.com:9443", "wss://data-stream.binance.vision"];
+const WS_HOSTS = ["wss://data-stream.binance.vision", "wss://stream.binance.com:9443", "wss://stream.binance.com:443"];
 const REST_HOSTS = ["https://data-api.binance.vision", "https://api.binance.com"];
 const CG = "https://api.coingecko.com/api/v3";
 const TICK_GAP_MS = 1500;                      // ping/pong at most once per 1.5 s (net direction)
 const HL_COOLDOWN_MS = 5 * 60e3;               // NEW DAY HIGH / LOW cooldown
-if (!SHOW_EUR) $("eurStat").style.display = "none";
 
 /* ---------------- state ---------------- */
 const S = {
   price: null, prevPrice: null, pct: null, hi: null, lo: null, vol: null, qvol: null, eurRate: null,
-  candles: [], samples: [], lastTickAt: 0, source: "", mode: "init",
+  xrplTx: null, xrplMode: "warm",
+  candles: [],                 // short 1-minute history for the 15-min move only
+  klines: {"5m": [], "4h": [], "1d": []},
+  view: VIEW_PIN || "5m",
+  samples: [], lastTickAt: 0, source: "", mode: "init",
   lastMoveBanner: {pump: 0, dip: 0}, milestoneLevel: null, milestoneAt: {}, bootAt: Date.now(),
   hl: {hi: null, lo: null, at: {high: 0, low: 0}}
 };
 const fmt = (v, d = 4) => { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d) : "--"; };
 const fmtBig = v => v == null || isNaN(v) ? "--" : v >= 1e9 ? (v/1e9).toFixed(2)+"B" : v >= 1e6 ? (v/1e6).toFixed(1)+"M" : v >= 1e3 ? (v/1e3).toFixed(1)+"K" : v.toFixed(0);
-
-/* ---------------- characters (art has a baked soft dark edge; red tint baked as a second image) ---------------- */
-const CHAR = {leopard: {w: 150, h: 194, p: 12}, uga: {w: 199, h: 194, p: 12}, cyborg: {w: 176, h: 194, p: 12}, frog: {w: 219, h: 255, p: 12}};
-// face effect spots (fractions of each character box): sweat on the brow, sparkles around the head
-const FXPOS = {leopard: {sw: [.05, .07], sp: [[.62, .30], [.02, .48], [.36, .22]]},
-               uga:     {sw: [.05, .25], sp: [[.70, .36], [.02, .55], [.42, .24]]},
-               cyborg:  {sw: [.11, .16], sp: [[.70, .30], [.02, .50], [.40, .22]]},
-               frog:    {sw: [.06, .14], sp: [[.80, .30], [.02, .40], [.40, .08]]}};
-document.querySelectorAll("#crew .cw").forEach(cw => {
-  const n = cw.dataset.c, c = CHAR[n], f = FXPOS[n];
-  const place = img => Object.assign(img.style, {left: (-c.p / c.w * 100) + "%", top: (-c.p / c.h * 100) + "%",
-    width: ((c.w + 2 * c.p) / c.w * 100) + "%", height: ((c.h + 2 * c.p) / c.h * 100) + "%"});
-  const art = new Image(); art.className = "art"; art.alt = ""; art.decoding = "async"; art.src = "char-" + n + ".webp"; place(art);
-  const tint = new Image(); tint.className = "tint"; tint.alt = ""; tint.decoding = "async"; tint.src = "char-" + n + "-tint.webp"; place(tint);
-  cw.append(art, tint);
-  const sw = document.createElement("span"); sw.className = "fx sw"; sw.style.left = f.sw[0] * 100 + "%"; sw.style.top = f.sw[1] * 100 + "%"; cw.appendChild(sw);
-  f.sp.forEach((p, i) => { const e = document.createElement("span"); e.className = "fx sp sp" + (i + 1); e.style.left = p[0] * 100 + "%"; e.style.top = p[1] * 100 + "%"; cw.appendChild(e); });
-});
+const fmtTrades = v => { if (v == null || !isFinite(v) || v <= 0) return "—";
+  if (v >= 1e9) return (v/1e9).toFixed(2)+"B";
+  if (v >= 1e6) return (v/1e6).toFixed(1)+"M";
+  if (v >= 1e3) return (v/1e3).toFixed(v >= 1e5 ? 0 : 1)+"K";
+  return String(Math.round(v)); };
+const fmtXrpl = () => {
+  if (S.xrplTx != null && isFinite(S.xrplTx) && S.xrplTx > 0) return (S.xrplMode === "est" ? "~" : "") + fmtTrades(S.xrplTx);
+  return "warming up";
+};
+function currentView(){ return VIEWS[VIEW_PIN || S.view] || VIEWS["5m"]; }
+function viewSeries(view){ const id = (view || currentView()).id; return S.klines[id] || (S.klines[id] = []); }
+function viewReady(id){ const v = (id && VIEWS[id]) || currentView(); const arr = viewSeries(v); return S.price != null && arr && arr.length >= 2; }
+function applyLiveCandle(arr, interval, p, ts){
+  const m = Math.floor(ts / interval) * interval, last = arr[arr.length - 1];
+  if (last && last.t === m){ last.c = p; if (p > last.h) last.h = p; if (p < last.l) last.l = p; }
+  else if (!last || m > last.t) arr.push({t: m, o: last ? last.c : p, h: p, l: p, c: p});
+}
 
 /* ---------------- responsive layout ---------------- */
 const MONO = getComputedStyle(document.documentElement).getPropertyValue("--mono").trim() || "monospace";
@@ -71,47 +84,31 @@ function layout(){
   fxc.setTransform(devicePixelRatio || 1, 0, 0, devicePixelRatio || 1, 0, 0);
   if (window.__fitCoins) window.__fitCoins();
 }
-/* price ink = 50% of the card's inner width on wide screens (as on the stream); the 4 characters fill the space to its right,
-   frog a bit taller than the digits, crew as tall as fits with equal gaps. On phones the price spans the card and the crew sit below it. */
+/* price ink fills the left column (about 42% of the card on a wide screen) and leaves the frog a column on phones */
 function fitHead(){
-  const card = $("card"), el = $("price"), crew = $("crew");
+  const card = $("card"), el = $("price");
   const cs = getComputedStyle(card), inner = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   if (inner < 50) return;
   const txt = el.textContent.length > 3 && el.textContent.indexOf("-") < 0 ? el.textContent : "$0.0000";
   const ink100 = measure(txt, 100);
-  const AR = n => CHAR[n].w / CHAR[n].h, crewAR = AR("leopard") + AR("uga") + AR("cyborg");
-  let fs, frogH, crewH, gap;
-  if (!L.narrow){
-    const inkW = Math.min(inner * 0.5, 924 * L.k);
-    fs = Math.min(100 * inkW / ink100.w, card.clientHeight * 0.27);   // keep room for the boxes and the chart on short screens
-    const inkH = ink100.asc * fs / 100;
-    frogH = Math.round(inkH * 1.2);
-    gap = Math.round(14 * L.k + 2);
-    const frogW = frogH * AR("frog"), avail = inner - ink100.w * fs / 100 - 24;
-    crewH = Math.min(frogH, Math.floor((avail - frogW - 4 * gap) / crewAR));
-    if (crewH < frogH * 0.6){                            // narrow desktop window: shrink the price to make room
-      crewH = Math.round(frogH * 0.75);
-      const need = crewH * crewAR + frogW + 4 * gap + 24;
-      fs = Math.max(40, Math.min(fs, 100 * (inner - need) / ink100.w));
-    }
-  } else {
-    fs = Math.min(100 * inner * 0.9 / ink100.w, 120);
-    gap = 8;
-    crewH = Math.max(50, Math.min(120, Math.floor((inner - 4 * gap) / (crewAR + AR("frog")))));
-    frogH = crewH;
-  }
+  const inkW = L.narrow ? inner * 0.72 : Math.min(inner * 0.42, 820 * L.k);
+  const fs = Math.max(L.narrow ? 36 : 56, Math.min(L.narrow ? 64 : 168, 100 * inkW / ink100.w, card.clientHeight * (L.narrow ? 0.16 : 0.24)));
   el.style.fontSize = fs.toFixed(1) + "px";
-  crew.style.setProperty("--ch", crewH + "px");
-  crew.style.setProperty("--fh", frogH + "px");
-  crew.style.setProperty("--cg", gap + "px");
-  crew.style.setProperty("--bf", Math.round(L.narrow ? Math.max(13, crewH * 0.16) : Math.max(14, 39 * L.k)) + "px");
-  crew.style.setProperty("--bgap", Math.round(L.narrow ? 12 : Math.max(10, frogH * 0.12)) + "px");
-  document.querySelectorAll("#crew .cw").forEach(cw => { const n = cw.dataset.c, h = n === "frog" ? frogH : crewH; cw.style.width = Math.round(h * AR(n)) + "px"; });
+  const t = $("dpT");
+  if (t){
+    const rows = L.narrow ? 2 : 4;
+    window.__panelRows = rows;
+    const headH = t.clientHeight || 0, chrome = L.narrow ? 28 : 36;
+    const rh = Math.max(L.narrow ? 22 : 28, Math.min(56, Math.floor((headH - chrome) / rows)));
+    t.style.setProperty("--rh", rh + "px");
+  }
 }
 function sizeCanvas(c, w, h){ const r = devicePixelRatio || 1; c.width = Math.max(1, Math.round(w * r)); c.height = Math.max(1, Math.round(h * r)); }
 function sizeChart(){
   const w = $("chartWrap"); L.chart = {w: Math.max(10, w.clientWidth), h: Math.max(10, w.clientHeight)};
-  sizeCanvas($("chart"), L.chart.w, L.chart.h); chartDirty = true;
+  sizeCanvas($("chart"), L.chart.w, L.chart.h);
+  const fade = $("chartFade"); if (fade) sizeCanvas(fade, L.chart.w, L.chart.h);
+  chartDirty = true;
 }
 let layoutT = null;
 const relayout = () => { clearTimeout(layoutT); layoutT = setTimeout(layout, 80); };
@@ -142,26 +139,26 @@ function renderPrice(){
     el.classList.toggle("neg", !up);
     putText("pct", (up ? "+" : "") + S.pct.toFixed(2) + "%");
   }
-  if (SHOW_EUR && S.eurRate) putText("eur", "€" + fmt(p * S.eurRate));
   putText("hlHighV", S.hi != null ? "$" + fmt(S.hi) : "--");
   putText("hlLowV", S.lo != null ? "$" + fmt(S.lo) : "--");
   putText("vol", fmtBig(S.vol));
   putText("qvol", S.qvol != null ? "$" + fmtBig(S.qvol) : "--");
+  putText("tcount", fmtXrpl());
   const title = txt + " XRP Live Price 24/7 | Tenbob";
   if (document.title !== title) document.title = title;
 }
 function setSource(label, cls){
-  S.source = label; $("creditText").textContent = "Live: " + label;
-  $("status").className = cls || "";
+  S.source = label;                                          // credit line stays the full source list; the dot shows feed health
+  const st = $("status"); if (st) st.className = cls || "";
 }
 
 /* single entry point for every new price, regardless of source */
 function onPrice(p, ts = Date.now()){
   if (!(p > 0)) return;
   S.prevPrice = S.price; S.price = p; S.lastTickAt = Date.now();
-  const m = Math.floor(ts / 60e3) * 60e3, last = S.candles[S.candles.length - 1];
-  if (last && last.t === m){ last.c = p; if (p > last.h) last.h = p; if (p < last.l) last.l = p; }
-  else if (!last || m > last.t){ S.candles.push({t: m, o: last ? last.c : p, h: p, l: p, c: p}); trimCandles(); }
+  applyLiveCandle(S.candles, 60e3, p, ts);
+  for (const v of Object.values(VIEWS)) applyLiveCandle(viewSeries(v), v.interval, p, ts);
+  trimCandles();
   const sl = S.samples[S.samples.length - 1];
   if (!sl || ts - sl.t >= 1000) S.samples.push({t: ts, p});
   if (S.samples.length && ts - S.samples[0].t > MOVE_WIN_MS){
@@ -172,7 +169,10 @@ function onPrice(p, ts = Date.now()){
   if (S.samples.length > 1200) S.samples.splice(0, S.samples.length - 900);
   renderPrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
 }
-function trimCandles(){ const max = WINDOW_MIN + MA_EXTRA; if (S.candles.length > max) S.candles.splice(0, S.candles.length - max); }
+function trimCandles(){
+  while (S.candles.length > 20) S.candles.shift();
+  for (const v of Object.values(VIEWS)){ const arr = viewSeries(v); while (arr.length > v.keep) arr.shift(); }
+}
 function setCandles(arr){
   const live = S.candles.filter(c => c.t > (arr.length ? arr[arr.length-1].t : 0));
   S.candles = arr.concat(live); trimCandles();
@@ -180,6 +180,15 @@ function setCandles(arr){
     const now = Date.now();
     S.candles.filter(c => now - c.t <= MOVE_WIN_MS).forEach(c => S.samples.push({t: c.t + 59e3, p: c.c}));
   }
+  chartDirty = true;
+}
+function setViewKlines(id, arr){
+  const v = VIEWS[id]; if (!v || !arr || !arr.length) return;
+  const cur = viewSeries(v);
+  const older = cur.filter(c => c.t < arr[0].t);
+  const live = cur.filter(c => c.t > arr[arr.length - 1].t);
+  S.klines[id] = older.concat(arr, live);
+  while (S.klines[id].length > v.keep) S.klines[id].shift();
   chartDirty = true;
 }
 
@@ -298,30 +307,249 @@ function drawFx(){
   parts = parts.filter(p => p.life < p.max);
 }
 
-/* ---------------- chart: plain line (2-minute steps, last 4 h) + one faint dashed average (MA20) ---------------- */
+/* ---------------- chart: v22 candlesticks + MA20/MA50 + live price tag + Dublin time axis ---------------- */
 const cv = $("chart"), cx = cv.getContext("2d"); let chartDirty = true;
-function drawChart(){
-  const r = devicePixelRatio || 1, W = L.chart.w, H = L.chart.h;
-  cx.setTransform(r, 0, 0, r, 0, 0); cx.clearRect(0, 0, W, H);
-  if (S.candles.length < 2 || S.price == null){
-    cx.fillStyle = "#93a7a3"; cx.font = "700 " + Math.round(Math.max(14, 30 * L.k)) + "px " + MONO;
-    cx.fillText("Connecting to live feed...", 10, H / 2); return;
+const cvFade = $("chartFade"), cxFade = cvFade.getContext("2d");
+const timeFmt = new Intl.DateTimeFormat("en-GB", {timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false});
+const dateLblFmt = new Intl.DateTimeFormat("en-GB", {timeZone: TZ, day: "numeric", month: "short"});
+const dublinPartFmt = new Intl.DateTimeFormat("en-GB", {timeZone: TZ, weekday: "short", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false});
+function dublinParts(ts){ const o = {}; for (const part of dublinPartFmt.formatToParts(new Date(ts))) if (part.type !== "literal") o[part.type] = part.value; return o; }
+function niceStep(range, n){ const raw = range / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * mag; }
+function fmtAxisPrice(v, step){
+  const d = Math.max(0, Math.min(6, Math.ceil(-Math.log10(step) - 1e-12)));
+  return "$" + Number(v).toFixed(d);
+}
+function axisValues(lo, hi){
+  const range = (hi - lo) || 1e-6;
+  const collect = step => {
+    const vals = [];
+    const start = Math.ceil(lo / step - 1e-12) * step;
+    for (let v = start; v <= hi + step * 1e-9; v = +(v + step).toPrecision(12)){
+      vals.push(v); if (vals.length > 12) break;
+    }
+    return vals;
+  };
+  const scoreOf = vals => (vals.length >= 4 && vals.length <= 5) ? (5 - vals.length) * 0.1
+    : (vals.length < 4 ? 50 + (4 - vals.length) * 10 : 2 + (vals.length - 5));
+  let best = null;
+  for (let n = 3; n <= 10; n++){
+    const step = niceStep(range, n);
+    if (!(step > 0) || !isFinite(step)) continue;
+    for (const s of [step, step * 2]){
+      const vals = collect(s), score = scoreOf(vals);
+      if (!best || score < best.score) best = {step: s, vals, score};
+    }
   }
-  const full = S.candles, n = full.length, STEPM = 2, hist = [];
-  for (let k = n - 1; k >= 0; k -= STEPM) hist.unshift(k === n - 1 ? S.price : full[k].c);
-  const ser = hist.slice(-120), off = hist.length - ser.length;
-  const ma = ser.map((_, i) => { const j = off + i; let a = 0, q = 0; for (let k = Math.max(0, j - 19); k <= j; k++){ a += hist[k]; q++; } return a / q; });
-  let mn = Infinity, mx = -Infinity; for (const v of ser){ if (v < mn) mn = v; if (v > mx) mx = v; }
-  const rg = (mx - mn) || 1e-6;
-  const LW = Math.max(2.5, 4 * L.k), PT = H * 6 / 90, PH = H * 78 / 90;
-  const Xi = i => LW / 2 + i / (ser.length - 1) * (W - LW), Yv = v => PT + PH - (v - mn) / rg * PH;
-  const upT = S.pct != null && isFinite(S.pct) ? S.pct >= 0 : ser[ser.length - 1] >= ser[0];
-  cx.lineJoin = "round"; cx.lineCap = "round"; cx.setLineDash([]);
-  cx.beginPath(); ser.forEach((v, i) => i ? cx.lineTo(Xi(i), Yv(v)) : cx.moveTo(Xi(i), Yv(v)));
-  cx.strokeStyle = upT ? "#22f08a" : "#ff4d5e"; cx.lineWidth = LW; cx.stroke();
-  const dk = Math.max(.55, L.k);
-  cx.beginPath(); ma.forEach((v, i) => i ? cx.lineTo(Xi(i), Yv(v)) : cx.moveTo(Xi(i), Yv(v)));
-  cx.strokeStyle = "rgba(255,207,77,.6)"; cx.lineWidth = Math.max(1.5, 2.5 * L.k); cx.lineCap = "butt"; cx.setLineDash([13 * dk, 9 * dk]); cx.stroke(); cx.setLineDash([]);
+  if (best && best.vals.length > 5){
+    const vals = best.vals.slice();
+    while (vals.length > 5){
+      const d0 = vals[0] - lo, d1 = hi - vals[vals.length - 1];
+      if (d0 <= d1) vals.shift(); else vals.pop();
+    }
+    best = {step: best.step, vals, score: best.score};
+  }
+  return best || {step: range, vals: [lo, hi]};
+}
+function chartMetrics(W){
+  const prop = W / 1680;
+  const ck = L.narrow ? Math.max(0.5, Math.min(0.62, prop * 2.6)) : Math.max(0.72, Math.min(1.05, prop));
+  return {
+    ck,
+    R: Math.round(L.narrow ? Math.max(76, 120 * ck) : 120 * ck),
+    Lpad: L.narrow ? 4 : Math.round(16 * ck),
+    T: L.narrow ? 4 : 8,
+    B: L.narrow ? 26 : Math.round(40 * ck),
+    fontAxis: Math.max(11, Math.round(22 * ck)),
+    fontTag: Math.max(11, Math.round(20 * ck)),
+    tagH: L.narrow ? 18 : Math.max(22, Math.round(28 * ck))
+  };
+}
+function drawPriceAxis(lo, hi, Y, x0, x1, h, hideY, hideH, labelMaxY, m){
+  const {step, vals} = axisValues(lo, hi);
+  cx.save();
+  cx.setLineDash([]); cx.lineWidth = 1;
+  cx.font = "600 " + m.fontAxis + "px " + MONO; cx.textBaseline = "middle"; cx.textAlign = "left";
+  const hidePad = (hideH || 0) / 2 + 4;
+  const lyMax = labelMaxY != null ? labelMaxY : h - 13;
+  for (const v of vals){
+    const y = Math.round(Y(v)) + 0.5;
+    if (y > lyMax + 8) continue;
+    cx.strokeStyle = "rgba(255,255,255,.055)";
+    cx.beginPath(); cx.moveTo(x0, y); cx.lineTo(x1, y); cx.stroke();
+    if (hideY != null && hideH && Math.abs(y - hideY) < hidePad) continue;
+    const ly = Math.min(Math.max(y, m.fontAxis / 2 + 1), lyMax);
+    cx.fillStyle = "rgba(214,226,222,.92)";
+    cx.fillText(fmtAxisPrice(v, step), x1 + 8, ly);
+  }
+  cx.restore();
+}
+function drawLivePriceLine(y, x0, x1, price, up, yMax, m){
+  const col = up ? "#19f08f" : "#ff4d5e";
+  const ink = up ? "#041016" : "#ffffff";
+  const yHi = yMax != null ? yMax : 1e9;
+  const yy = Math.round(Math.min(Math.max(y, 2), yHi)) + 0.5;
+  cx.save();
+  cx.setLineDash([3, 5]); cx.lineWidth = Math.max(1, 1.4 * m.ck); cx.lineCap = "butt"; cx.strokeStyle = col;
+  cx.beginPath(); cx.moveTo(x0, yy); cx.lineTo(x1, yy); cx.stroke();
+  cx.setLineDash([]);
+  const label = "$" + fmt(price);
+  cx.font = "700 " + m.fontTag + "px " + MONO; cx.textAlign = "left"; cx.textBaseline = "middle";
+  const tw = cx.measureText(label).width, padX = L.narrow ? 4 : 7, th = m.tagH, tagW = tw + padX * 2;
+  let ty = Math.min(Math.max(yy, th / 2 + 2), yHi - th / 2 - 2);
+  const tx = x1 + 6, r = 4, bx = tx, by = ty - th / 2;
+  cx.beginPath();
+  cx.moveTo(bx + r, by); cx.lineTo(bx + tagW - r, by); cx.quadraticCurveTo(bx + tagW, by, bx + tagW, by + r);
+  cx.lineTo(bx + tagW, by + th - r); cx.quadraticCurveTo(bx + tagW, by + th, bx + tagW - r, by + th);
+  cx.lineTo(bx + r, by + th); cx.quadraticCurveTo(bx, by + th, bx, by + th - r);
+  cx.lineTo(bx, by + r); cx.quadraticCurveTo(bx, by, bx + r, by); cx.closePath();
+  cx.fillStyle = col; cx.fill();
+  cx.fillStyle = ink; cx.fillText(label, bx + padX, ty + 0.5);
+  cx.restore();
+}
+function timeAxisLabels(view, data, X){
+  if (!data.length) return [];
+  const out = [];
+  if (view.id === "5m"){
+    const hits = [];
+    for (let i = 0; i < data.length; i++){
+      const part = dublinParts(data[i].t), minute = parseInt(part.minute, 10);
+      if (minute % 15 === 0) hits.push({i, x: X(i), text: timeFmt.format(new Date(data[i].t))});
+    }
+    if (hits.length >= 4 && hits.length <= 7) return hits;
+    if (hits.length > 7){
+      const step = Math.ceil(hits.length / 6);
+      return hits.filter((_, k) => k % step === 0).slice(0, 7);
+    }
+    const hits10 = [];
+    for (let i = 0; i < data.length; i++){
+      const part = dublinParts(data[i].t), minute = parseInt(part.minute, 10);
+      if (minute % 10 === 0) hits10.push({i, x: X(i), text: timeFmt.format(new Date(data[i].t))});
+    }
+    if (hits10.length >= 4) return hits10.slice(0, 7);
+    const n = Math.min(5, data.length), step = Math.max(1, Math.floor((data.length - 1) / Math.max(1, n - 1)));
+    for (let i = 0; i < data.length; i += step) out.push({i, x: X(i), text: timeFmt.format(new Date(data[i].t))});
+    return out.slice(0, 7);
+  }
+  if (view.id === "4h"){
+    let lastKey = null;
+    for (let i = 0; i < data.length; i++){
+      const part = dublinParts(data[i].t), key = part.year + "-" + part.month + "-" + part.day;
+      if (key === lastKey) continue;
+      lastKey = key;
+      out.push({i, x: X(i), text: part.weekday, hour: part.hour, minute: part.minute});
+    }
+    if (out.length > 7){
+      if (out[0].hour !== "00" || out[0].minute !== "00") out.shift();
+      if (out.length > 7){
+        const mid = out.slice(1, -1), keep = [], step = Math.ceil(mid.length / Math.max(1, 5));
+        for (let k = 0; k < mid.length; k += step) keep.push(mid[k]);
+        const trimmed = [out[0]].concat(keep, out[out.length - 1]).slice(0, 7);
+        out.length = 0; out.push.apply(out, trimmed);
+      }
+    }
+    return out.map(({i, x, text}) => ({i, x, text}));
+  }
+  const step = 7;
+  for (let i = 0; i < data.length; i += step) out.push({i, x: X(i), text: dateLblFmt.format(new Date(data[i].t))});
+  if (out.length < 4 && data.length >= 4){
+    out.length = 0;
+    const n = Math.min(5, data.length), st = Math.max(1, Math.floor((data.length - 1) / Math.max(1, n - 1)));
+    for (let i = 0; i < data.length; i += st) out.push({i, x: X(i), text: dateLblFmt.format(new Date(data[i].t))});
+  }
+  return out.slice(0, 7);
+}
+function drawTimeAxis(view, data, X, Lpad, pw, plotBottom, m){
+  const labels = timeAxisLabels(view, data, X);
+  if (!labels.length) return;
+  const y0 = plotBottom;
+  cx.save();
+  cx.setLineDash([]);
+  cx.strokeStyle = "rgba(255,255,255,.12)"; cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(Lpad, Math.round(y0) + 0.5); cx.lineTo(Lpad + pw, Math.round(y0) + 0.5); cx.stroke();
+  cx.font = "600 " + m.fontAxis + "px " + MONO; cx.textBaseline = "top"; cx.fillStyle = "rgba(214,226,222,.92)";
+  const yTick1 = y0 + Math.max(4, 7 * m.ck), yText = y0 + Math.max(6, 10 * m.ck), minL = 2, maxR = Lpad + pw - 2, gap = L.narrow ? 6 : 12;
+  const placed = [];
+  for (const lb of labels){
+    const tw = cx.measureText(lb.text).width, half = tw / 2;
+    let tx = lb.x;
+    if (tx - half < minL) tx = minL + half;
+    if (tx + half > maxR) tx = maxR - half;
+    placed.push({x: lb.x, tx, tw, left: tx - half, right: tx + half, text: lb.text});
+  }
+  for (let i = 1; i < placed.length; i++){
+    const need = placed[i - 1].right + gap - placed[i].left;
+    if (need <= 0) continue;
+    const room = maxR - placed[i].right;
+    if (room >= need){ placed[i].tx += need; placed[i].left += need; placed[i].right += need; }
+    else placed[i].drop = true;
+  }
+  cx.lineWidth = 1.5; cx.lineCap = "butt"; cx.strokeStyle = "rgba(255,255,255,.32)";
+  cx.textAlign = "center";
+  for (const lb of placed){
+    if (lb.drop) continue;
+    const tickX = Math.round(lb.x) + 0.5;
+    cx.beginPath(); cx.moveTo(tickX, y0); cx.lineTo(tickX, yTick1); cx.stroke();
+    cx.fillText(lb.text, lb.tx, yText);
+  }
+  cx.restore();
+}
+function drawChart(){
+  const r = devicePixelRatio || 1, W = L.chart.w, H = L.chart.h, m = chartMetrics(W);
+  cx.setTransform(r, 0, 0, r, 0, 0); cx.clearRect(0, 0, W, H);
+  const view = currentView(), VIS = view.visible, full = viewSeries(view);
+  const data = full.slice(-VIS);
+  const Lpad = m.Lpad, pw = W - Lpad - m.R, T = m.T, ph = H - T - m.B;
+  if (data.length < 2 || S.price == null || pw < 20 || ph < 20){
+    cx.fillStyle = "#93a7a3"; cx.font = "700 " + Math.round(Math.max(13, 22 * m.ck)) + "px " + MONO;
+    cx.fillText("Connecting to live feed...", Lpad + 8, H / 2); return;
+  }
+  const price = S.price, last = data[data.length - 1], off = full.length - data.length;
+  const maAt = (k, n) => {
+    if (k >= full.length - 1) k = full.length - 2;
+    if (k < n - 1 || k < 0) return null;
+    let s = 0; for (let j = k - n + 1; j <= k; j++) s += full[j].c; return s / n;
+  };
+  const ma20s = data.map((_, i) => maAt(off + i, 20));
+  const ma50s = data.map((_, i) => maAt(off + i, 50));
+  let lo = Infinity, hi = -Infinity;
+  for (const c of data){
+    const cl = (c === last) ? price : c.c;
+    const low = Math.min(c.l, cl), high = Math.max(c.h, cl);
+    if (low < lo) lo = low; if (high > hi) hi = high;
+  }
+  lo = Math.min(lo, price); hi = Math.max(hi, price);
+  for (const v of ma20s.concat(ma50s)){ if (v != null && isFinite(v)){ if (v < lo) lo = v; if (v > hi) hi = v; } }
+  const pad = Math.max((hi - lo) * 0.03, hi * 0.0004); lo -= pad; hi += pad;
+  const slot = pw / Math.max(1, VIS);
+  const X = i => Lpad + (i + 0.5 + (VIS - data.length)) * slot;
+  const Y = v => T + (hi - v) / (hi - lo) * ph;
+  const yp = Y(price), liveUp = price >= last.o;
+  drawPriceAxis(lo, hi, Y, Lpad, Lpad + pw, H, yp, m.tagH, T + ph - 2, m);
+  cx.save();
+  cx.beginPath(); cx.rect(Lpad, T - 1, pw, ph + 2); cx.clip();
+  const bw = Math.max(L.narrow ? 2.2 : 5 * m.ck, slot * 0.74), wickW = slot >= 14 ? 2.2 * m.ck : 1.5 * m.ck;
+  for (let i = 0; i < data.length; i++){
+    const c = data[i], cl = i === data.length - 1 ? price : c.c;
+    const x = X(i), up = cl >= c.o;
+    const yH = Y(Math.max(c.h, cl)), yL = Y(Math.min(c.l, cl));
+    const y1 = Math.min(Y(c.o), Y(cl)), y2 = Math.max(Y(c.o), Y(cl));
+    cx.strokeStyle = cx.fillStyle = up ? "#19f08f" : "#ff4d5e";
+    cx.lineWidth = Math.max(1, wickW); cx.lineCap = "butt";
+    cx.beginPath(); cx.moveTo(x, yH); cx.lineTo(x, yL); cx.stroke();
+    cx.fillRect(x - bw / 2, y1, bw, Math.max(1.5, y2 - y1));
+  }
+  const maPath = arr => { const pts = []; arr.forEach((v, i) => { if (v != null && isFinite(v)) pts.push([X(i), Y(v)]); });
+    if (pts.length < 2) return null; const path = new Path2D(); path.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length - 1; i++) path.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i+1][0]) / 2, (pts[i][1] + pts[i+1][1]) / 2);
+    path.lineTo(pts[pts.length-1][0], pts[pts.length-1][1]); return path; };
+  const maLine = (arr, col, dash, lw) => { const path = maPath(arr); if (!path) return;
+    cx.lineJoin = cx.lineCap = "round"; cx.setLineDash(dash || []); cx.strokeStyle = col; cx.lineWidth = lw; cx.stroke(path); cx.setLineDash([]); };
+  maLine(ma50s, "rgba(215,170,255,1)", [7, 4], Math.max(1.6, 2.8 * m.ck));
+  maLine(ma20s, "rgba(255,207,77,.85)", [13, 9], Math.max(1.4, 2.5 * m.ck));
+  cx.restore();
+  drawLivePriceLine(yp, Lpad, Lpad + pw, price, liveUp, T + ph - 2, m);
+  drawTimeAxis(view, data, X, Lpad, pw, T + ph, m);
 }
 
 /* ---------------- sound (all synthesized with Web Audio, same sounds as the stream overlay) ---------------- */
@@ -495,7 +723,7 @@ const audioRunning = () => !!AC && AC.state === "running";
 let voiceLoading = false;
 function loadVoice(){                                     // spoken callouts (~300 KB) are fetched only once sound is on
   if (window.__VOICE_CLIPS || voiceLoading) return; voiceLoading = true;
-  const s = document.createElement("script"); s.src = "voice.js?v=16"; s.async = true; s.onerror = () => { voiceLoading = false; }; document.head.appendChild(s);
+  const s = document.createElement("script"); s.src = "voice.js?v=22"; s.async = true; s.onerror = () => { voiceLoading = false; }; document.head.appendChild(s);
 }
 function startAudio(){                                    // must be called from a tap/click/key
   if (!ensureAC()) return Promise.resolve(false);
@@ -652,18 +880,50 @@ function applyTicker24(d){
   S.pct = +d.priceChangePercent; S.hi = +d.highPrice; S.lo = +d.lowPrice; S.vol = +d.volume; S.qvol = +d.quoteVolume;
   onPrice(+d.lastPrice);
 }
+async function seedKlines(interval, limit){
+  const {data} = await restAny("/api/v3/klines?symbol=XRPUSDT&interval=" + interval + "&limit=" + limit);
+  return data.map(k => ({t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5]}));
+}
+async function refreshKlines(full){
+  await Promise.all(Object.values(VIEWS).map(async v => {
+    try { setViewKlines(v.id, await seedKlines(v.tf, full ? v.keep : 3)); } catch(e){}
+  }));
+}
 async function seedBinance(){
-  const {data} = await restAny("/api/v3/klines?symbol=XRPUSDT&interval=1m&limit=" + (WINDOW_MIN + MA_EXTRA));
-  setCandles(data.map(k => ({t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5]})));
-  try { applyTicker24((await restAny("/api/v3/ticker/24hr?symbol=XRPUSDT")).data); } catch(e){}
+  const jobs = Object.values(VIEWS).map(v => seedKlines(v.tf, v.keep).then(arr => ({id: v.id, arr})).catch(() => ({id: v.id, arr: null})));
+  jobs.push(seedKlines("1m", 20).then(arr => ({id: "1m", arr})).catch(() => ({id: "1m", arr: null})));
+  const results = await Promise.all(jobs);
+  let any = false;
+  for (const r of results){
+    if (r.id === "1m"){ if (r.arr && r.arr.length){ setCandles(r.arr); any = true; } }
+    else if (r.arr && r.arr.length){ setViewKlines(r.id, r.arr); any = true; }
+  }
+  try { applyTicker24((await restAny("/api/v3/ticker/24hr?symbol=XRPUSDT")).data); any = true; } catch(e){}
+  if (!any) throw new Error("binance seed empty");
   return true;
 }
 async function seedCoinGecko(){
-  const d = await getJSON(CG + "/coins/ripple/market_chart?vs_currency=usd&days=1");
-  const pr = d.prices || [], cut = Date.now() - (WINDOW_MIN + MA_EXTRA) * 60e3;
-  const arr = pr.filter(p => p[0] >= cut).map(p => { const t = Math.floor(p[0]/60e3)*60e3; return {t, o: p[1], h: p[1], l: p[1], c: p[1]}; });
-  if (arr.length) setCandles(arr);
-  if (pr.length){ S.hi = Math.max(...pr.map(p => p[1])); S.lo = Math.min(...pr.map(p => p[1])); }
+  const d = await getJSON(CG + "/coins/ripple/market_chart?vs_currency=usd&days=30");
+  const pr = d.prices || [];
+  if (!pr.length) return;
+  const fold = interval => {
+    const out = [];
+    for (const p of pr){
+      const t = Math.floor(p[0] / interval) * interval, px = p[1], last = out[out.length - 1];
+      if (last && last.t === t){ last.h = Math.max(last.h, px); last.l = Math.min(last.l, px); last.c = px; }
+      else out.push({t, o: px, h: px, l: px, c: px});
+    }
+    return out;
+  };
+  const m1 = pr.filter(p => p[0] >= Date.now() - 20 * 60e3).map(p => { const t = Math.floor(p[0]/60e3)*60e3; return {t, o: p[1], h: p[1], l: p[1], c: p[1]}; });
+  if (m1.length) setCandles(m1);
+  for (const v of Object.values(VIEWS)){
+    if (viewSeries(v).length) continue;
+    const arr = fold(v.interval);
+    if (arr.length) setViewKlines(v.id, arr.slice(-v.keep));
+  }
+  S.hi = Math.max(...pr.map(p => p[1])); S.lo = Math.min(...pr.map(p => p[1]));
+  if (pr.length) onPrice(pr[pr.length - 1][1], pr[pr.length - 1][0]);
 }
 async function pollCoinGecko(usePrice){
   try {
@@ -690,10 +950,18 @@ function openWS(){
     sockets.push(ws);
   };
   mk("xrpusdt@ticker", d => { S.pct = +d.P; S.hi = +d.h; S.lo = +d.l; S.vol = +d.v; S.qvol = +d.q; onPrice(+d.c, d.E || Date.now()); });
+  const applyKline = (arr, c) => {
+    const last = arr[arr.length - 1];
+    if (last && last.t === c.t) Object.assign(last, c);
+    else if (!last || c.t > last.t) arr.push(c);
+    trimCandles(); chartDirty = true;
+  };
   mk("xrpusdt@kline_1m", d => { const k = d.k; if (!k) return;
-    const c = {t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v}, last = S.candles[S.candles.length-1];
-    if (last && last.t === c.t) Object.assign(last, c); else if (!last || c.t > last.t){ S.candles.push(c); trimCandles(); }
-    chartDirty = true; });
+    applyKline(S.candles, {t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v}); });
+  for (const v of Object.values(VIEWS)){
+    mk("xrpusdt@kline_" + v.tf, d => { const k = d.k; if (!k) return;
+      applyKline(viewSeries(v), {t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v}); });
+  }
   setTimeout(() => { if (!gotMsg && gen === wsGen) scheduleReconnect(false); }, 7000);
 }
 let reconnectT = null;
@@ -720,14 +988,15 @@ function startPolling(){
       clearInterval(restTimer); restTimer = null;
       const cg = async () => { if (await pollCoinGecko(true)) setSource("CoinGecko", "warn"); else setSource("offline · retrying...", "bad"); };
       cg(); cgTimer = setInterval(cg, 30000);
-      if (S.candles.length < 2) seedCoinGecko().catch(() => {});
+      if (!Object.values(VIEWS).some(v => viewSeries(v).length >= 2)) seedCoinGecko().catch(() => {});
     }
   };
   tick(); restTimer = setInterval(tick, 5000);
 }
 function stopPolling(){ clearInterval(restTimer); clearInterval(cgTimer); restTimer = cgTimer = null; }
 setInterval(() => { if (!document.hidden && S.mode === "ws" && Date.now() - S.lastTickAt > 45000) scheduleReconnect(true); }, 10000);
-setInterval(() => { if (!document.hidden && (S.mode !== "poll" || restTimer)) seedBinance().catch(() => {}); }, 30 * 60e3);
+setInterval(() => { if (!document.hidden) refreshKlines(false).catch(() => {}); }, 20e3);
+setInterval(() => { if (!document.hidden) refreshKlines(true).catch(() => {}); }, 3 * 60e3);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden){ parts.length = 0; return; }
   chartDirty = true; kick(); renderPrice();
@@ -750,9 +1019,10 @@ kick();
   if (SHOW_EUR){ eur(); setInterval(eur, 5 * 60e3); }
 })();
 
-/* ---------------- the crew (frog + 3 characters): one mood and one reaction for all four ---------------- */
+/* ---------------- Buddha frog: moods, speech bubble, motion (v18 engine, v22 bubble stays in the card) ---------------- */
 (function(){
-  const CR = $("crew"), BUB = $("bub");
+  const CR = $("mascot"), BUB = $("bub");
+  if (!CR || !BUB) return;
   const TXT = {pump: ["XRP UP!", "NICE MOVE", "LET'S GO"], dip: ["HODL", "STAY CALM", "BREATHE"],
                mile: ["NEW LEVEL", "OMMMM"], calm: ["NAMASTE", "BE WATER"]};
   const MOODS = {up: "XRP UP!", big: "XRP UP BIG!", down: "HODL", flat: "CHILL"};   // short, no promises
@@ -772,7 +1042,49 @@ kick();
     if (ch15 != null){ if (ch15 >= 0.6 && (m === "flat" || m === "down")) m = "up"; else if (ch15 <= -0.6 && m !== "down") m = "down"; }
     return m;
   }
-  function jump(){ CR.classList.remove("jump"); void CR.offsetWidth; CR.classList.add("jump"); clearTimeout(jump.t); jump.t = setTimeout(() => CR.classList.remove("jump"), 2200); }
+  const BODY = CR.querySelector(".body"), SWR = CR.querySelector(".swr"), POP = CR.querySelector(".pop");
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TGT = {flat: {br: 1,  bA: 0, bF: .7,  sA: .7,  wA: 0,   wF: 2.8, y0: 0, ln: 0},
+               up:   {br: 1,  bA: 4, bF: .8,  sA: 1.0, wA: 0,   wF: 2.8, y0: 0, ln: 0},
+               big:  {br: .8, bA: 7, bF: 1.1, sA: 1.3, wA: 0,   wF: 2.8, y0: 0, ln: 0},
+               down: {br: .7, bA: 0, bF: .7,  sA: .3,  wA: .9,  wF: 2.6, y0: 4, ln: -1.2},
+               pump: {br: .8, bA: 8, bF: 1.25,sA: 1.3, wA: 0,   wF: 2.8, y0: 0, ln: 0},
+               dip:  {br: .6, bA: 0, bF: .7,  sA: .2,  wA: 1.6, wF: 3.3, y0: 6, ln: -1.6},
+               mile: {br: 1,  bA: 5, bF: 1.0, sA: 1.0, wA: 0,   wF: 2.8, y0: 0, ln: 0}};
+  const cur = Object.assign({}, TGT.flat), ph = {br: 0, b: 0, s: 0, w: 0}, imp = [];
+  const target = () => { const t = (state !== "calm" && TGT[state]) || TGT[mood] || TGT.flat;
+    return reduced ? Object.assign({}, t, {br: 0, sA: 0, bA: 0, wA: 0}) : t; };
+  function impulse(k, opt){ if (imp.length >= 4) imp.shift(); imp.push(Object.assign({k, t0: performance.now(), d: 700, h: 22}, opt || {})); }
+  let lastF = performance.now(), lastTf = "";
+  function frame(now){
+    if (!BODY || reduced) return;
+    requestAnimationFrame(frame);
+    let dt = (now - lastF) / 1000; lastF = now; if (dt <= 0) return; if (dt > .25) dt = .25;
+    const T = target(), e = 1 - Math.exp(-dt / .7);
+    for (const k in cur) cur[k] += (T[k] - cur[k]) * e;
+    ph.br += dt * 2 * Math.PI / 4.6; ph.b += dt * Math.PI * cur.bF; ph.s += dt * 2 * Math.PI / 8.5; ph.w += dt * 2 * Math.PI * cur.wF;
+    for (const k in ph) if (ph[k] > 2000 * Math.PI) ph[k] -= 2000 * Math.PI;
+    const brS = (1 - Math.cos(ph.br)) / 2;
+    let x = 0, y = cur.y0 - 1.6 * cur.br * brS, rot = cur.ln + cur.sA * Math.sin(ph.s), sx = 1 + .006 * cur.br * brS, sy = 1 + .014 * cur.br * brS;
+    const b = Math.abs(Math.sin(ph.b)), sq = .03 * (cur.bA / 8) * Math.pow(1 - b, 6);
+    y -= cur.bA * b; sx += sq; sy -= sq;
+    rot += cur.wA * (.65 * Math.sin(ph.w) + .35 * Math.sin(1.73 * ph.w + 1.1)); x += cur.wA * 1.5 * Math.sin(1.31 * ph.w + .4);
+    for (let i = imp.length - 1; i >= 0; i--){
+      const I = imp[i], u = (now - I.t0) / I.d; if (u < 0) continue; if (u >= 1){ imp.splice(i, 1); continue; }
+      if (I.k === "hop"){
+        if (u < .14){ const q = Math.sin(Math.PI * u / .14) * .05; sy -= q; sx += q * .7; }
+        else if (u < .86){ const v = (u - .14) / .72, q = Math.sin(Math.PI * v); y -= I.h * q; sy += .03 * q; sx -= .015 * q; rot += (I.rot || -1.5) * q; }
+        else { const q = Math.sin(Math.PI * (u - .86) / .14) * .04; sy -= q; sx += q * .7; }
+      } else if (I.k === "flinch"){
+        const k2 = (1 - u) * (1 - u), w = Math.sin(2 * Math.PI * 5 * u);
+        x += 5 * k2 * w; rot += -1.8 * k2 * Math.sin(2 * Math.PI * 5 * u + .6); y += 4 * Math.sin(Math.PI * Math.min(1, u * 2)) * (1 - u);
+      }
+    }
+    const tf = "translate(" + x.toFixed(2) + "px," + y.toFixed(2) + "px) rotate(" + rot.toFixed(3) + "deg) scale(" + sx.toFixed(4) + "," + sy.toFixed(4) + ")";
+    if (tf !== lastTf){ lastTf = tf; BODY.style.transform = tf; if (SWR) SWR.style.transform = tf; }
+  }
+  requestAnimationFrame(frame);
+  function jump(){ const t = performance.now(); for (let i = 0; i < 3; i++) impulse("hop", {t0: t + i * 640, d: 620, h: 18}); }
   function set(s, ms){
     state = s; until = Date.now() + (ms || 0);
     CR.classList.remove("pump", "dip", "mile");
@@ -780,7 +1092,15 @@ kick();
     if (s !== "calm" && Date.now() > lockUntil) say(pick(TXT[s]), Math.min(ms || 8000, 8000));
     else if (MOOD_FORCE && mood) say(MOODS[mood], 1e9);
   }
-  window.__mascot = {set: (s, ms) => set(s, ms || 20000), setMood, jump, say: callSay, get state(){ return state; }, get mood(){ return mood; }};
+  let tradeAt = 0;
+  const popTxt = v => v >= 1e6 ? "+$" + (v / 1e6).toFixed(v >= 1e7 ? 0 : 1) + "M" : "+$" + Math.round(v / 1e3) + "K";
+  function trade(p){
+    const now = Date.now(); if (!p || now - tradeAt < 4000) return false; tradeAt = now;
+    if (p.sell) impulse("flinch", {d: 600});
+    else { impulse("hop", {d: 640, h: 16}); if (POP){ POP.textContent = popTxt(p.n); POP.classList.remove("go"); void POP.offsetWidth; POP.classList.add("go"); } }
+    return true;
+  }
+  window.__mascot = {set: (s, ms) => set(s, ms || 20000), setMood, jump, say: callSay, trade, get state(){ return state; }, get mood(){ return mood; }};
   if (MOOD_FORCE) setMood(MOOD_FORCE); else setMood("flat");
   const orig = showBanner;
   showBanner = function(kind, text, sub){
@@ -790,7 +1110,7 @@ kick();
     return orig(kind, text, sub);
   };
   const buf = [];
-  setInterval(() => {
+  function refreshMood(){
     const price = S.price, now = Date.now(); if (!(price > 0)) return;
     buf.push({t: now, p: price}); while (buf.length && now - buf[0].t > MOVE_WIN_MS) buf.shift();
     const ch = (price / buf[0].p - 1) * 100;
@@ -804,7 +1124,9 @@ kick();
       else if (state !== "calm" && Math.abs(ch) < MOVE_PCT) set("calm");
       else if (state !== "calm") until = now + 10000;
     }
-  }, 5000);
+  }
+  setTimeout(refreshMood, 1200);
+  setInterval(refreshMood, 5000);
 })();
 
 /* ---------------- coin strip: majors on Binance, XRPL meme market caps ---------------- */
@@ -971,7 +1293,7 @@ kick();
 (function(){
   const el = $("maCross"); if (!el) return;
   let sign = null, lastAt = 0, hideT = 0;
-  const maClosed = n => { const c = S.candles, e = c.length - 1; if (e < n) return null; let s = 0; for (let i = e - n; i < e; i++) s += c[i].c; return s / n; };
+  const maClosed = n => { const c = viewSeries(currentView()), e = c.length - 1; if (e < n) return null; let s = 0; for (let i = e - n; i < e; i++) s += c[i].c; return s / n; };
   function show(gold){
     el.textContent = gold ? "GOLDEN CROSS" : "DEATH CROSS";
     el.className = gold ? "gold" : "death";
@@ -986,6 +1308,7 @@ kick();
     sign = sg;
   };
   setInterval(check, 15000); setTimeout(check, 5000);
+  window.__maReset = () => { sign = null; };
   if (Q.get("crosstest") === "1"){ let g = true; setTimeout(() => { show(g); setInterval(() => { g = !g; show(g); }, 12000); }, 3000); }
   window.__cross = show;
 })();
@@ -1024,6 +1347,340 @@ if (DEMO){
     setTimeout(() => { fire(); setInterval(fire, 10000); }, 3000);
   }
 }
+/* ---------------- v22: 5M · 1 HOUR / 4H · 1 WEEK / 1D · 1 MONTH rotation ---------------- */
+(function chartRotation(){
+  const lbl = $("chartViewLbl"), wrap = $("chartView");
+  const tick = wrap && wrap.querySelector("#chartViewTick b");
+  const rotating = ROTATE && !VIEW_PIN;
+  if (wrap) wrap.classList.toggle("norot", !rotating);
+  let rotAt = 0;
+  function paintLabel(){
+    const v = currentView();
+    if (lbl && lbl.textContent !== v.label) lbl.textContent = v.label;
+  }
+  function setProgress(p){
+    if (!tick) return;
+    tick.style.transform = "scaleX(" + Math.max(0, Math.min(1, p)).toFixed(4) + ")";
+  }
+  function snapshotFade(){
+    if (!cvFade || !cv.width) return;
+    cxFade.setTransform(1, 0, 0, 1, 0, 0);
+    cxFade.clearRect(0, 0, cvFade.width, cvFade.height);
+    cxFade.drawImage(cv, 0, 0);
+    const r = devicePixelRatio || 1;
+    cxFade.setTransform(r, 0, 0, r, 0, 0);
+  }
+  function switchView(id, instant){
+    if (!VIEWS[id] || (S.view === id && !instant)) return;
+    if (!instant && viewReady(S.view) && cv.width){
+      snapshotFade();
+      cvFade.style.transition = "none";
+      cvFade.style.opacity = "1";
+      void cvFade.offsetWidth;
+    }
+    S.view = id;
+    if (window.__maReset) window.__maReset();
+    paintLabel();
+    drawChart();
+    chartDirty = false;
+    if (!instant && cvFade){
+      cvFade.style.transition = "opacity .4s ease";
+      cvFade.style.opacity = "0";
+    } else if (cvFade) cvFade.style.opacity = "0";
+  }
+  function pickNext(from){
+    const i = Math.max(0, ROT_ORDER.indexOf(from));
+    for (let k = 1; k <= ROT_ORDER.length; k++){
+      const id = ROT_ORDER[(i + k) % ROT_ORDER.length];
+      if (viewReady(id)) return id;
+    }
+    return from;
+  }
+  function tickRot(){
+    if (!rotating){ setProgress(0); return; }
+    if (!rotAt){ if (viewReady(S.view)) rotAt = Date.now(); setProgress(0); return; }
+    const elapsed = Date.now() - rotAt, period = ROT_SEC * 1000;
+    setProgress(elapsed / period);
+    if (elapsed >= period){
+      const n = pickNext(S.view);
+      if (n !== S.view) switchView(n);
+      rotAt = Date.now();
+      setProgress(0);
+    }
+  }
+  paintLabel();
+  setInterval(tickRot, 200);
+  window.__chartView = {
+    get id(){ return currentView().id; },
+    show(id, instant){ if (VIEWS[id] && (viewReady(id) || instant)){ switchView(id, !!instant); rotAt = Date.now(); } return currentView().id; }
+  };
+})();
+
+/* ---------------- XRPL 24h transaction count ---------------- */
+(function xrplTxns(){
+  const HOSTS = ["wss://xrplcluster.com", "wss://s2.ripple.com", "wss://s1.ripple.com"];
+  const METRICS = "https://api.xrpscan.com/api/v1/metrics/metric";
+  let seed = null, seedAt = 0, added = 0, addedFrom = 0, live = false, lastLedger = 0, lastMsg = 0;
+  function paint(){
+    const now = Date.now();
+    let v = null, mode = "warm";
+    if (seed != null && seedAt){
+      v = seed - seed * Math.min(1, (now - seedAt) / 86400e3) + added;
+      mode = "seed";
+    } else if (addedFrom && now - addedFrom >= 120e3 && added > 0){
+      v = added * (86400 / ((now - addedFrom) / 1000));
+      mode = "est";
+    }
+    S.xrplTx = v; S.xrplMode = mode;
+    const el = $("tcount"); if (el && el.textContent !== fmtXrpl()) el.textContent = fmtXrpl();
+  }
+  async function pollMetrics(){
+    try {
+      const arr = await getJSON(METRICS, 20000);
+      if (!arr || arr.length < 2) throw new Error("empty");
+      const today = arr[arr.length - 1], yday = arr[arr.length - 2];
+      const t0 = Date.parse(today.date);
+      const frac = Math.min(1, Math.max(0, (Date.now() - t0) / 86400e3));
+      const tc = +((today.metric || {}).transaction_count), yc = +((yday.metric || {}).transaction_count);
+      if (!isFinite(tc) || !isFinite(yc)) throw new Error("bad metric");
+      seed = tc + yc * (1 - frac); seedAt = Date.now(); added = 0; addedFrom = seedAt;
+      paint(); return true;
+    } catch(e){ return false; }
+  }
+  pollMetrics(); setInterval(pollMetrics, 15 * 60e3); setInterval(paint, 1000);
+  let ws = null, hostI = 0, fails = 0, retryT = 0, born = 0;
+  function connect(){
+    clearTimeout(retryT); retryT = 0;
+    if (ws){ try { ws.onclose = ws.onmessage = ws.onerror = null; ws.close(); } catch(e){} ws = null; }
+    let s; try { s = new WebSocket(HOSTS[hostI % HOSTS.length]); } catch(e){ return retry(false); }
+    ws = s; born = Date.now(); let got = false;
+    s.onopen = () => { try { s.send(JSON.stringify({command:"subscribe", streams:["ledger"]})); } catch(e){} };
+    s.onmessage = ev => {
+      let m; try { m = JSON.parse(ev.data); } catch(e){ return; }
+      if (!m || m.txn_count == null) return;
+      const idx = m.ledger_index, c = +m.txn_count;
+      if (!isFinite(c) || c < 0 || idx === lastLedger) return;
+      lastLedger = idx; if (!addedFrom) addedFrom = Date.now();
+      added += c; lastMsg = Date.now(); live = got = true; fails = 0;
+    };
+    s.onerror = () => {};
+    s.onclose = () => { if (ws === s) retry(got); };
+  }
+  function retry(had){
+    if (retryT) return; live = false;
+    if (ws){ try { ws.onclose = ws.onmessage = null; ws.close(); } catch(e){} ws = null; }
+    if (!had){ fails++; hostI++; }
+    retryT = setTimeout(connect, had ? 2000 : Math.min(60e3, 1000 * Math.pow(2, Math.min(fails, 6))));
+  }
+  setInterval(() => {
+    if (!ws || retryT) return;
+    const ref = lastMsg > born ? lastMsg : born;
+    if (Date.now() - ref > (lastMsg ? 30e3 : 12e3)) retry(!!lastMsg);
+  }, 5000);
+  connect();
+  window.__xrpl = {get value(){ return S.xrplTx; }, get mode(){ return S.xrplMode; }, get live(){ return live; }};
+})();
+
+/* ---------------- data panels: big trades, XRP/EUR, XRP/BTC, Fear & Greed ---------------- */
+(function dataPanels(){
+  const root = $("dataP"); if (!root) return;
+  if (Q.get("panels") === "0"){ root.remove(); return; }
+  const thrQ = parseFloat(Q.get("bigtrade"));
+  const BIG = isFinite(thrQ) && thrQ > 0 ? thrQ : 25000;
+  const money = v => v >= 1e9 ? "$" + (v/1e9).toFixed(2) + "B" : v >= 1e6 ? "$" + (v/1e6).toFixed(2) + "M" : v >= 1e3 ? "$" + (v/1e3).toFixed(v >= 1e5 ? 0 : 1) + "K" : "$" + v.toFixed(0);
+  const qty = v => v >= 1e6 ? (v/1e6).toFixed(2) + "M" : v >= 1e3 ? (v/1e3).toFixed(1) + "K" : v.toFixed(0);
+  const thr = v => money(v).replace(".0K", "K").replace(".00M", "M");
+  const pctTxt = v => (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
+  const setTxt = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+  const setCls = (el, c) => { if (el && el.className !== c) el.className = c; };
+  const rowsEl = $("dpTrows"), dot = $("dpTdot");
+  const title = $("dpTk"); if (title) title.textContent = "BIG TRADES ≥ " + thr(BIG) + " · 5 EXCHANGES";
+  const rowCap = () => window.__panelRows || (L.narrow ? 2 : 4);
+  const rows = [], queue = [];
+  const feeds = {};
+  let pend = null, pendT = 0, lastMsg = 0, everLive = false;
+  const anyLive = () => Object.keys(feeds).some(k => feeds[k].live);
+  function accept(p){
+    if (!p || !(p.n >= BIG)) return;
+    queue.push(p); const cap = rowCap(); if (queue.length > cap) queue.shift();
+  }
+  function flush(){ clearTimeout(pendT); pendT = 0; const p = pend; pend = null; accept(p); }
+  function onAgg(d){
+    const price = +d.p, q = +d.q, T = d.T, sell = !!d.m;
+    if (!(price > 0) || !(q > 0)) return;
+    if (pend && pend.T === T && pend.sell === sell){ pend.q += q; pend.n += price * q; pend.p = price; }
+    else { flush(); pend = {ex:"BIN", T: T, sell, q, n: price * q, p: price}; }
+    clearTimeout(pendT); pendT = setTimeout(flush, 350);
+  }
+  function onPub(ex, price, q, sell, ts){
+    if (!(price > 0) || !(q > 0)) return;
+    accept({ex, T: ts || Date.now(), sell: !!sell, q, n: price * q, p: price});
+  }
+  const ageTxt = t => { const s = Math.max(0, Math.round((Date.now() - t) / 1000)); return s < 60 ? s + "s" : s < 3600 ? Math.floor(s / 60) + "m" : Math.floor(s / 3600) + "h"; };
+  function addRow(p){
+    if (!rowsEl) return;
+    const el = document.createElement("div"); el.className = "tr flash " + (p.sell ? "s" : "b");
+    el.innerHTML = '<span class="sd"></span><span class="ex"></span><span class="am"><span class="nv"></span><span class="qx"></span></span><span class="ag"></span>';
+    el.children[0].textContent = p.sell ? "SELL" : "BUY";
+    el.children[1].textContent = p.ex || "BIN";
+    el.children[2].children[0].textContent = money(p.n);
+    el.children[2].children[1].textContent = qty(p.q) + " XRP @ " + p.p.toFixed(3);
+    const ag = el.children[3]; ag.textContent = ageTxt(p.T);
+    const em = rowsEl.querySelector(".empty"); if (em) em.remove();
+    rowsEl.prepend(el); rows.unshift({el, ag, t: p.T});
+    while (rows.length > rowCap()){ const r = rows.pop(); r.el.remove(); }
+    setTimeout(() => el.classList.remove("flash"), 1700);
+    if (window.__mascot && window.__mascot.trade) window.__mascot.trade(p);
+  }
+  setInterval(() => { const p = queue.shift(); if (p) addRow(p); }, 250);
+  function setEmpty(){
+    if (!rowsEl || rows.length) return;
+    let em = rowsEl.querySelector(".empty");
+    if (!em){ rowsEl.textContent = ""; em = document.createElement("div"); em.className = "empty"; rowsEl.appendChild(em); }
+    setTxt(em, anyLive() ? "waiting for " + thr(BIG) + "+ trades…" : "—");
+  }
+  function tradeFeed(name, urls, hello, onRaw, ping){
+    const st = feeds[name] = {live:false, ever:false, last:0, url:null};
+    let i = 0, fails = 0, ws = null, retryT = 0, born = 0, pingT = 0;
+    function stopPing(){ clearInterval(pingT); pingT = 0; }
+    function connect(){
+      clearTimeout(retryT); retryT = 0; stopPing();
+      if (ws){ try { ws.onclose = ws.onmessage = ws.onerror = null; ws.close(); } catch(e){} ws = null; }
+      const url = urls[i % urls.length];
+      let s; try { s = new WebSocket(url); } catch(e){ return retry(false); }
+      ws = s; st.url = url; born = Date.now(); let got = false;
+      s.binaryType = "arraybuffer";
+      s.onopen = () => {
+        try { if (hello){ const h = hello(); s.send(typeof h === "string" ? h : JSON.stringify(h)); } } catch(e){}
+        if (ping) pingT = setInterval(() => { try { if (s.readyState === 1) s.send(typeof ping === "string" ? ping : JSON.stringify(ping)); } catch(e){} }, 20000);
+      };
+      s.onmessage = ev => { Promise.resolve(onRaw(ev, s)).then(ok => { if (ok){ got = true; fails = 0; st.last = lastMsg = Date.now(); st.live = st.ever = true; } }).catch(() => {}); };
+      s.onerror = () => {};
+      s.onclose = () => { if (ws === s) retry(got); };
+    }
+    function retry(had){
+      if (retryT) return; st.live = false; stopPing();
+      if (ws){ try { ws.onclose = ws.onmessage = null; ws.close(); } catch(e){} ws = null; }
+      if (!had){ fails++; i++; }
+      retryT = setTimeout(connect, had ? 2000 : Math.min(60e3, 1000 * Math.pow(2, Math.min(fails, 6))));
+    }
+    setInterval(() => {
+      if (!ws || retryT) return;
+      const ref = st.last > born ? st.last : born;
+      if (Date.now() - ref > (st.last ? 30e3 : 12e3)) retry(!!st.last);
+    }, 5000);
+    connect();
+  }
+  function evText(ev){
+    const d = ev.data;
+    if (typeof d === "string") return Promise.resolve(d);
+    if (d instanceof ArrayBuffer) return Promise.resolve(new TextDecoder().decode(d));
+    if (d && typeof Blob !== "undefined" && d instanceof Blob) return d.text();
+    return Promise.resolve(String(d || ""));
+  }
+  function evJSON(ev){ return evText(ev).then(s => { try { return JSON.parse(s); } catch(e){ return null; } }); }
+  const B = {c: null, P: null, at: 0};
+  const onBtc = d => { const c = +d.c, P = +d.P; if (c > 0){ B.c = c; B.P = isFinite(P) ? P : null; B.at = Date.now(); } };
+  async function btcRest(){
+    try { const {data} = await restAny("/api/v3/ticker/24hr?symbol=XRPBTC"); onBtc({c: data.lastPrice, P: data.priceChangePercent}); } catch(e){}
+  }
+  btcRest(); setInterval(() => { if (Date.now() - B.at > 25e3) btcRest(); }, 30e3);
+  tradeFeed("BIN", WS_HOSTS.map(h => h + "/stream?streams=xrpusdt@aggTrade/xrpbtc@ticker"), null, ev => evJSON(ev).then(m => {
+    if (!m || !m.data) return false;
+    if (m.stream === "xrpusdt@aggTrade") onAgg(m.data); else if (m.stream === "xrpbtc@ticker") onBtc(m.data);
+    return true;
+  }));
+  tradeFeed("CB", ["wss://ws-feed.exchange.coinbase.com"],
+    () => ({type:"subscribe", product_ids:["XRP-USD"], channels:["matches"]}), ev => evJSON(ev).then(m => {
+      if (!m) return false;
+      if (m.type === "match" || m.type === "last_match"){
+        onPub("CB", +m.price, +m.size, String(m.side).toLowerCase() === "buy", m.time ? Date.parse(m.time) : Date.now());
+        return true;
+      }
+      return m.type === "subscriptions" || m.type === "heartbeat";
+    }));
+  tradeFeed("KRK", ["wss://ws.kraken.com/v2"],
+    () => ({method:"subscribe", params:{channel:"trade", symbol:["XRP/USD"]}}), ev => evJSON(ev).then(m => {
+      if (!m) return false;
+      if (m.channel === "trade" && Array.isArray(m.data)){
+        for (const d of m.data){
+          const price = +d.price, q = +(d.qty != null ? d.qty : d.q);
+          onPub("KRK", price, q, String(d.side).toLowerCase() === "sell", d.timestamp ? Date.parse(d.timestamp) : Date.now());
+        }
+        return true;
+      }
+      return m.method === "subscribe" || m.channel === "heartbeat";
+    }), {method:"ping"});
+  tradeFeed("BYB", ["wss://stream.bybit.com/v5/public/spot"],
+    () => ({op:"subscribe", args:["publicTrade.XRPUSDT"]}), ev => evJSON(ev).then(m => {
+      if (!m) return false;
+      if (m.topic && String(m.topic).indexOf("publicTrade") === 0 && Array.isArray(m.data)){
+        for (const d of m.data) onPub("BYB", +d.p, +d.v, String(d.S).toLowerCase() === "sell", d.T || Date.now());
+        return true;
+      }
+      return m.op === "subscribe" || m.op === "pong" || m.success === true;
+    }), {op:"ping"});
+  let upbitKrw = 0;
+  tradeFeed("UPB", ["wss://api.upbit.com/websocket/v1"],
+    () => JSON.stringify([{ticket:"tenbob-xrp"},{type:"trade", codes:["KRW-XRP"]}]), ev => evJSON(ev).then(m => {
+      if (!m) return false;
+      if (m.type === "trade" || m.code === "KRW-XRP"){
+        const krw = +m.trade_price, q = +m.trade_volume;
+        if (krw > 0) upbitKrw = krw;
+        const usdPx = S.price > 0 ? S.price : 0;
+        const fx = (upbitKrw > 0 && usdPx > 0) ? (upbitKrw / usdPx) : 0;
+        onPub("UPB", fx > 0 ? krw / fx : 0, q, String(m.ask_bid).toUpperCase() === "ASK", m.trade_timestamp || m.timestamp || Date.now());
+        return true;
+      }
+      return false;
+    }));
+  const F = {v: null, k: "", at: 0};
+  async function fng(){
+    let ok = false;
+    try {
+      const j = await getJSON("https://api.alternative.me/fng/?limit=1", 10000), d = j && j.data && j.data[0];
+      const v = d ? parseInt(d.value, 10) : NaN;
+      if (isFinite(v)){ F.v = Math.max(0, Math.min(100, v)); F.k = String(d.value_classification || ""); F.at = Date.now(); ok = true; }
+    } catch(e){}
+    setTimeout(fng, ok ? 3600e3 : 300e3);
+  }
+  fng();
+  const mV = $("dpMv"), mC = $("dpMc"), bV = $("dpBv"), bC = $("dpBc"), fV = $("dpFv"), fM = $("dpFm"), fP = $("dpF");
+  const fColor = v => v < 25 ? "dn" : v < 45 ? "fo" : v <= 55 ? "fn" : v < 75 ? "fg" : "up";
+  const FCOL = {dn: "#ff4d5e", fo: "#ff8a3d", fn: "#ffcf4d", fg: "#9be15d", up: "#22f08a"};
+  function render(){
+    const now = Date.now();
+    everLive = everLive || anyLive();
+    if (anyLive() && now - lastMsg > 15e3) Object.keys(feeds).forEach(k => { if (now - feeds[k].last > 15e3) feeds[k].live = false; });
+    setCls(dot, "dot " + (anyLive() ? "ok" : everLive && now - lastMsg < 120e3 ? "warn" : "bad"));
+    for (const r of rows) setTxt(r.ag, ageTxt(r.t));
+    setEmpty();
+    const fresh = !!(S.lastTickAt && now - S.lastTickAt < 5 * 60e3) || S.price != null;
+    const eurPx = (SHOW_EUR && fresh && S.price > 0 && S.eurRate) ? S.price * S.eurRate : null;
+    setTxt(mV, eurPx != null ? "€" + fmt(eurPx) : "—");
+    const pc = S.pct;
+    if (fresh && pc != null && isFinite(pc)){ setTxt(mC, pctTxt(pc)); setCls(mC, "dch " + (pc >= 0 ? "up" : "dn")); }
+    else { setTxt(mC, "—"); setCls(mC, "dch na"); }
+    const bOk = B.c != null && now - B.at < 5 * 60e3;
+    setTxt(bV, bOk ? B.c.toFixed(8) : "—");
+    if (bOk && B.P != null){ setTxt(bC, pctTxt(B.P)); setCls(bC, "dch " + (B.P >= 0 ? "up" : "dn")); }
+    else { setTxt(bC, "—"); setCls(bC, "dch na"); }
+    const fOk = F.v != null && now - F.at < 26 * 3600e3;
+    if (fV && fOk){
+      const c = fColor(F.v);
+      if (fV._v !== F.v + F.k){ fV._v = F.v + F.k; fV.textContent = ""; fV.append(document.createTextNode(String(F.v)));
+        const sm = document.createElement("small"); sm.style.color = FCOL[c]; sm.textContent = F.k; fV.append(sm); fV.style.color = FCOL[c]; }
+      if (fM){ const l = F.v + "%"; if (fM.style.left !== l) fM.style.left = l; }
+      if (fP && fP.classList.contains("nodata")) fP.classList.remove("nodata");
+    } else if (fV){
+      if (fV._v !== "-"){ fV._v = "-"; fV.textContent = "—"; fV.style.color = ""; }
+      if (fP && !fP.classList.contains("nodata")) fP.classList.add("nodata");
+    }
+  }
+  render(); setInterval(render, 1000);
+  window.__panels = {get rows(){ return rows.length; }, get live(){ return anyLive(); }, BIG};
+})();
+
 window.__xrp = S;
 window.__alert = (kind, text, sub) => showBanner(kind, text, sub);   // for testing in the browser console
 })();
