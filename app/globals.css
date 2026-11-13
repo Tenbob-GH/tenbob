@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #090a08;
+  color: #f4f6ea;
+}
+
+body {
+  min-height: 100vh;
+}
+
+::selection {
+  background: #d6ff4b;
+  color: #090a08;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #2c3220;
+  background: #090a08;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #d6ff4b;
+}
