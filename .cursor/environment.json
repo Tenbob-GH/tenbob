@@ -1,0 +1,16 @@
+{
+  "name": "Tenbob XRPL Hub (static site)",
+  "ports": [
+    {
+      "name": "web server",
+      "port": 8080
+    }
+  ],
+  "terminals": [
+    {
+      "name": "web",
+      "command": "python3 -m http.server 8080 --bind 0.0.0.0 --directory .",
+      "description": "Serves the static site (index.html + image assets) at http://localhost:8080. Edit files in the repo root and refresh the browser to see changes."
+    }
+  ]
+}
