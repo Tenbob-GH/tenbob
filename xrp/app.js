@@ -1,11 +1,13 @@
-/* TENBOB · XRP LIVE 24/7 - website page matching stream overlay v22.
+/* TENBOB · XRP LIVE 24/7 - website page matching stream overlay v24.
    No libraries, no API keys. Sounds are synthesized live with the Web Audio API; spoken callouts load only after sound is on.
    Data: Binance public websocket (data-stream.binance.vision, then 9443, then 443) for price + 5m/4h/1d klines,
          Binance REST (data-api.binance.vision / api.binance.com), CoinGecko last resort,
          big trades on Binance, Coinbase, Kraken, Bybit and Upbit, XRP/BTC, Fear & Greed,
          XRP Ledger 24h txn count (XRPScan + rippled), XRPL meme caps via DexScreener.
+   The LIVE 5M candle is its own 5-minute candle (v23). It does not follow the 5M / 4H / 1D rotation.
    Test options (URL):  ?demo=pump | dip | milestone | high | low | ticks    ?alerttest=1 | up | down    ?crosstest=1
-                        ?subtest=1    ?mood=up | big | down | flat    ?eur=0    ?view=5m|4h|1d    ?rotate=0    ?rotsec=N    ?panels=0 */
+                        ?subtest=1    ?mood=up | big | down | flat    ?eur=0    ?view=5m|4h|1d    ?rotate=0    ?rotsec=N    ?panels=0
+                        ?fng=0-100    force the Fear & Greed value (label follows the usual bands) */
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
@@ -83,6 +85,7 @@ function layout(){
   sizeCanvas($("fx"), innerWidth, innerHeight);
   fxc.setTransform(devicePixelRatio || 1, 0, 0, devicePixelRatio || 1, 0, 0);
   if (window.__fitCoins) window.__fitCoins();
+  if (window.__liveCandle) window.__liveCandle.render();
 }
 /* Fit the price into the hero column: left of the trades panel on desktop, left of the frog on phones.
    The live string is measured (tabular digits), so $1.0359, $10.0000 and $100.0000 each scale to that box. */
@@ -121,7 +124,7 @@ function fitHead(){
 }
 function sizeCanvas(c, w, h){ const r = devicePixelRatio || 1; c.width = Math.max(1, Math.round(w * r)); c.height = Math.max(1, Math.round(h * r)); }
 function sizeChart(){
-  const w = $("chartWrap"); L.chart = {w: Math.max(10, w.clientWidth), h: Math.max(10, w.clientHeight)};
+  const w = $("chartStage") || $("chartWrap"); L.chart = {w: Math.max(10, w.clientWidth), h: Math.max(10, w.clientHeight)};
   sizeCanvas($("chart"), L.chart.w, L.chart.h);
   const fade = $("chartFade"); if (fade) sizeCanvas(fade, L.chart.w, L.chart.h);
   chartDirty = true;
@@ -184,6 +187,7 @@ function onPrice(p, ts = Date.now()){
   }
   if (S.samples.length > 1200) S.samples.splice(0, S.samples.length - 900);
   renderPrice(); checkMove(); checkMilestone(p); checkHighLow(p); tickSound(p); chartDirty = true;
+  if (window.__liveCandle) window.__liveCandle.tick(p, ts);
 }
 function trimCandles(){
   while (S.candles.length > 20) S.candles.shift();
@@ -278,7 +282,7 @@ function nextBanner(){
   setTimeout(() => { el.className = ""; nextBanner(); }, move ? 5500 : 8100);
 }
 const fx = $("fx"), fxc = fx.getContext("2d"); let parts = [], fxDirty = false;
-function burstOrigin(){ const r = $("chartWrap").getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+function burstOrigin(){ const r = ($("chartStage") || $("chartWrap")).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
 function burst(kind, small){
   if (kind === "high" || kind === "low") return confetti(kind, small);
   const cols = kind === "pump" ? ["#16e08a","#7dffc4","#ffffff","#ffd23f"] :
@@ -324,6 +328,7 @@ function drawFx(){
 }
 
 /* ---------------- chart: v22 candlesticks + MA20/MA50 + live price tag + Dublin time axis ---------------- */
+/* The fixed LIVE 5M panel sits beside this canvas, so the price axis stays inside the chart stage. */
 const cv = $("chart"), cx = cv.getContext("2d"); let chartDirty = true;
 const cvFade = $("chartFade"), cxFade = cvFade.getContext("2d");
 const timeFmt = new Intl.DateTimeFormat("en-GB", {timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false});
@@ -1019,6 +1024,87 @@ document.addEventListener("visibilitychange", () => {
   if (Date.now() - S.lastTickAt > 60000) seedBinance().catch(() => {});
 });
 
+/* ---------------- v23: fixed LIVE 5M candle (own state; the 5M/4H/1D rotation does not touch it) ---------------- */
+(function liveCandle(){
+  const P = 5 * 60e3, el = $("liveCandle"), cvL = $("lcCv");
+  if (!el || !cvL) return;
+  const cl = cvL.getContext("2d");
+  const E = {o: $("lcO"), h: $("lcH"), l: $("lcL"), c: $("lcC"), pct: $("lcPct"), abs: $("lcAbs"), cd: $("lcCd"), bar: $("lcBar")};
+  const LC = {t: 0, o: null, h: null, l: null, c: null, seeded: false, ticks: 0};
+  let dirty = true, cw = 0, chh = 0;
+  function seedFromKline(){
+    const arr = S.klines["5m"] || [], k = arr[arr.length - 1];
+    if (!k || k.t !== LC.t || !(k.o > 0)) return;
+    if (k.o !== LC.o){ LC.o = k.o; dirty = true; }
+    LC.seeded = true;
+    if (k.h > LC.h){ LC.h = k.h; dirty = true; }
+    if (k.l < LC.l){ LC.l = k.l; dirty = true; }
+  }
+  function clampRange(){
+    if (LC.o == null) return;
+    const h = Math.max(LC.h, LC.o, LC.c), l = Math.min(LC.l, LC.o, LC.c);
+    if (h !== LC.h || l !== LC.l){ LC.h = h; LC.l = l; dirty = true; }
+  }
+  function roll(m, p){ LC.t = m; LC.o = LC.h = LC.l = LC.c = p; LC.seeded = false; dirty = true; }
+  function tick(p, ts){
+    if (!(p > 0)) return;
+    const m = Math.floor((ts || Date.now()) / P) * P;
+    if (m > LC.t || LC.o == null) roll(m, p);
+    else if (m < LC.t) return;
+    LC.c = p; if (p > LC.h) LC.h = p; if (p < LC.l) LC.l = p; LC.ticks++;
+    seedFromKline(); clampRange();
+    dirty = true;
+  }
+  const f4 = v => v == null ? "--" : "$" + fmt(v);
+  function drawCandle(){
+    const r = devicePixelRatio || 1, w = cvL.clientWidth, h = cvL.clientHeight;
+    if (!(w > 2) || !(h > 2)) return;
+    if (w !== cw || h !== chh){ cw = w; chh = h; cvL.width = Math.max(1, Math.round(w * r)); cvL.height = Math.max(1, Math.round(h * r)); cl.setTransform(r, 0, 0, r, 0, 0); }
+    cl.clearRect(0, 0, w, h);
+    if (LC.o == null) return;
+    const up = LC.c >= LC.o, col = up ? "#19f08f" : "#ff4d5e";
+    let lo = LC.l, hi = LC.h;
+    const minR = LC.o * 0.0012;
+    if (hi - lo < minR){ const mid = (hi + lo) / 2; hi = mid + minR / 2; lo = mid - minR / 2; }
+    const pad = 8, Y = v => pad + (hi - v) / (hi - lo) * (h - 2 * pad), x = w / 2;
+    cl.save(); cl.setLineDash([3, 5]); cl.lineWidth = 1; cl.strokeStyle = "rgba(230,241,238,.28)";
+    const yo = Math.round(Y(LC.o)) + 0.5; cl.beginPath(); cl.moveTo(0, yo); cl.lineTo(w, yo); cl.stroke(); cl.restore();
+    cl.save(); cl.shadowColor = up ? "rgba(25,240,143,.55)" : "rgba(255,77,94,.55)"; cl.shadowBlur = 14;
+    cl.strokeStyle = cl.fillStyle = col; cl.lineWidth = 3; cl.lineCap = "butt";
+    cl.beginPath(); cl.moveTo(x, Y(LC.h)); cl.lineTo(x, Y(LC.l)); cl.stroke();
+    const bw = Math.max(16, Math.min(40, w * 0.62)), y1 = Math.min(Y(LC.o), Y(LC.c)), y2 = Math.max(Y(LC.o), Y(LC.c));
+    cl.fillRect(x - bw / 2, y1, bw, Math.max(3, y2 - y1));
+    cl.restore();
+  }
+  function render(){
+    const now = Date.now(), m = Math.floor(now / P) * P;
+    if (LC.o != null && m > LC.t && S.price > 0) roll(m, S.price);
+    if (LC.o != null){ seedFromKline(); clampRange(); }
+    const left = Math.max(0, LC.t + P - now), sec = Math.ceil(left / 1000);
+    const cd = String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
+    if (E.cd) E.cd.textContent = LC.o == null ? "--:--" : cd;
+    if (E.bar) E.bar.style.transform = "scaleX(" + (LC.o == null ? 0 : (1 - left / P)).toFixed(4) + ")";
+    const w = cvL.clientWidth, h = cvL.clientHeight;
+    if (!dirty && w === cw && h === chh) return;
+    dirty = false;
+    const up = LC.o == null || LC.c >= LC.o;
+    el.classList.toggle("up", up); el.classList.toggle("dn", !up);
+    if (E.o) E.o.textContent = f4(LC.o);
+    if (E.h) E.h.textContent = f4(LC.h);
+    if (E.l) E.l.textContent = f4(LC.l);
+    if (E.c) E.c.textContent = f4(LC.c);
+    if (LC.o != null && E.pct && E.abs){
+      const d = LC.c - LC.o, pc = d / LC.o * 100, sg = d >= 0 ? "+" : "\u2212";
+      E.pct.textContent = (d >= 0 ? "\u25B2 " : "\u25BC ") + sg + Math.abs(pc).toFixed(2) + "%";
+      E.abs.textContent = sg + "$" + Math.abs(d).toFixed(4) + " since open";
+    }
+    drawCandle();
+  }
+  setInterval(render, 250);
+  if (S.price > 0) tick(S.price, Date.now());
+  window.__liveCandle = {tick, get state(){ return Object.assign({}, LC); }, render};
+})();
+
 /* ---------------- boot ---------------- */
 layout();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
@@ -1651,7 +1737,11 @@ if (DEMO){
       return false;
     }));
   const F = {v: null, k: "", at: 0};
+  const fngForce = (() => { const v = parseInt(Q.get("fng"), 10); return isFinite(v) ? Math.max(0, Math.min(100, v)) : null; })();
+  const fngName = v => v < 25 ? "Extreme Fear" : v < 45 ? "Fear" : v <= 55 ? "Neutral" : v < 75 ? "Greed" : "Extreme Greed";
+  if (fngForce != null){ F.v = fngForce; F.k = fngName(F.v); F.at = Date.now(); }
   async function fng(){
+    if (fngForce != null) return;
     let ok = false;
     try {
       const j = await getJSON("https://api.alternative.me/fng/?limit=1", 10000), d = j && j.data && j.data[0];

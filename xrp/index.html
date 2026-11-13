@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 <style>html,body{background:#03070a;color:#fff}</style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J19MRHCP3"></script>
 <script>
@@ -83,11 +83,21 @@
     </div>
 
     <div id="chartWrap">
-      <canvas id="chart" aria-hidden="true"></canvas>
-      <canvas id="chartFade" aria-hidden="true"></canvas>
-      <div id="maCross" aria-hidden="true"></div>
-      <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
-      <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
+      <div id="chartStage">
+        <canvas id="chart" aria-hidden="true"></canvas>
+        <canvas id="chartFade" aria-hidden="true"></canvas>
+        <div id="maCross" aria-hidden="true"></div>
+        <div id="banner" aria-live="polite"><div class="band" id="bannerText"></div></div>
+        <div id="flash" aria-live="polite"><div class="fband"><span class="ftag" id="flashTag"></span><span class="ftxt" id="flashText"></span></div></div>
+      </div>
+      <div id="liveCandle" class="up" aria-label="Live 5 minute candle">
+        <div class="lh"><span class="lk"><i aria-hidden="true"></i>LIVE 5M</span><span class="cd" id="lcCd">--:--</span></div>
+        <div class="lb"><canvas id="lcCv" aria-hidden="true"></canvas><div class="ohlc">
+          <div class="r"><b>O</b><span id="lcO">--</span></div><div class="r"><b>H</b><span id="lcH">--</span></div>
+          <div class="r"><b>L</b><span id="lcL">--</span></div><div class="r"><b>C</b><span id="lcC">--</span></div></div></div>
+        <div class="lf"><span class="lp" id="lcPct">--</span><span class="ld" id="lcAbs">--</span></div>
+        <i class="bar" aria-hidden="true"><b id="lcBar"></b></i>
+      </div>
     </div>
   </main>
 
@@ -123,7 +133,7 @@
 
 <canvas id="fx" aria-hidden="true"></canvas>
 <noscript><div id="noscript">Please enable JavaScript to see the live XRP price.</div></noscript>
-<script src="app.js?v=22"></script>
+<script src="app.js?v=24"></script>
 <script src="music.js?v=22"></script>
 </body>
 </html>
