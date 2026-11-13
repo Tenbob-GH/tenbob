@@ -1,4 +1,4 @@
-/* Tenbob XRP live price (v22 card: full-width candles, MA20/MA50, 5M/4H/1D, frog inside the card). */
+/* Tenbob XRP live price (v24 card: v22 chart plus a fixed LIVE 5M candle and a Fear & Greed gauge that keeps its bar). */
 :root{
   --bg:#03070a; --card:#03070a; --bd:#1b2a35; --box:#0a1218; --txt:#e6f1ee; --mute:#93a7a3;
   --ng:#22f08a; --nr:#ff4d5e; --amber:#ffcf4d; --gold:#ffd23f; --accent:#23c4ff;
@@ -94,8 +94,11 @@ html:fullscreen #homeBtn,html:-webkit-full-screen #homeBtn,body.isfs #homeBtn{di
 #dataP .na{color:var(--mute)!important}
 #dataP .up{color:var(--ng)} #dataP .dn{color:var(--nr)}
 #dpM{grid-column:2;grid-row:1} #dpB{grid-column:2;grid-row:2} #dpF{grid-column:2;grid-row:3}
-#dpF .dv{display:flex;align-items:center}
-#dpF .bar{position:relative;flex:1 1 auto;margin-left:10px;min-width:28px;height:8px;border-radius:4px;
+/* v24: the number and its classification stack on the left. The gauge keeps a reserved width and cannot shrink, so a long label such as "Extreme Fear" cannot push it out of the panel. */
+#dataP #dpF .dv{display:flex;align-items:center;min-width:0;max-width:100%;margin-top:calc(4px * var(--k));overflow:visible;white-space:normal;text-overflow:clip}
+#dpF #dpFv{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1}
+#dpF #dpFv small{display:block;margin-left:0;margin-top:2px;font-size:clamp(11px, calc(13px * var(--k)), 14px);line-height:1.15;font-weight:800;letter-spacing:0;white-space:normal}
+#dpF .bar{position:relative;flex:1 0 72px;margin-left:12px;min-width:72px;height:8px;border-radius:4px;
   background:linear-gradient(90deg,#ff4d5e 0%,#ff8a3d 25%,#ffcf4d 50%,#9be15d 75%,#22f08a 100%);opacity:.9}
 #dpF .bar i{position:absolute;top:-5px;width:4px;height:18px;margin-left:-2px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px #03070a;left:50%;transition:left .8s}
 #dpF.nodata .bar i{display:none}
@@ -152,9 +155,34 @@ html:fullscreen #homeBtn,html:-webkit-full-screen #homeBtn,body.isfs #homeBtn{di
 @keyframes nBoxHi{0%,100%{transform:scale(1);border-color:var(--bd)}45%{transform:scale(1.05);border-color:var(--ng)}}
 @keyframes nBoxLo{0%,100%{transform:scale(1);border-color:var(--bd)}45%{transform:scale(1.05);border-color:var(--nr)}}
 
-/* ---- chart + alerts ---- */
-#chartWrap{position:relative;flex:1 1 auto;min-height:120px;margin-top:calc(10px * var(--k))}
+/* ---- chart + fixed LIVE 5M candle (v23/v24: stays put while the main chart rotates) ---- */
+#chartWrap{position:relative;flex:1 1 auto;min-height:120px;min-width:0;margin-top:calc(10px * var(--k));
+  display:flex;align-items:stretch;gap:clamp(10px, calc(16px * var(--k)), 18px)}
+#chartStage{position:relative;flex:1 1 auto;min-width:0;min-height:0}
 #chart,#chartFade{position:absolute;inset:0;width:100%;height:100%;display:block}
+#liveCandle{position:relative;z-index:6;box-sizing:border-box;flex:0 0 clamp(196px, calc(250px * var(--k)), 260px);
+  width:clamp(196px, calc(250px * var(--k)), 260px);min-width:0;align-self:stretch;overflow:hidden;
+  display:flex;flex-direction:column;padding:calc(12px * var(--k)) calc(14px * var(--k)) 16px;
+  background:var(--box);border:2px solid var(--bd);border-radius:calc(16px * var(--k));font-family:var(--mono);color:var(--txt)}
+#liveCandle .lh{display:flex;align-items:center;justify-content:space-between;height:calc(20px * var(--k));flex:0 0 auto;gap:8px}
+#liveCandle .lk{display:flex;align-items:center;gap:8px;font-size:clamp(12px, calc(17px * var(--k)), 17px);line-height:1;font-weight:700;letter-spacing:.06em;color:var(--mute);white-space:nowrap}
+#liveCandle .lk i{width:10px;height:10px;border-radius:50%;background:var(--ng);box-shadow:0 0 8px rgba(34,240,138,.7);animation:lcDot 1.6s ease-in-out infinite;flex:0 0 auto}
+#liveCandle.dn .lk i{background:var(--nr);box-shadow:0 0 8px rgba(255,77,94,.7)}
+#liveCandle .cd{font-size:clamp(13px, calc(20px * var(--k)), 20px);line-height:1;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums}
+#liveCandle .lb{flex:1 1 auto;display:flex;gap:clamp(8px, calc(12px * var(--k)), 12px);min-height:0;margin-top:calc(8px * var(--k))}
+#lcCv{flex:0 0 clamp(48px, calc(68px * var(--k)), 68px);width:clamp(48px, calc(68px * var(--k)), 68px);height:100%;display:block}
+#liveCandle .ohlc{flex:1 1 auto;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:2px 0}
+#liveCandle .r{display:flex;align-items:baseline;justify-content:space-between;gap:6px;white-space:nowrap}
+#liveCandle .r b{font-size:clamp(11px, calc(15px * var(--k)), 15px);line-height:1;font-weight:700;letter-spacing:.06em;color:var(--mute)}
+#liveCandle .r span{font-size:clamp(13px, calc(21px * var(--k)), 21px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums;color:var(--txt)}
+#liveCandle .lf{flex:0 0 auto;margin-top:calc(8px * var(--k));padding-top:calc(8px * var(--k));border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:calc(4px * var(--k))}
+#liveCandle .lp{font-size:clamp(16px, calc(28px * var(--k)), 28px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+#liveCandle .ld{font-size:clamp(11px, calc(17px * var(--k)), 17px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+#liveCandle.up .lp,#liveCandle.up .ld{color:#19f08f;text-shadow:0 0 14px rgba(25,240,143,.35)}
+#liveCandle.dn .lp,#liveCandle.dn .ld{color:#ff4d5e;text-shadow:0 0 14px rgba(255,77,94,.35)}
+#liveCandle .bar{position:absolute;left:calc(14px * var(--k));right:calc(14px * var(--k));bottom:6px;height:3px;background:rgba(230,241,238,.14);border-radius:2px;overflow:hidden}
+#liveCandle .bar b{display:block;width:100%;height:100%;background:rgba(230,241,238,.55);transform:scaleX(0);transform-origin:left center}
+@keyframes lcDot{0%,100%{opacity:1}50%{opacity:.35}}
 #chartFade{opacity:0;pointer-events:none}
 #maCross{position:absolute;left:0;bottom:4px;z-index:6;pointer-events:none;padding:.25em .75em;border-radius:999px;font:900 calc(18px * var(--k) + 4px)/1.2 var(--mono);
   letter-spacing:1px;white-space:nowrap;background:rgba(5,8,16,.86);border:2px solid currentColor;opacity:0;transition:opacity .5s}
@@ -244,7 +272,7 @@ body.narrow #head{display:block;min-height:0}
 body.narrow #hero{padding-right:96px}
 body.narrow #pair{font-size:13px;line-height:1.3;letter-spacing:.08em}
 body.narrow #price{margin-top:2px;font-size:clamp(28px, 12vw, 52px)}
-body.narrow #dataP{margin-top:8px;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:6px}
+body.narrow #dataP{margin-top:8px;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px}
 body.narrow #dpT{grid-column:1 / -1;grid-row:auto;min-height:58px;padding:7px 8px 0}
 body.narrow #dpT .dk{font-size:10px}
 body.narrow #dpT .empty{font-size:12px;min-height:22px}
@@ -252,11 +280,17 @@ body.narrow #dpT .tr .nv{font-size:13px}
 body.narrow #dpT .tr .qx{font-size:10px}
 body.narrow #dpT .tr .sd{font-size:10px;min-width:2.6em}
 body.narrow #dpT .tr .ex,#dpT .tr .ag{font-size:10px}
-body.narrow #dpM,body.narrow #dpB,body.narrow #dpF{grid-column:auto;grid-row:auto;padding:6px 7px 6px}
+body.narrow #dpM,body.narrow #dpB{grid-column:auto;grid-row:auto;padding:6px 7px 6px}
+body.narrow #dpF{grid-column:1 / -1;grid-row:auto;padding:8px 10px 8px}
 body.narrow #dataP .mini .dk{font-size:9px;letter-spacing:.02em}
 body.narrow #dataP .mini .dch{font-size:10px}
 body.narrow #dataP .mini .dv{margin-top:3px;font-size:12px}
-body.narrow #dpF .bar{height:5px;margin-left:4px} body.narrow #dpF .bar i{top:-3px;height:11px}
+body.narrow #dataP #dpF .dv{margin-top:4px;align-items:center}
+body.narrow #dpF .dk{font-size:11px;letter-spacing:.04em}
+body.narrow #dpF #dpFv{font-size:22px;line-height:1}
+body.narrow #dpF #dpFv small{font-size:12px;line-height:1.15;margin-top:2px;white-space:nowrap}
+body.narrow #dpF .bar{flex:1 0 72px;min-width:72px;height:8px;margin-left:12px}
+body.narrow #dpF .bar i{top:-4px;height:16px}
 body.narrow #mascot{position:absolute;right:0;top:18px;width:72px;height:100px;min-height:0}
 body.narrow #mascot .fclip,body.narrow #mascot .swr{height:72px;top:auto}
 body.narrow #mascot .bub{font-size:10px;letter-spacing:0;padding:3px 6px;border-width:2px;max-width:148px;white-space:normal;text-align:center;line-height:1.15;right:0;top:0}
@@ -265,7 +299,25 @@ body.narrow #hl .box,body.narrow #chartView{padding:0 8px;min-height:46px;gap:6p
 body.narrow #hl .k{font-size:11px}
 body.narrow #hl .v,body.narrow #chartViewLbl{font-size:13px}
 body.narrow #chartViewTick{left:8px;right:8px;bottom:4px}
-body.narrow #chartWrap{margin-top:8px;min-height:210px;flex:1 0 210px}
+body.narrow #chartWrap{margin-top:8px;min-height:0;flex:1 0 auto;flex-direction:column;gap:8px}
+body.narrow #chartStage{order:1;min-height:210px;flex:1 0 210px}
+body.narrow #liveCandle{order:0;width:100%;flex:0 0 auto;height:auto;align-self:stretch;
+  display:grid;grid-template-columns:64px minmax(0,1fr) auto;grid-template-areas:"head head head" "cv ohlc chg";
+  column-gap:10px;row-gap:6px;padding:8px 10px 14px;border-radius:12px}
+body.narrow #liveCandle .lh{grid-area:head;height:auto}
+body.narrow #liveCandle .lb{display:contents}
+body.narrow #lcCv{grid-area:cv;width:64px;height:72px;flex:none}
+body.narrow #liveCandle .ohlc{grid-area:ohlc;padding:0;justify-content:space-between}
+body.narrow #liveCandle .lf{grid-area:chg;margin:0;padding:0 0 0 8px;border-top:0;border-left:1px solid rgba(255,255,255,.07);
+  justify-content:center;align-items:flex-end;gap:4px}
+body.narrow #liveCandle .lk{font-size:12px;gap:6px}
+body.narrow #liveCandle .lk i{width:8px;height:8px}
+body.narrow #liveCandle .cd{font-size:14px}
+body.narrow #liveCandle .r b{font-size:11px}
+body.narrow #liveCandle .r span{font-size:13px}
+body.narrow #liveCandle .lp{font-size:16px}
+body.narrow #liveCandle .ld{font-size:11px}
+body.narrow #liveCandle .bar{left:10px;right:10px;bottom:5px}
 body.narrow #banner .band,body.narrow #flash .ftxt{white-space:normal;text-align:center}
 body.narrow #banner .band{border-width:3px}
 body.narrow #flash .fband{border-width:3px}
@@ -290,6 +342,6 @@ body.short #foot{display:none}
 body.short #app{gap:6px}
 
 @media (prefers-reduced-motion:reduce){
-  #sndBtn,#ytBtn .live,#subCard .sbell,#mascot .fx{animation:none!important}
+  #sndBtn,#ytBtn .live,#subCard .sbell,#mascot .fx,#liveCandle .lk i{animation:none!important}
   #mascot .body,#mascot .swr{transform:none!important}
 }
